@@ -3,74 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Peter the Possum Man | ptpm-app (Dev)</title>
-
-  <!-- ========== MOCK DATA (dev only) ========== -->
-  <script src="./mock-data.js"></script>
-
-  <!-- ========== SIMULATED ONTRAPORT HEADER ========== -->
-  <!-- In production, these values come from Ontraport merge fields in header code -->
-  <script>
-    window.AppConfig = window.AppConfig || {};
-    if (window.__ONTRAPORT_MOCK__) {
-      Object.assign(window.AppConfig, {
-        SLUG: 'peterpm',
-        API_KEY: window.__MOCK_API_KEY__ || '',
-        CONTACT_ID: window.__MOCK_CONTACT_ID__ || '',
-        DEBUG: true,
-      });
-    }
-  </script>
-
-  <!-- Tailwind CSS CDN -->
+  <title>PTPM | Dev Landing Page</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- VitalSync SDK -->
-  <script async data-chunk="client"
-    src="https://static-au03.vitalstats.app/static/sdk/v1/latest.js"
-    crossorigin="anonymous"></script>
-
-  <!-- VitalStats Dynamic List SDK (for Ontraport dynamic lists) -->
-  <script async
-    src="https://static-au03.vitalstats.app/static/dynamic-list/v1/latest.js"
-    crossorigin="anonymous"></script>
-
-  <!-- Custom Styles -->
-  <link rel="stylesheet" href="../src/css/styles.css">
-
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body>
-  <!-- ========== DEV BANNER ========== -->
-  <div id="dev-banner" style="background:#fff3cd;padding:8px 16px;font-size:12px;text-align:center;font-family:monospace;">
-    DEV MODE — Simulating Ontraport page environment
-  </div>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+  <div class="max-w-2xl mx-auto px-6 py-16">
+    <div class="text-center mb-10">
+      <h1 class="text-2xl font-bold text-[#003882]">Peter the Possum &amp; Bird Man</h1>
+      <p class="text-sm text-slate-500 mt-1">ptpm-app &mdash; Dev Pages</p>
+      <div class="mt-2 inline-block bg-amber-100 text-amber-800 text-xs font-mono px-3 py-1 rounded">DEV MODE</div>
+    </div>
 
-  <!-- ========== SIMULATED ONTRAPORT BODY ========== -->
-  <!-- In production, this HTML goes into Ontraport page body HTML blocks -->
-  <div id="app-root" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <div id="app-loading" class="flex items-center justify-center py-20">
-      <div class="text-center">
-        <div class="loading-spinner mx-auto mb-4"></div>
-        <p class="text-sm text-gray-500">Loading...</p>
-      </div>
+    <div class="space-y-3">
+      <h2 class="text-sm font-semibold text-slate-600 uppercase tracking-wider">Admin Pages</h2>
+      <a href="./dashboard.html" class="block bg-white rounded-lg border border-slate-200 px-5 py-4 hover:border-[#003882] hover:shadow-md transition">
+        <div class="font-semibold text-slate-800">Dashboard</div>
+        <div class="text-sm text-slate-500 mt-1">Inquiries, Quotes, Jobs, Payments, Active Jobs, Urgent Calls</div>
+      </a>
+      <a href="./new-inquiry.html" class="block bg-white rounded-lg border border-slate-200 px-5 py-4 hover:border-[#003882] hover:shadow-md transition">
+        <div class="font-semibold text-slate-800">New Inquiry</div>
+        <div class="text-sm text-slate-500 mt-1">Contact search, property, Google Places, file upload</div>
+      </a>
+      <a href="./job-detail.html" class="block bg-white rounded-lg border border-slate-200 px-5 py-4 hover:border-[#003882] hover:shadow-md transition">
+        <div class="font-semibold text-slate-800">Job Detail</div>
+        <div class="text-sm text-slate-500 mt-1">Multi-step job form: info, activities, materials, uploads, invoice</div>
+      </a>
+      <a href="./notification.html" class="block bg-white rounded-lg border border-slate-200 px-5 py-4 hover:border-[#003882] hover:shadow-md transition">
+        <div class="font-semibold text-slate-800">Notifications</div>
+        <div class="text-sm text-slate-500 mt-1">Notification list with tab filtering, read/unread toggling, mark-all-as-read</div>
+      </a>
+
+      <h2 class="text-sm font-semibold text-slate-600 uppercase tracking-wider pt-4">Other Sub-Apps</h2>
+      <a href="./inquiry-detail.html" class="block bg-white rounded-lg border border-slate-200 px-5 py-4 hover:border-[#003882] hover:shadow-md transition">
+        <div class="font-semibold text-slate-800">Inquiry Detail (Alpine.js)</div>
+        <div class="text-sm text-slate-500 mt-1">Full inquiry detail with timeline, tasks, communication, quotes, activities</div>
+      </a>
+      <a href="./sp-dashboard.html" class="block bg-white rounded-lg border border-slate-200 px-5 py-4 hover:border-[#003882] hover:shadow-md transition">
+        <div class="font-semibold text-slate-800">Service Provider Portal (Alpine.js)</div>
+        <div class="text-sm text-slate-500 mt-1">SP dashboard, inquiries, jobs, quotes, payments, appointments, materials, profile</div>
+      </a>
     </div>
-    <div id="app-content" class="hidden">
-      <!-- App content rendered by JS -->
-    </div>
-    <div id="app-error" class="hidden text-center py-20">
-      <p class="text-red-600 font-semibold">Something went wrong.</p>
-      <p class="text-sm text-gray-500 mt-2">Please refresh the page.</p>
+
+    <div class="mt-10 text-center text-xs text-slate-400">
+      <p>Run <code class="bg-slate-200 px-1 py-0.5 rounded text-slate-600">npm run dev</code> to start the Vite dev server</p>
     </div>
   </div>
-
-  <!-- ========== SIMULATED ONTRAPORT FOOTER ========== -->
-  <script src="../src/js/config.js"></script>
-  <script src="../src/js/utils.js"></script>
-  <script src="../src/js/vitalsync.js"></script>
-  <script src="../src/js/app.js"></script>
 </body>
 </html>

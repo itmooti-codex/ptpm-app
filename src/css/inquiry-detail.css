@@ -1,0 +1,121 @@
+[x-cloak] {
+  display: none !important;
+}
+body {
+  font-family: "Inter", sans-serif !important;
+}
+.f-inter {
+  font-family: "Inter", sans-serif !important;
+}
+* {
+  line-height: normal !important;
+}
+.customInput {
+  height: unset !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.customInputTextWrapper {
+  padding: 8px 10px !important;
+  border: 1px solid #d3d7e2 !important;
+  border-radius: 4px !important;
+  &:focus,
+  &:active,
+  &:hover {
+    border: 1px solid #0391fc !important;
+  }
+  input {
+    height: unset !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+    margin: 0 !important;
+    color: black !important;
+  }
+}
+.customInputTextWrapperDisabled {
+  padding: 8px 10px !important;
+  border: 1px solid #d3d7e2 !important;
+  border-radius: 4px !important;
+  pointer-events: none !important;
+  opacity: 50% !important;
+  input {
+    height: unset !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+    margin: 0 !important;
+  }
+}
+
+.customSelect {
+  padding: 10.5px 10px !important;
+  border: 1px solid #d3d7e2 !important;
+  border-radius: 4px !important;
+  height: unset !important;
+  box-shadow: none !important;
+  outline: none !important;
+  margin: 0 !important;
+  display: block !important;
+  appearance: none !important;
+  color: black !important;
+  option {
+    color: black !important;
+  }
+}
+
+textarea {
+  color: black !important;
+}
+
+.opt-container {
+  display: none !important;
+}
+
+[type="checkbox"]:checked,
+[type="checkbox"]:not(:checked) {
+  opacity: 100% !important;
+  pointer-events: all !important;
+  position: relative !important;
+}
+
+[type="checkbox"] + span:not(.lever):before,
+[type="checkbox"]:not(.filled-in) + span:not(.lever):after {
+  display: none !important;
+}
+/* Hide inquiry-only cards when no inquiry id/uid is present */
+.no-inquiry .hideIfNoInquiry {
+  display: none !important;
+}
+
+/* Disable interactive inquiry-only controls when no inquiry id/uid exists */
+.no-inquiry .disableIfNoInquiry {
+  pointer-events: none !important;
+  opacity: 0.6;
+}
+
+.no-inquiry .inquiry-layout {
+  flex-direction: column;
+}
+
+.no-inquiry .inquiry-column,
+.no-inquiry .property-column {
+  width: 100% !important;
+}
+
+/* Property missing state */
+.showIfNoProperty {
+  display: none;
+}
+.no-property .showIfNoProperty {
+  display: block !important;
+}
+.no-property .hideIfNoProperty {
+  display: none !important;
+}
+.no-property .property-column {
+  display: none !important;
+}
+.no-property .inquiry-column {
+  width: 100% !important;
+}

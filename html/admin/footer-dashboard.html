@@ -1,0 +1,49 @@
+<!-- PTPM Dashboard — Ontraport Footer Code -->
+<!-- Paste this into: Ontraport Page Settings → Footer/Tracking Code -->
+<!-- Script loading order: config → utils → vitalsync → domain → table → dashboard -->
+
+<script src="https://itmooti-codex.github.io/ptpm-app/js/config.js?v=1"></script>
+<script src="https://itmooti-codex.github.io/ptpm-app/js/utils.js?v=1"></script>
+<script src="https://itmooti-codex.github.io/ptpm-app/js/vitalsync.js?v=1"></script>
+<script src="https://itmooti-codex.github.io/ptpm-app/js/domain.js?v=1"></script>
+<script src="https://itmooti-codex.github.io/ptpm-app/js/table.js?v=1"></script>
+<script src="https://itmooti-codex.github.io/ptpm-app/js/pages/dashboard.js?v=1"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Toggle filter dropdowns
+    var togglePairs = [
+      ['status-filter-btn', 'status-filter-card'],
+      ['service-provider-filter-btn', 'service-provider-filter-card'],
+      ['account-type-filter-btn', 'account-type-filter-card'],
+      ['source-filter-btn', 'source-filter-card'],
+    ];
+    togglePairs.forEach(function (pair) {
+      var btn = document.getElementById(pair[0]);
+      var card = document.getElementById(pair[1]);
+      if (btn && card) {
+        btn.addEventListener('click', function () { card.classList.toggle('hidden'); });
+      }
+    });
+
+    // Mobile filter toggle
+    var filtersToggle = document.getElementById('filters-toggle');
+    var filtersPanel = document.getElementById('filters-panel');
+    var filtersClose = document.getElementById('filters-close');
+    if (filtersToggle && filtersPanel) {
+      filtersToggle.addEventListener('click', function () {
+        filtersPanel.classList.toggle('hidden');
+      });
+    }
+    if (filtersClose && filtersPanel) {
+      filtersClose.addEventListener('click', function () {
+        filtersPanel.classList.add('hidden');
+      });
+    }
+
+    // Init dashboard
+    if (window.PtpmDashboard) {
+      window.PtpmDashboard.init();
+    }
+  });
+</script>

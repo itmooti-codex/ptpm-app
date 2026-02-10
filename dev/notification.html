@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PTPM | Notifications (Dev)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Inter', sans-serif; }</style>
+
+  <!-- Day.js -->
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+
+  <!-- VitalSync SDK -->
+  <script src="https://static-au03.vitalstats.app/static/sdk/v1/latest.js"></script>
+</head>
+<body data-page="notification" class="bg-slate-100 text-slate-900 min-h-screen">
+
+  <!-- Mock Data -->
+  <script src="./mock-data.js"></script>
+  <script>
+    window.AppConfig = {
+      SLUG: 'peterpm',
+      API_KEY: window.__MOCK_API_KEY__ || '',
+      LOGGED_IN_USER_ID: window.__MOCK_LOGGED_IN_USER_ID__ || '',
+      CONTACT_ID: window.__MOCK_CONTACT_ID__ || '',
+      BRAND_COLOR: '#003882',
+      TIMEZONE: 'Australia/Melbourne',
+      CDN_BASE: '',
+    };
+  </script>
+
+  <!-- ─── Page Layout ──────────────────────────────────────── -->
+  <main class="flex flex-col space-y-6 mb-4">
+    <!-- Header Bar -->
+    <header class="w-full px-4 sm:px-5 py-4 bg-[#003882] border-b border-gray-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white shadow-card">
+      <div class="flex items-center gap-3">
+        <span class="text-lg font-bold">Notifications</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button id="notification-btn" class="h-8 relative flex items-center gap-2">
+          <span id="notification-count" class="w-4 h-4 absolute -top-1 -right-1 bg-red-600 rounded-full text-[10px] font-semibold text-white flex items-center justify-center hidden"></span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="white"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Notification Panel -->
+    <div class="max-w-3xl mx-auto w-full px-4">
+      <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+        <!-- Controls -->
+        <div class="flex items-center justify-between px-4 py-3 border-b">
+          <div class="flex items-center gap-2">
+            <span class="text-[15px] font-semibold text-gray-800">Notifications</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-gray-600 select-none">
+            <span>Only show unread</span>
+            <button id="notifUnreadToggle" type="button" aria-pressed="false"
+              class="w-10 h-5 inline-flex items-center rounded-full bg-gray-300 relative">
+              <span class="knob absolute w-4 h-4 bg-white rounded-full left-0.5 transition-transform duration-200 ease-out translate-x-0"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabs + Mark All -->
+        <div class="px-4 pt-3">
+          <div class="flex items-center gap-3">
+            <button id="notifTabAction" class="px-3 py-1.5 rounded-full text-sm font-semibold bg-blue-600 text-white shadow-sm">
+              <span class="inline-flex items-center gap-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span>
+                Action Required
+              </span>
+            </button>
+            <button id="notifTabGeneral" class="px-3 py-1.5 rounded-full text-sm font-semibold text-gray-700 hover:bg-gray-100">
+              General Updates
+            </button>
+          </div>
+          <label for="notifMarkAll" class="mt-3 mb-2 inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
+            <input id="notifMarkAll" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+            <span>Mark all as read</span>
+            <svg class="h-4 w-4 text-green-600 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+            </svg>
+          </label>
+        </div>
+
+        <!-- Notification List -->
+        <div id="notifList" class="max-h-[600px] overflow-auto transition-all duration-200"></div>
+
+        <!-- View More -->
+        <div class="px-4 py-3 border-t text-center">
+          <button type="button" id="notifViewMore" class="text-sm font-medium text-blue-700">View All</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ─── Scripts ──────────────────────────────────────────── -->
+  <script src="../src/js/config.js"></script>
+  <script src="../src/js/utils.js"></script>
+  <script src="../src/js/vitalsync.js"></script>
+  <script src="../src/js/pages/notification.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      window.VitalSync.init(window.AppConfig, function () {
+        window.PtpmNotification.init();
+      });
+    });
+  </script>
+</body>
+</html>

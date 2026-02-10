@@ -1,0 +1,350 @@
+<!-- PTPM New Inquiry — Ontraport Body HTML Block -->
+<!-- Paste this into: Ontraport Page → HTML Block in Body -->
+
+<main class="flex min-h-screen flex-col" data-page="new-inquiry">
+  <!-- Header -->
+  <header class="w-full px-6 py-4 bg-[#003882] border-b border-gray-300 flex justify-between items-center text-white shadow-card">
+    <div class="flex items-center gap-3">
+      <span class="text-xl font-medium">Inquiry Information</span>
+    </div>
+    <div class="flex items-center gap-3 text-sm font-medium">
+      <button id="cancel-btn" type="button" class="px-4 py-3 rounded outline outline-1 outline-white text-white text-sm font-medium">Cancel</button>
+      <button id="reset-btn" type="button" class="px-4 py-3 rounded outline outline-1 outline-white text-white text-sm font-medium inline-flex items-center gap-2">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.6667 0.855V3.772a.486.486 0 01-.486.486H8.264a.486.486 0 010-.972h1.743l-.889-.889A5.556 5.556 0 005.716.973h-.036A5.556 5.556 0 002.284 2.357a.486.486 0 01-.68-.694A6.528 6.528 0 015.716 0a6.528 6.528 0 014.092 1.71l.886.889V.855a.486.486 0 01.972 0zM9.383 9.076a5.556 5.556 0 01-3.426 1.384 5.556 5.556 0 01-3.409-1.424L1.66 8.147h1.743a.486.486 0 000-.972H.486A.486.486 0 000 7.661v2.917a.486.486 0 00.972 0V8.834l.889.889A6.528 6.528 0 005.955 11.432h.032a6.528 6.528 0 004.076-2.06.486.486 0 00-.68-.296z" fill="white"/></svg>
+        Reset Form
+      </button>
+      <button id="save-btn" type="button" class="px-4 py-3 rounded outline outline-1 outline-white text-white text-sm font-medium inline-flex items-center gap-2">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.123 4.064L9.936 1.877a.437.437 0 00-.311-.127H2.625A.875.875 0 001.75 2.625v8.75c0 .483.392.875.875.875h8.75a.875.875 0 00.875-.875V4.375a.437.437 0 00-.127-.311zM5.25 2.625h3.5v1.75h-3.5v-1.75zm3.5 8.75h-3.5v-3.5h3.5v3.5zm.875 0v-3.5a.875.875 0 00-.875-.875h-3.5a.875.875 0 00-.875.875v3.5H2.625v-8.75h1.75v1.75c0 .483.392.875.875.875h3.5a.875.875 0 00.875-.875V2.804l1.75 1.75v6.821h-1.75z" fill="white"/></svg>
+        Save
+      </button>
+      <button id="submit-btn" type="button" class="px-4 py-3 bg-white rounded text-[#003882] text-sm font-medium inline-flex items-center gap-2">
+        <svg width="11" height="9" viewBox="0 0 11 9" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.75 4.25L3.8125 7.3125L9.9375 0.75" stroke="#003882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Submit Inquiry
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Form Section -->
+  <section class="flex-1 px-4 py-4">
+    <div class="flex w-full gap-4">
+
+      <!-- LEFT COLUMN: Contact Details + Related Data -->
+      <div class="min-w-[460px] flex flex-col flex-1 gap-4">
+
+        <!-- Contact Details Card -->
+        <div class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm">
+          <header class="flex flex-col pt-4 px-4">
+            <div class="text-neutral-700 text-base font-bold">Contact Details</div>
+          </header>
+          <div class="flex flex-col gap-3 p-4">
+            <!-- Individual/Entity Tabs -->
+            <div class="flex gap-4 items-center">
+              <button id="individual" type="button" class="px-2 py-1 bg-blue-700 rounded-xl inline-flex items-center gap-1 shadow-sm">
+                <span data-tab-label class="text-white text-xs">Individual</span>
+              </button>
+              <button id="entity" type="button" class="px-2 py-1 rounded-xl inline-flex items-center gap-1 outline outline-1 outline-slate-500 bg-white">
+                <span data-tab-label class="text-slate-500 text-xs">Entity</span>
+              </button>
+              <a id="view-contact-detail" href="#" class="hidden ml-auto text-blue-600 text-sm inline-flex items-center">
+                View Detail
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 ml-1"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H19.5V12M19.5 6L10.5 15L4.5 9"/></svg>
+              </a>
+            </div>
+
+            <p class="mt-2 hidden text-sm font-medium" role="alert" data-contact-feedback></p>
+
+            <!-- Individual Section -->
+            <div class="space-y-4" data-contact-section="individual">
+              <div>
+                <label class="block text-neutral-700 text-sm font-medium">Contact</label>
+                <div class="relative" data-search-root="contact-individual">
+                  <input type="text" placeholder="Search by name, email, phone" class="mt-2 w-full px-2.5 py-2 bg-white rounded outline outline-1 outline-gray-300 text-slate-700 text-sm placeholder:text-slate-500" data-search-input autocomplete="off">
+                  <div data-search-panel class="hidden absolute z-10 mt-1 left-0 right-0 bg-white rounded-lg border border-slate-200 shadow-lg max-h-72 overflow-hidden">
+                    <ul data-search-results class="max-h-52 overflow-auto"></ul>
+                    <div data-search-empty class="hidden px-4 py-3 text-sm text-slate-500 text-center">No contacts found</div>
+                    <div class="border-t border-slate-200">
+                      <button type="button" data-search-add class="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-sky-800">
+                        <span class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-sky-800 text-sky-800">+</span>
+                        Add New Contact
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <input type="hidden" data-contact-field="contact_id">
+              <div class="flex gap-4">
+                <div class="flex-1"><label class="text-sm font-medium text-slate-600">First Name <span class="text-rose-500">*</span></label><input type="text" data-contact-field="first_name" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+                <div class="flex-1"><label class="text-sm font-medium text-slate-600">Last Name</label><input type="text" data-contact-field="last_name" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-1"><label class="text-sm font-medium text-slate-600">Email <span class="text-rose-500">*</span></label><input type="email" data-contact-field="email" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+                <div class="flex-1"><label class="text-sm font-medium text-slate-600">SMS Number</label><input type="tel" data-contact-field="sms_number" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+              </div>
+              <div><label class="text-sm font-medium text-slate-600">Office Number</label><input type="tel" data-contact-field="office_phone" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+              <div class="flex items-center gap-2">
+                <input type="checkbox" data-same-as-contact class="h-4 w-4 accent-[#003882]">
+                <label class="text-sm text-slate-600">Same as Contact</label>
+              </div>
+              <div><label class="text-sm font-medium text-slate-600">Work Requested By</label><input type="text" data-contact-field="work_requested_by" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+            </div>
+
+            <!-- Entity Section -->
+            <div class="space-y-4 hidden" data-contact-section="entity">
+              <div>
+                <label class="block text-neutral-700 text-sm font-medium">Entity</label>
+                <div class="relative" data-search-root="contact-entity">
+                  <input type="text" placeholder="Search entity" class="mt-2 w-full px-2.5 py-2 bg-white rounded outline outline-1 outline-gray-300 text-slate-700 text-sm placeholder:text-slate-500" data-search-input autocomplete="off">
+                  <div data-search-panel class="hidden absolute z-10 mt-1 left-0 right-0 bg-white rounded-lg border border-slate-200 shadow-lg max-h-72 overflow-hidden">
+                    <ul data-search-results class="max-h-52 overflow-auto"></ul>
+                    <div data-search-footer class="border-t border-slate-200"></div>
+                  </div>
+                </div>
+              </div>
+              <input type="hidden" data-contact-field="entity-id">
+              <input type="hidden" data-contact-field="contact_id">
+              <div id="company-name-section" class="hidden">
+                <label class="text-sm font-medium text-slate-600">Company Name</label>
+                <input type="text" data-contact-field="company_name" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm">
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-1"><label class="text-sm font-medium text-slate-600">First Name <span class="text-rose-500">*</span></label><input type="text" data-contact-field="first_name" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+                <div class="flex-1"><label class="text-sm font-medium text-slate-600">Last Name</label><input type="text" data-contact-field="last_name" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-1"><label class="text-sm font-medium text-slate-600">Email <span class="text-rose-500">*</span></label><input type="email" data-contact-field="email" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+                <div class="flex-1"><label class="text-sm font-medium text-slate-600">SMS Number</label><input type="tel" data-contact-field="sms_number" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+              </div>
+              <div><label class="text-sm font-medium text-slate-600">Office Number</label><input type="tel" data-contact-field="office_phone" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+              <div class="flex items-center gap-2">
+                <input type="checkbox" data-same-as-contact class="h-4 w-4 accent-[#003882]">
+                <label class="text-sm text-slate-600">Same as Contact</label>
+              </div>
+              <div><label class="text-sm font-medium text-slate-600">Work Requested By</label><input type="text" data-contact-field="work_requested_by" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+            </div>
+
+            <!-- Add New Contact Footer -->
+            <div id="contact-add-new-footer" class="hidden border-t border-slate-200 pt-3 flex justify-end">
+              <button type="button" data-contact-save data-base-label="Add New Contact" data-loading-label="Adding..." class="px-4 py-2 bg-[#003882] rounded text-white text-sm font-medium inline-flex items-center gap-2">
+                <span data-contact-save-icon>+</span>
+                <span data-contact-save-label>Add New Contact</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Related Data Card -->
+        <div class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm" data-related>
+          <div class="px-4 py-3 border-b border-slate-200">
+            <div class="flex items-center gap-3">
+              <button type="button" data-related-tab="properties" class="px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-50 text-blue-700">Properties (0)</button>
+              <button type="button" data-related-tab="jobs" class="px-3 py-1.5 text-sm font-medium rounded-lg text-slate-500">Jobs (0)</button>
+              <button type="button" data-related-tab="inquiries" class="px-3 py-1.5 text-sm font-medium rounded-lg text-slate-500">Inquiries (0)</button>
+            </div>
+          </div>
+          <div data-related-banner class="px-4 py-2 text-sm text-slate-500 border-b border-slate-200">
+            <span data-related-banner-text>Select a contact to view related details.</span>
+          </div>
+          <div class="flex-1 overflow-auto" style="max-height: 400px;">
+            <div data-related-panel="properties" class="space-y-2 p-3"></div>
+            <div data-related-panel="jobs" class="space-y-2 p-3 hidden"></div>
+            <div data-related-panel="inquiries" class="space-y-2 p-3 hidden"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MIDDLE COLUMN: Property Information -->
+      <div id="property-information" class="min-w-[460px] flex flex-col flex-1 gap-4">
+        <!-- Property Address -->
+        <div class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm p-4 gap-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-neutral-700 text-base font-bold">Property Information</h3>
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="same-as-contact-address" class="h-4 w-4 accent-[#003882]">
+              <label for="same-as-contact-address" class="text-sm text-slate-600">Same as Contact</label>
+            </div>
+          </div>
+          <!-- Google Places Search -->
+          <div class="relative" data-search-root="property">
+            <input type="text" id="search-properties" data-property-id="search-properties" placeholder="Search address..." class="w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm" data-search-input autocomplete="off">
+          </div>
+          <input type="hidden" id="selected-property-id">
+          <div class="flex gap-3">
+            <div class="flex-1"><label class="text-sm font-medium text-slate-600">Lot Number</label><input type="text" data-property-id="lot_number" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+            <div class="flex-1"><label class="text-sm font-medium text-slate-600">Unit Number</label><input type="text" data-property-id="unit-number" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-1"><label class="text-sm font-medium text-slate-600">Address Line 1</label><input type="text" data-property-id="address_1" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+            <div class="flex-1"><label class="text-sm font-medium text-slate-600">Address Line 2</label><input type="text" data-property-id="address_2" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-1"><label class="text-sm font-medium text-slate-600">Suburb/Town</label><input type="text" data-property-id="suburb_town" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+            <div class="flex-1"><label class="text-sm font-medium text-slate-600">Postal Code</label><input type="text" data-property-id="postal_code" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">State</label>
+            <select data-property-id="state" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select>
+          </div>
+
+          <!-- Property Type / Building Type / Foundation -->
+          <div class="flex gap-3">
+            <div class="flex-1">
+              <label class="text-sm font-medium text-slate-600">Property Type</label>
+              <select data-property-id="property-type" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select>
+            </div>
+            <div class="flex-1">
+              <label class="text-sm font-medium text-slate-600">Building Type</label>
+              <select data-property-id="building-type" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select>
+            </div>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">Foundation Type</label>
+            <select data-property-id="foundation-type" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select>
+          </div>
+
+          <!-- Building Features Checklist -->
+          <div>
+            <label class="text-sm font-medium text-slate-600">Building Features</label>
+            <ul data-property-id="building_features_options_as_text" class="mt-2 grid grid-cols-2 gap-2"></ul>
+          </div>
+
+          <!-- Numeric Fields -->
+          <div class="flex gap-3">
+            <div class="flex-1"><label class="text-sm font-medium text-slate-600">Stories</label><input type="number" data-property-id="stories" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+            <div class="flex-1"><label class="text-sm font-medium text-slate-600">Bedrooms</label><input type="number" data-property-id="bedrooms" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-1"><label class="text-sm font-medium text-slate-600">Building Age</label><input type="text" data-property-id="building-age" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+            <div class="flex-1">
+              <label class="text-sm font-medium text-slate-600">Manhole</label>
+              <select data-property-id="manhole" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Add Property Button -->
+          <div class="flex justify-end">
+            <button id="add-property-btn" type="button" class="hidden px-4 py-2 bg-[#003882] rounded text-white text-sm font-medium">Add Property</button>
+          </div>
+        </div>
+
+        <!-- Property Contacts Card -->
+        <div id="property-contacts" class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+            <h3 class="text-neutral-700 text-base font-bold">Property Contacts</h3>
+            <button id="add-contact-btn" type="button" class="hidden px-3 py-1.5 bg-[#003882] rounded text-white text-xs font-medium">+ Add Contact</button>
+          </div>
+          <div data-property-contact-id="table" class="overflow-x-auto">
+            <!-- Property contact table rendered dynamically -->
+          </div>
+          <div id="property-contact-svg" class="flex items-center justify-center py-8 text-slate-400">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Inquiry Details + Resident Feedback -->
+      <div class="min-w-[420px] flex flex-col flex-1 gap-4">
+
+        <!-- Inquiry Details Card -->
+        <div id="inquiry-detail" data-inquiry-id="inquiry-detail" class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm p-4 gap-4">
+          <h3 class="text-neutral-700 text-base font-bold">Inquiry Details</h3>
+          <div>
+            <label class="text-sm font-medium text-slate-600">Inquiry Source</label>
+            <select id="inquiry-source" data-inquiry-id="inquiry-source" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">Type</label>
+            <select id="inquiry-type" data-inquiry-id="type" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">Service</label>
+            <select id="service-inquiry" data-inquiry-id="services" data-feedback-id="services" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">Service Name</label>
+            <input type="text" data-inquiry-id="service-name" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm">
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">How Can We Help?</label>
+            <textarea data-inquiry-id="how-can-we-help" rows="3" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></textarea>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">Admin Notes</label>
+            <textarea data-inquiry-id="admin-notes" rows="3" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></textarea>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-600">Referral Source</label>
+            <select id="referral-source" data-inquiry-id="how-did-you-hear" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select>
+          </div>
+        </div>
+
+        <!-- Resident Feedback Card -->
+        <div id="resident-feedback" data-feedback-id="resident-feedback" class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm p-4 gap-4">
+          <h3 class="text-neutral-700 text-base font-bold">Resident Feedback</h3>
+
+          <!-- Noise / Signs -->
+          <div>
+            <label class="text-sm font-medium text-slate-600">Noise / Signs</label>
+            <ul data-feedback-id="noise-signs-options-as-text" class="mt-2 grid grid-cols-2 gap-2"></ul>
+          </div>
+
+          <!-- Pest Active Times -->
+          <div>
+            <label class="text-sm font-medium text-slate-600">Pest Active Times</label>
+            <ul data-feedback-id="pest-active-times-options-as-text" class="mt-2 grid grid-cols-2 gap-2"></ul>
+          </div>
+
+          <!-- Pest Location -->
+          <div>
+            <label class="text-sm font-medium text-slate-600">Pest Location</label>
+            <ul data-feedback-id="pest-location-options-as-text" class="mt-2 grid grid-cols-2 gap-2"></ul>
+          </div>
+
+          <!-- Renovations -->
+          <div>
+            <label class="text-sm font-medium text-slate-600">Renovations</label>
+            <select data-feedback-id="renovations" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none">
+              <option value="">Select</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+
+          <!-- Date Job Required By -->
+          <div>
+            <label class="text-sm font-medium text-slate-600">Date Job Required By</label>
+            <input type="text" data-feedback-id="date-job-required-by" placeholder="DD/MM/YYYY" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm flatpickr-input">
+          </div>
+
+          <!-- Customer Upload -->
+          <div>
+            <label class="text-sm font-medium text-slate-600">Customer Images</label>
+            <div class="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-4 text-center">
+              <label class="cursor-pointer text-sm text-blue-600">
+                Click to upload or drag & drop
+                <input type="file" data-feedback-upload="customer" accept="image/*,application/pdf" multiple class="hidden">
+              </label>
+            </div>
+            <div data-feedback-upload-list="customer" class="mt-2 space-y-2"></div>
+          </div>
+
+          <!-- Internal Upload -->
+          <div>
+            <label class="text-sm font-medium text-slate-600">Internal Images</label>
+            <div class="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-4 text-center">
+              <label class="cursor-pointer text-sm text-blue-600">
+                Click to upload or drag & drop
+                <input type="file" data-feedback-upload="internal" accept="image/*,application/pdf" multiple class="hidden">
+              </label>
+            </div>
+            <div data-feedback-upload-list="internal" class="mt-2 space-y-2"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>

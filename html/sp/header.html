@@ -1,0 +1,44 @@
+<!-- PTPM Service Provider Portal — Ontraport Header Code -->
+<!-- Paste this into: Ontraport Page → Settings → Header Code -->
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<!-- VitalSync Dynamic List SDK -->
+<script async src="https://static-au03.vitalstats.app/static/dynamic-list/v1/latest.js" crossorigin="anonymous"></script>
+
+<!-- Day.js (for announcements date formatting) -->
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+
+<!-- Google Fonts (Inter) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- SP Styles -->
+<link rel="stylesheet" href="https://itmooti-codex.github.io/ptpm-app/css/sp-styles.css?v=1">
+
+<style>
+  [x-cloak] { display: none !important; }
+  body { font-family: 'Inter', sans-serif; }
+</style>
+
+<!-- AppConfig — credentials injected by Ontraport merge fields -->
+<script>
+  window.AppConfig = {
+    SLUG: 'peterpm',
+    API_KEY: '[API Key]',
+    LOGGED_IN_USER_ID: '[Visitor//Contact ID]',
+    SERVICE_PROVIDER_ID: '[Visitor//Contact ID]',
+    BRAND_COLOR: '#003882',
+    TIMEZONE: 'Australia/Melbourne',
+    CDN_BASE: 'https://itmooti-codex.github.io/ptpm-app',
+    ACCOUNT_TYPE: '[Account Type]',
+    JOB_ID: '',
+    PROPERTY_ID: '',
+    INQUIRY_RECORD_ID: '',
+  };
+</script>

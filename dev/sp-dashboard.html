@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PTPM | Service Provider Portal (Dev)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script async src="https://static-au03.vitalstats.app/static/dynamic-list/v1/latest.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../src/css/sp-styles.css">
+  <style>
+    [x-cloak] { display: none !important; }
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+
+  <!-- Mock Data + AppConfig -->
+  <script src="./mock-data.js"></script>
+  <script>
+    window.AppConfig = {
+      SLUG: 'peterpm',
+      API_KEY: window.__MOCK_API_KEY__ || '',
+      LOGGED_IN_USER_ID: window.__MOCK_LOGGED_IN_USER_ID__ || '',
+      SERVICE_PROVIDER_ID: window.__MOCK_SERVICE_PROVIDER_ID__ || '',
+      BRAND_COLOR: '#003882',
+      TIMEZONE: 'Australia/Melbourne',
+      CDN_BASE: '',
+      ACCOUNT_TYPE: window.__MOCK_ACCOUNT_TYPE__ || '',
+      JOB_ID: '',
+      PROPERTY_ID: '',
+      INQUIRY_RECORD_ID: '',
+    };
+  </script>
+
+  <!-- Placeholder content — in production, form.html body is pasted into Ontraport -->
+  <div class="max-w-4xl mx-auto px-6 py-16 text-center">
+    <h1 class="text-2xl font-bold text-[#003882]">Service Provider Portal</h1>
+    <p class="text-sm text-slate-500 mt-2">This dev page loads the SP portal scripts for testing.</p>
+    <p class="text-sm text-slate-500 mt-1">In production, the body HTML (form.html) is pasted into Ontraport page blocks.</p>
+    <div class="mt-4 inline-block bg-amber-100 text-amber-800 text-xs font-mono px-3 py-1 rounded">DEV MODE</div>
+    <div class="mt-6 text-left max-w-md mx-auto">
+      <h2 class="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">SP Pages (via Ontraport)</h2>
+      <ul class="space-y-2 text-sm text-slate-600">
+        <li>Dashboard — <code class="text-xs bg-slate-200 px-1 rounded">dashboard.js</code></li>
+        <li>Inquiries — <code class="text-xs bg-slate-200 px-1 rounded">inquiries.js</code></li>
+        <li>Jobs — <code class="text-xs bg-slate-200 px-1 rounded">jobs.js</code></li>
+        <li>Appointments — <code class="text-xs bg-slate-200 px-1 rounded">appointments.js</code></li>
+        <li>Materials — <code class="text-xs bg-slate-200 px-1 rounded">materials.js</code></li>
+        <li>Payments — <code class="text-xs bg-slate-200 px-1 rounded">payments.js</code></li>
+        <li>Quotes — <code class="text-xs bg-slate-200 px-1 rounded">quotes.js</code></li>
+        <li>Profile — <code class="text-xs bg-slate-200 px-1 rounded">profile.js</code></li>
+        <li>Announcements — <code class="text-xs bg-slate-200 px-1 rounded">announcements.js</code></li>
+        <li>Inquiry Detail — <code class="text-xs bg-slate-200 px-1 rounded">inquiryDetails.js</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Core SP Scripts -->
+  <script src="../src/js/sp/bridge.js"></script>
+  <script src="../src/js/sp/sdk.js"></script>
+  <script src="../src/js/sp/basic.js"></script>
+  <script src="../src/js/sp/status-actions.js"></script>
+
+  <!-- All SP page scripts (include all for dev testing) -->
+  <script src="../src/js/sp/dashboard.js"></script>
+  <script src="../src/js/sp/inquiries.js"></script>
+  <script src="../src/js/sp/jobs.js"></script>
+  <script src="../src/js/sp/appointments.js"></script>
+  <script src="../src/js/sp/materials.js"></script>
+  <script src="../src/js/sp/payments.js"></script>
+  <script src="../src/js/sp/quotes.js"></script>
+  <script src="../src/js/sp/profile.js"></script>
+  <script src="../src/js/sp/announcements.js"></script>
+  <script src="../src/js/sp/inquiryDetails.js"></script>
+</body>
+</html>

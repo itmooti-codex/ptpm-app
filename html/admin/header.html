@@ -1,0 +1,56 @@
+<!-- PTPM Admin — Ontraport Header Code -->
+<!-- Paste this into: Ontraport Page Settings → Header Code -->
+
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            50: '#e8f0fb', 100: '#cedef5', 200: '#9bbced', 300: '#689be5',
+            400: '#346adc', 500: '#003882', 600: '#002f6b', 700: '#002555',
+            800: '#001c3f', 900: '#00122a',
+          },
+        },
+        boxShadow: { card: '0 10px 40px rgba(15, 23, 42, 0.05)' },
+      },
+      fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+    },
+  };
+</script>
+
+<!-- VitalSync SDK -->
+<script async data-chunk="client"
+  src="https://static-au03.vitalstats.app/static/sdk/v1/latest.js"
+  crossorigin="anonymous"></script>
+
+<!-- Dayjs + Timezone plugin -->
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/timezone.js"></script>
+<script>dayjs.extend(dayjs_plugin_utc); dayjs.extend(dayjs_plugin_timezone);</script>
+
+<!-- Flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Custom Styles -->
+<link rel="stylesheet" href="https://itmooti-codex.github.io/ptpm-app/css/styles.css?v=1">
+
+<!-- AppConfig — Ontraport merge fields inject values in production -->
+<script>
+  window.AppConfig = {
+    SLUG: 'peterpm',
+    API_KEY: '[API Key]',
+    CONTACT_ID: '[Visitor//Contact ID]',
+    LOGGED_IN_USER_ID: '[Logged In User ID]',
+    DEBUG: false,
+  };
+</script>

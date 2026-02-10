@@ -1,0 +1,1672 @@
+<div
+  x-cloak
+  x-show="combinedPropertyEditModal"
+  x-transition.opacity.duration.200ms
+  x-trap.inert.noscroll="combinedPropertyEditModal"
+  @keydown.esc.window="combinedPropertyEditModal = false"
+  @click.self="combinedPropertyEditModal = false"
+  class="xlg:px-4 xlg:pb-8 fixed inset-0 z-30 flex items-center justify-center bg-black/20 backdrop-blur-md max-[1100px]:h-screen sm:items-center lg:p-8"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="combinedPropertyEditModalTitle"
+>
+  <!-- Modal Dialog -->
+  <div
+    x-show="combinedPropertyEditModal"
+    x-transition:enter="transition ease-out duration-200 delay-100 motion-reduce:transition-opacity"
+    x-transition:enter-start="opacity-0 scale-50"
+    x-transition:enter-end="opacity-100 scale-100"
+    class="xlg:w-[600px] xlg:rounded-md xlg:bg-white text-dark flex w-full flex-col gap-4 overflow-auto bg-[#f6f6f6] h-[80vh] max-[1100px]:h-screen"
+  >
+    <form>
+      <div
+        class="xlg:bg-white flex items-center justify-between border-b border-neutral-300 p-4 max-[1100px]:flex-row-reverse max-[1100px]:justify-end max-[1100px]:gap-4"
+      >
+        <div
+          id="combinedPropertyEditModalTitle"
+          class="text-h3 text-dark font-semibold tracking-wide"
+        >
+          Edit Property
+        </div>
+        <button
+          type="button"
+          @click="combinedPropertyEditModal = false"
+          aria-label="close modal"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            stroke="currentColor"
+            fill="none"
+            stroke-width="1.4"
+            class="h-5 w-5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="flex flex-col gap-4 p-4 max-[1100px]:mb-[150px]">
+        <!--First Acxcordian-->
+        <div
+          x-data="{ accordianExpanded: true }"
+          class="overflow-hidden rounded-md bg-[#F5F5F5]"
+        >
+          <div
+            id="controlsAccordionItemOne"
+            type="button"
+            class="text-h2 text-[#636D88] flex w-full cursor-pointer items-center justify-between gap-2 xlg:p-3 text-left underline-offset-2"
+            aria-controls="accordionItemOne"
+            @click="accordianExpanded = !accordianExpanded"
+            :aria-expanded="accordianExpanded ? 'true' : 'false'"
+          >
+            Property Information
+            <svg
+              style="width: 24px; height: 24px"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke-width="2"
+              stroke="currentColor"
+              class="size-5 shrink-0 transition"
+              aria-hidden="true"
+              :class="accordianExpanded  ?  'rotate-180'  :  ''"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+              />
+            </svg>
+          </div>
+          <div
+            x-cloak
+            x-show="accordianExpanded"
+            id="accordionItemOne"
+            role="region"
+            aria-labelledby="controlsAccordionItemOne"
+            x-collapse
+            class="flex flex-col gap-3 p-3 max-[1100px]:px-0"
+          >
+            <div class="flex flex-col gap-4">
+              <div
+                class="propertyAddress flex w-full flex-[3] flex-col gap-[8px]"
+              >
+                <div
+                  class="text-h3 text-dark mt-[2px] text-[14px] font-medium leading-[14px]"
+                >
+                  Property
+                </div>
+                <div class="relative inline-block w-full">
+                  <div name="dropdown" id="dropdown" class="!block">
+                    <div class="addressSearchInputWrapper">
+                      <input
+                        class="addressSearch propertyname"
+                        id="autocomplete"
+                        type="text"
+                        placeholder="[Page//Property//Property Name]"
+                      />
+                      <input
+                        class="addressUID hidden"
+                        id="addressUniqueID"
+                        type="text"
+                        placeholder=""
+                      />
+                      <input
+                        class="propertyuniqueid hidden addUIDOnLoad"
+                        id="propertyuniqueid"
+                        type="text"
+                        placeholder=""
+                      />
+                      <input
+                        class="country hidden"
+                        id="country"
+                        type="text"
+                        placeholder=""
+                      />
+                    </div>
+                    <div class="property-list-wrapper">
+                      <DynamicList source="Properties" numRecords="60">
+                        <div
+                          data-name="[Page//Property//Property Name]"
+                          data-propertytype="[Page//Property//Property Type]"
+                          data-ownertype="[Page//Property//Owner Type]"
+                          data-id="[Page//Property//Unique ID]"
+                          data-pid="[Page//Property//ID]"
+                        ></div>
+                      </DynamicList>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col"
+              >
+                <div class="flex w-full flex-col gap-2">
+                  <label for="lotNumberCombined" class="text-h3 text-dark"
+                    >Lot Number</label
+                  >
+                  <input
+                    id="lotNumberCombined"
+                    type="text"
+                    placeholder="Enter Lot Number"
+                    class="lotno text-dark text-label"
+                  />
+                </div>
+                <div class="flex w-full flex-col gap-2">
+                  <label for="unitNumberCombined" class="text-h3 text-dark"
+                    >Unit Number</label
+                  >
+                  <input
+                    id="unitNumberCombined"
+                    type="text"
+                    placeholder="Enter Unit Number"
+                    class="unitno text-dark text-label"
+                  />
+                </div>
+              </div>
+              <div
+                class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col"
+              >
+                <div class="flex w-full flex-col gap-2">
+                  <label for="addressCombined" class="text-h3 text-dark"
+                    >Address</label
+                  >
+                  <input
+                    id="addressCombined"
+                    type="text"
+                    placeholder="Enter Address"
+                    class="address1 text-dark text-label"
+                  />
+                </div>
+                <div class="flex w-full flex-col gap-2">
+                  <label for="suburbTownCombined" class="text-h3 text-dark"
+                    >Suburb/ Town</label
+                  >
+                  <input
+                    id="suburbTownCombined"
+                    type="text"
+                    placeholder="Enter Suburb/ Town"
+                    class="suburb text-dark text-label"
+                  />
+                </div>
+              </div>
+              <div
+                class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col"
+              >
+                <div class="flex w-full flex-col gap-2">
+                  <label for="postalCodeCombined" class="text-h3 text-dark"
+                    >Postal Code</label
+                  >
+                  <input
+                    id="postalCodeCombined"
+                    type="text"
+                    placeholder="Enter Postal Code"
+                    class="postcode text-dark text-label"
+                  />
+                </div>
+                <div class="flex w-full flex-col gap-2">
+                  <label for="stateCombined" class="text-h3 text-dark state"
+                    >State</label
+                  >
+                  <div class="relative">
+                    <select
+                      id="stateCombined"
+                      class="!block appearance-none w-full bg-white border border-gray-300 px-4 py-2 pr-10 rounded-md text-dark"
+                    >
+                      <option value="NSW">NSW</option>
+                      <option value="QLD">QLD</option>
+                      <option value="VIC">VIC</option>
+                      <option value="TAS">TAS</option>
+                      <option value="SA">SA</option>
+                      <option value="ACT">ACT</option>
+                      <option value="NT">NT</option>
+                      <option value="WA">WA</option>
+                    </select>
+                    <svg
+                      class="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 011.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-----End-->
+        <!--Second Accordian-->
+        <div
+          x-data="{ accordianExpanded: false }"
+          class="overflow-hidden rounded-md bg-[#F5F5F5]"
+        >
+          <div
+            id="controlsAccordionItemOne"
+            type="button"
+            class="text-h2 flex w-full cursor-pointer items-center justify-between gap-2 xlg:p-3 text-left text-[#636D88] underline-offset-2"
+            aria-controls="accordionItemOne"
+            @click="accordianExpanded = !accordianExpanded"
+            :aria-expanded="accordianExpanded ? 'true' : 'false'"
+          >
+            Property Owner and Resident
+            <svg
+              style="width: 24px; height: 24px"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke-width="2"
+              stroke="currentColor"
+              class="size-5 shrink-0 transition"
+              aria-hidden="true"
+              :class="accordianExpanded  ?  'rotate-180'  :  ''"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+              />
+            </svg>
+          </div>
+          <div
+            x-cloak
+            x-show="accordianExpanded"
+            id="accordionItemOne"
+            role="region"
+            aria-labelledby="controlsAccordionItemOne"
+            x-collapse
+            class="flex flex-col gap-3 p-3 max-[1100px]:px-0"
+          >
+            <div class="flex flex-col gap-4">
+              <div
+                class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col"
+              >
+                <div class="flex w-full flex-col gap-2">
+                  <label for="ownerTypeCombined" class="text-h3 text-dark"
+                    >Owner Type</label
+                  >
+                  <div class="relative">
+                    <select
+                      id="ownerTypeCombined"
+                      class="text-dark !block w-full appearance-none rounded-md bg-white px-4 py-2 pr-10"
+                    >
+                      <option value="">Select Owner Type</option>
+                      <option value="Business">Business</option>
+                      <option value="Investor">Investor</option>
+                      <option value="Owner Occupier">Owner Occupier</option>
+                    </select>
+                    <svg
+                      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transform"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 011.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div
+                  class="flex w-full flex-col gap-2"
+                  id="ownerCompanyCombinedWrapper"
+                >
+                  <label for="ownerCompanyCombined" class="text-h3 text-dark"
+                    >Owner Company</label
+                  >
+                  <div class="relative">
+                    <input
+                      id="ownerCompanyCombined"
+                      type="text"
+                      placeholder="Search"
+                      class="text-dark text-label w-full rounded-md border border-gray-300 bg-white px-4 py-2 pl-10"
+                    />
+                    <svg
+                      class="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 18 18"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M16.3311 15.5156L12.7242 11.9095C13.7696 10.6544 14.2909 9.04453 14.1797 7.41486C14.0684 5.7852 13.3331 4.26116 12.1268 3.15979C10.9205 2.05843 9.33603 1.46453 7.70299 1.50164C6.06995 1.53875 4.51409 2.20402 3.35906 3.35906C2.20402 4.51409 1.53875 6.06995 1.50164 7.70299C1.46453 9.33603 2.05843 10.9205 3.15979 12.1268C4.26116 13.3331 5.7852 14.0684 7.41486 14.1797C9.04453 14.2909 10.6544 13.7696 11.9095 12.7242L15.5156 16.3311C15.5692 16.3847 15.6328 16.4271 15.7027 16.4561C15.7727 16.4851 15.8477 16.5 15.9234 16.5C15.9991 16.5 16.0741 16.4851 16.144 16.4561C16.214 16.4271 16.2776 16.3847 16.3311 16.3311C16.3847 16.2776 16.4271 16.214 16.4561 16.144C16.4851 16.0741 16.5 15.9991 16.5 15.9234C16.5 15.8477 16.4851 15.7727 16.4561 15.7027C16.4271 15.6328 16.3847 15.5692 16.3311 15.5156ZM2.66852 7.8552C2.66852 6.82937 2.97271 5.82658 3.54263 4.97364C4.11255 4.12069 4.9226 3.4559 5.87035 3.06333C6.81809 2.67076 7.86096 2.56805 8.86708 2.76818C9.87319 2.96831 10.7974 3.46229 11.5227 4.18766C12.2481 4.91303 12.7421 5.83721 12.9422 6.84333C13.1424 7.84945 13.0396 8.89232 12.6471 9.84006C12.2545 10.7878 11.5897 11.5979 10.7368 12.1678C9.88383 12.7377 8.88103 13.0419 7.8552 13.0419C6.48008 13.0404 5.16171 12.4934 4.18935 11.5211C3.21699 10.5487 2.67004 9.23033 2.66852 7.8552Z"
+                        fill="#78829D"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="flex w-full flex-col gap-2" id="indOwnerWrapper">
+                  <label for="indOwner" class="text-h3 text-dark"
+                    >Individual Owner</label
+                  >
+                  <div class="relative">
+                    <input
+                      id="indOwner"
+                      type="text"
+                      placeholder="Search"
+                      class="text-dark text-label w-full rounded-md border border-gray-300 bg-white px-4 py-2 pl-10"
+                    />
+                    <svg
+                      class="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 18 18"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M16.3311 15.5156L12.7242 11.9095C13.7696 10.6544 14.2909 9.04453 14.1797 7.41486C14.0684 5.7852 13.3331 4.26116 12.1268 3.15979C10.9205 2.05843 9.33603 1.46453 7.70299 1.50164C6.06995 1.53875 4.51409 2.20402 3.35906 3.35906C2.20402 4.51409 1.53875 6.06995 1.50164 7.70299C1.46453 9.33603 2.05843 10.9205 3.15979 12.1268C4.26116 13.3331 5.7852 14.0684 7.41486 14.1797C9.04453 14.2909 10.6544 13.7696 11.9095 12.7242L15.5156 16.3311C15.5692 16.3847 15.6328 16.4271 15.7027 16.4561C15.7727 16.4851 15.8477 16.5 15.9234 16.5C15.9991 16.5 16.0741 16.4851 16.144 16.4561C16.214 16.4271 16.2776 16.3847 16.3311 16.3311C16.3847 16.2776 16.4271 16.214 16.4561 16.144C16.4851 16.0741 16.5 15.9991 16.5 15.9234C16.5 15.8477 16.4851 15.7727 16.4561 15.7027C16.4271 15.6328 16.3847 15.5692 16.3311 15.5156ZM2.66852 7.8552C2.66852 6.82937 2.97271 5.82658 3.54263 4.97364C4.11255 4.12069 4.9226 3.4559 5.87035 3.06333C6.81809 2.67076 7.86096 2.56805 8.86708 2.76818C9.87319 2.96831 10.7974 3.46229 11.5227 4.18766C12.2481 4.91303 12.7421 5.83721 12.9422 6.84333C13.1424 7.84945 13.0396 8.89232 12.6471 9.84006C12.2545 10.7878 11.5897 11.5979 10.7368 12.1678C9.88383 12.7377 8.88103 13.0419 7.8552 13.0419C6.48008 13.0404 5.16171 12.4934 4.18935 11.5211C3.21699 10.5487 2.67004 9.23033 2.66852 7.8552Z"
+                        fill="#78829D"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col"
+              >
+                <div class="flex w-full flex-col gap-2">
+                  <label for="residentNameCombined" class="text-h3 text-dark"
+                    >Resident's Name</label
+                  >
+                  <input
+                    id="residentNameCombined"
+                    type="text"
+                    placeholder="Enter Resident's Name"
+                    class="text-dark text-label"
+                  />
+                </div>
+                <div class="flex w-full flex-col gap-2">
+                  <label for="residentMobileCombined" class="text-h3 text-dark"
+                    >Resident's Mobile</label
+                  >
+                  <input
+                    id="residentMobileCombined"
+                    type="text"
+                    placeholder="Enter Resident's Mobile"
+                    class="text-dark text-label"
+                  />
+                </div>
+              </div>
+              <div
+                class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col"
+              >
+                <div class="flex w-full flex-col gap-2">
+                  <label for="residentEmailCombined" class="text-h3 text-dark"
+                    >Resident's Email</label
+                  >
+                  <input
+                    id="residentEmailCombined"
+                    type="email"
+                    placeholder="Enter Resident's Email"
+                    class="text-dark text-label"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!------End--->
+        <!--Third Accordian--->
+        <div
+          x-data="{ accordianExpanded: false }"
+          class="overflow-hidden rounded-md bg-[#F5F5F5]"
+        >
+          <div
+            id="controlsAccordionItemOne"
+            type="button"
+            class="text-h2 flex w-full cursor-pointer items-center justify-between gap-2 xlg:p-3 text-left text-[#636D88] underline-offset-2"
+            aria-controls="accordionItemOne"
+            @click="accordianExpanded = !accordianExpanded"
+            :aria-expanded="accordianExpanded ? 'true' : 'false'"
+          >
+            Property Description
+            <svg
+              style="width: 24px; height: 24px"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke-width="2"
+              stroke="currentColor"
+              class="size-5 shrink-0 transition"
+              aria-hidden="true"
+              :class="accordianExpanded  ?  'rotate-180'  :  ''"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+              />
+            </svg>
+          </div>
+          <div
+            x-cloak
+            x-show="accordianExpanded"
+            id="accordionItemOne"
+            role="region"
+            aria-labelledby="controlsAccordionItemOne"
+            x-collapse
+            class="flex flex-col gap-3 p-3 max-[1100px]:px-0"
+          >
+            <div class="flex flex-col gap-4">
+              <div
+                class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col"
+              >
+                <div class="flex w-full flex-col gap-2">
+                  <label for="propertyTypeCombined" class="text-h3 text-dark"
+                    >Property Type</label
+                  >
+                  <div class="relative">
+                    <select
+                      id="propertyTypeCombined"
+                      class="text-dark !block w-full appearance-none rounded-md bg-white px-4 py-2 pr-10"
+                    >
+                      <option value="Residential">Residential</option>
+                      <option value="Commercial">Commercial</option>
+                      <option value="Industrial">Industrial</option>
+                    </select>
+                    <svg
+                      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transform"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 011.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex w-full flex-col gap-2">
+                  <label for="buildingTypeCombined" class="text-h3 text-dark"
+                    >Building Type</label
+                  >
+                  <div class="relative">
+                    <select
+                      id="buildingTypeCombined"
+                      class="text-dark !block w-full appearance-none rounded-md bg-white px-4 py-2 pr-10"
+                    >
+                      <option value="House">House</option>
+                      <option value="Unit">Unit</option>
+                      <option value="Offices">Offices</option>
+                      <option value="Warehouse">Warehouse</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <svg
+                      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transform"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 011.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col"
+              >
+                <div class="flex w-full flex-col gap-2">
+                  <label for="foundationTypeCombined" class="text-h3 text-dark"
+                    >Foundation Type</label
+                  >
+                  <div class="relative">
+                    <select
+                      id="foundationTypeCombined"
+                      class="text-dark !block w-full appearance-none rounded-md bg-white px-4 py-2 pr-10"
+                    >
+                      <option value="Slab on Ground">Slab on Ground</option>
+                      <option value="Lowset">Lowset</option>
+                      <option value="Highset">Highset</option>
+                    </select>
+                    <svg
+                      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transform"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 011.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex w-full flex-col gap-2">
+                  <label
+                    for="otherBuildingTypeCombined"
+                    class="text-h3 text-dark"
+                    >Building Type: Other</label
+                  >
+                  <input
+                    id="otherBuildingTypeCombined"
+                    type="text"
+                    placeholder="Enter Building Type: Other"
+                    class="text-dark text-label"
+                  />
+                </div>
+              </div>
+              <div
+                class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col"
+              >
+                <div class="flex w-full flex-col gap-2">
+                  <label for="bedroomsCombined" class="text-h3 text-dark"
+                    >Bedrooms</label
+                  >
+                  <input
+                    id="bedroomsCombined"
+                    type="text"
+                    placeholder="Enter Number of Bedrooms"
+                    class="text-dark text-label"
+                  />
+                </div>
+                <div class="flex w-full flex-col gap-2">
+                  <label for="StoriesCombined" class="text-h3 text-dark"
+                    >Stories</label
+                  >
+                  <input
+                    id="StoriesCombined"
+                    type="text"
+                    placeholder="Enter Number of Stories"
+                    class="text-dark text-label"
+                    required
+                  />
+                </div>
+              </div>
+              <div
+                class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col"
+              >
+                <div
+                  class="checkbox-container flex items-center gap-3"
+                  style="cursor: pointer"
+                  onclick="toggleBuildingIsTwoStoreyCombined()"
+                >
+                  <!-- Unclicked State -->
+                  <svg
+                    id="buildingIsTwoStoreyUncheckedCombined"
+                    class="unchecked"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16.7563 8.91042C16.8337 8.98781 16.8952 9.07972 16.9371 9.18088C16.9791 9.28205 17.0007 9.39049 17.0007 9.5C17.0007 9.60951 16.9791 9.71795 16.9371 9.81912C16.8952 9.92028 16.8337 10.0122 16.7563 10.0896L10.9229 15.9229C10.8455 16.0004 10.7536 16.0619 10.6524 16.1038C10.5513 16.1457 10.4428 16.1673 10.3333 16.1673C10.2238 16.1673 10.1154 16.1457 10.0142 16.1038C9.91305 16.0619 9.82114 16.0004 9.74375 15.9229L7.24375 13.4229C7.08738 13.2665 6.99954 13.0545 6.99954 12.8333C6.99954 12.6122 7.08738 12.4001 7.24375 12.2437C7.40012 12.0874 7.6122 11.9995 7.83333 11.9995C8.05447 11.9995 8.26655 12.0874 8.42292 12.2437L10.3333 14.1552L15.5771 8.91042C15.6545 8.83294 15.7464 8.77147 15.8475 8.72953C15.9487 8.6876 16.0572 8.66601 16.1667 8.66601C16.2762 8.66601 16.3846 8.6876 16.4858 8.72953C16.5869 8.77147 16.6789 8.83294 16.7563 8.91042ZM22 3.66667V20.3333C22 20.7754 21.8244 21.1993 21.5118 21.5118C21.1993 21.8244 20.7754 22 20.3333 22H3.66667C3.22464 22 2.80072 21.8244 2.48816 21.5118C2.17559 21.1993 2 20.7754 2 20.3333V3.66667C2 3.22464 2.17559 2.80072 2.48816 2.48816C2.80072 2.17559 3.22464 2 3.66667 2H20.3333C20.7754 2 21.1993 2.17559 21.5118 2.48816C21.8244 2.80072 22 3.22464 22 3.66667ZM20.3333 20.3333V3.66667H3.66667V20.3333H20.3333Z"
+                      fill="#D3D7E2"
+                    />
+                  </svg>
+                  <!-- Clicked State -->
+                  <svg
+                    id="buildingIsTwoStoreyCheckedCombined"
+                    class="hidden"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M20.3333 2H3.66667C3.22464 2 2.80072 2.17559 2.48816 2.48816C2.17559 2.80072 2 3.22464 2 3.66667V20.3333C2 20.7754 2.17559 21.1993 2.48816 21.5118C2.80072 21.8244 3.22464 22 3.66667 22H20.3333C20.7754 22 21.1993 21.8244 21.5118 21.5118C21.8244 21.1993 22 20.7754 22 20.3333V3.66667C22 3.22464 21.8244 2.80072 21.5118 2.48816C21.1993 2.17559 20.7754 2 20.3333 2ZM16.7563 10.0896L10.9229 15.9229C10.8455 16.0004 10.7536 16.0619 10.6524 16.1038C10.5513 16.1457 10.4428 16.1673 10.3333 16.1673C10.2238 16.1673 10.1154 16.1457 10.0142 16.1038C9.91305 16.0619 9.82114 16.0004 9.74375 15.9229L7.24375 13.4229C7.08738 13.2665 6.99954 13.0545 6.99954 12.8333C6.99954 12.6122 7.08738 12.4001 7.24375 12.2437C7.40012 12.0874 7.6122 11.9995 7.83333 11.9995C8.05447 11.9995 8.26655 12.0874 8.42292 12.2437L10.3333 14.1552L15.5771 8.91042C15.6545 8.83299 15.7464 8.77157 15.8476 8.72967C15.9487 8.68777 16.0572 8.6662 16.1667 8.6662C16.2762 8.6662 16.3846 8.68777 16.4857 8.72967C16.5869 8.77157 16.6788 8.83299 16.7563 8.91042C16.8337 8.98784 16.8951 9.07976 16.937 9.18092C16.9789 9.28208 17.0005 9.3905 17.0005 9.5C17.0005 9.6095 16.9789 9.71792 16.937 9.81908C16.8951 9.92024 16.8337 10.0122 16.7563 10.0896Z"
+                      fill="#003882"
+                    />
+                  </svg>
+                  <div class="text-bodyText text-dark">Manhole?</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--End-->
+      </div>
+      <!-- Submit Button -->
+      <div
+        class="flex items-center justify-end gap-2 border-t border-neutral-300 bg-white p-4 max-[1100px]:fixed max-[1100px]:bottom-0 max-[1100px]:w-full max-[1100px]:pb-6 max-[1100px]:shadow-[0px_0px_4px_0px_rgba(0,0,0,0.10)]"
+      >
+        <div
+          @click="combinedPropertyEditModal = false"
+          class="button-plain max-[1100px]:border-primary max-[1100px]:w-full max-[1100px]:rounded-[4px] max-[1100px]:border text-center"
+        >
+          Back
+        </div>
+        <button
+          type="submit"
+          class="button-primary text-h3 cursor-pointer max-[1100px]:w-full"
+          id="editPropertyInfo"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<script
+  async
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAB5BuHgOkYcnAcTJk6jLEkS7hSHtqNwo&libraries=places&callback=initAutocomplete"
+></script>
+
+<div
+  x-cloak
+  x-show="editPropertyInfoModal"
+  x-transition.opacity.duration.200ms
+  x-trap.inert.noscroll="editPropertyInfoModal"
+  @keydown.esc.window="editPropertyInfoModal = false"
+  @click.self="editPropertyInfoModal = false"
+  class="xlg:px-4 xlg:pb-8 fixed inset-0 z-30 flex items-center justify-center bg-black/20 backdrop-blur-md max-[1100px]:h-full sm:items-center lg:p-8"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="editPropertyInfoModalTitle"
+>
+  <!-- Modal Dialog -->
+  <div
+    x-show="editPropertyInfoModal"
+    x-transition:enter="transition ease-out duration-200 delay-100 motion-reduce:transition-opacity"
+    x-transition:enter-start="opacity-0 scale-50"
+    x-transition:enter-end="opacity-100 scale-100"
+    class="xlg:w-[600px] xlg:rounded-md xlg:bg-white text-dark flex w-full flex-col gap-4 overflow-hidden bg-[#f6f6f6] max-[1100px]:h-full"
+  >
+    <form>
+      <div
+        class="xlg:bg-white flex items-center justify-between border-b border-neutral-300 p-4 max-[1100px]:flex-row-reverse max-[1100px]:justify-end max-[1100px]:gap-4"
+      >
+        <div
+          id="editPropertyInfoModalTitle"
+          class="text-h3 text-dark font-semibold tracking-wide"
+        >
+          Edit Property Information
+        </div>
+        <button
+          type="button"
+          @click="editPropertyInfoModal = false"
+          aria-label="close modal"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            stroke="currentColor"
+            fill="none"
+            stroke-width="1.4"
+            class="h-5 w-5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="flex flex-col gap-4 p-4">
+        <div
+          class="propertyAddressSingle flex w-full flex-[3] flex-col gap-[8px]"
+        >
+          <div
+            class="text-h3 text-dark mt-[2px] text-[14px] font-medium leading-[14px]"
+          >
+            Property
+          </div>
+          <div class="relative inline-block w-full">
+            <div name="dropdownSingle" id="dropdownSingle" class="!block">
+              <div class="addressSearchInputWrapperSingle">
+                <input
+                  class="addressSearchSingle propertynameSingle"
+                  id="autocompleteSingle"
+                  type="text"
+                  placeholder="[Page//Property//Property Name]"
+                />
+                <input
+                  class="addressUIDSingle hidden"
+                  id="addressUniqueIDSingle"
+                  type="text"
+                  placeholder=""
+                />
+                <input
+                  class="propertyuniqueidSingle hidden addUIDOnLoad"
+                  id="propertyuniqueidSingle"
+                  type="text"
+                  placeholder=""
+                />
+                <input
+                  class="country hidden"
+                  id="country"
+                  type="text"
+                  placeholder=""
+                />
+              </div>
+              <div class="property-list-wrapperSingle">
+                <DynamicList source="Properties" numRecords="60">
+                  <div
+                    data-name="[Page//Property//Property Name]"
+                    data-propertytype="[Page//Property//Property Type]"
+                    data-ownertype="[Page//Property//Owner Type]"
+                    data-id="[Page//Property//Unique ID]"
+                    data-pid="[Page//Property//ID]"
+                  ></div>
+                </DynamicList>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col">
+          <div class="flex w-full flex-col gap-2">
+            <label for="lotNumber" class="text-h3 text-dark">Lot Number</label>
+            <input
+              id="lotNumber"
+              type="text"
+              placeholder="Enter Lot Number"
+              class="text-dark text-label"
+            />
+          </div>
+          <div class="flex w-full flex-col gap-2">
+            <label for="unitNumber" class="text-h3 text-dark"
+              >Unit Number</label
+            >
+            <input
+              id="unitNumber"
+              type="text"
+              placeholder="Enter Unit Number"
+              class="text-dark text-label"
+            />
+          </div>
+        </div>
+        <div class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col">
+          <div class="flex w-full flex-col gap-2">
+            <label for="address" class="text-h3 text-dark">Address</label>
+            <input
+              id="address"
+              type="text"
+              placeholder="Enter Address"
+              class="text-dark text-label"
+            />
+          </div>
+          <div class="flex w-full flex-col gap-2">
+            <label for="suburbTown" class="text-h3 text-dark"
+              >Suburb/ Town</label
+            >
+            <input
+              id="suburbTown"
+              type="text"
+              placeholder="Enter Suburb/ Town"
+              class="text-dark text-label"
+            />
+          </div>
+        </div>
+        <div class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col">
+          <div class="flex w-full flex-col gap-2">
+            <label for="postalCode" class="text-h3 text-dark"
+              >Postal Code</label
+            >
+            <input
+              id="postalCode"
+              type="text"
+              placeholder="Enter Postal Code"
+              class="text-dark text-label"
+            />
+          </div>
+          <div class="flex w-full flex-col gap-2">
+            <label for="state" class="text-h3 text-dark">State</label>
+            <div class="relative">
+              <select
+                id="state"
+                class="!block appearance-none w-full bg-white border border-gray-300 px-4 py-2 pr-10 rounded-md text-dark"
+              >
+                <option value="NSW">NSW</option>
+                <option value="QLD">QLD</option>
+                <option value="VIC">VIC</option>
+                <option value="TAS">TAS</option>
+                <option value="SA">SA</option>
+                <option value="ACT">ACT</option>
+                <option value="NT">NT</option>
+                <option value="WA">WA</option>
+              </select>
+              <svg
+                class="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 011.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Submit Button -->
+      <div
+        class="flex items-center justify-end gap-2 border-t bottom-0 border-neutral-300 bg-white p-4 max-[1100px]:fixed max-[1100px]:w-full max-[1100px]:pb-6 max-[1100px]:shadow-[0px_0px_4px_0px_rgba(0,0,0,0.10)]"
+      >
+        <div
+          @click="editPropertyInfoModal = false"
+          class="button-plain max-[1100px]:border-primary max-[1100px]:w-full max-[1100px]:rounded-[4px] max-[1100px]:border text-center"
+        >
+          Back
+        </div>
+        <button
+          type="button"
+          class="button-primary text-h3 cursor-pointer max-[1100px]:w-full"
+          id="editPropertyInfosss"
+          @click=" createProperty();"
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          class="button-primary text-h3 cursor-pointer max-[1100px]:w-full"
+          id="addPropertyInfosss"
+          @click=" createNewProperty();"
+        >
+          Add
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div
+  x-cloak
+  x-show="propertyOwnerAndResidentModal"
+  x-transition.opacity.duration.200ms
+  x-trap.inert.noscroll="propertyOwnerAndResidentModal"
+  @keydown.esc.window="propertyOwnerAndResidentModal = false"
+  @click.self="propertyOwnerAndResidentModal = false"
+  class="xlg:px-4 xlg:pb-8 fixed inset-0 z-30 flex items-center justify-center bg-black/20 backdrop-blur-md max-[1100px]:h-full sm:items-center lg:p-8"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="propertyOwnerAndResidentModalTitle"
+>
+  <!-- Modal Dialog -->
+  <div
+    x-show="propertyOwnerAndResidentModal"
+    x-transition:enter="transition ease-out duration-200 delay-100 motion-reduce:transition-opacity"
+    x-transition:enter-start="opacity-0 scale-50"
+    x-transition:enter-end="opacity-100 scale-100"
+    class="xlg:w-[600px] xlg:rounded-md xlg:bg-white text-dark flex w-full flex-col gap-4 overflow-hidden bg-[#f6f6f6] max-[1100px]:h-full"
+  >
+    <form>
+      <div
+        class="xlg:bg-white flex items-center justify-between border-b border-neutral-300 p-4 max-[1100px]:flex-row-reverse max-[1100px]:justify-end max-[1100px]:gap-4"
+      >
+        <div
+          id="propertyOwnerAndResidentModalTitle"
+          class="text-h3 text-dark font-semibold tracking-wide"
+        >
+          Property Owner and Resident
+        </div>
+        <button
+          type="button"
+          @click="propertyOwnerAndResidentModal = false"
+          aria-label="close modal"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            stroke="currentColor"
+            fill="none"
+            stroke-width="1.4"
+            class="h-5 w-5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="flex flex-col gap-4 p-4">
+        <div class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col">
+          <div class="flex w-full flex-col gap-2">
+            <label for="ownerType" class="text-h3 text-dark">Owner Type</label>
+            <div class="relative">
+              <select
+                id="ownerType"
+                class="!block appearance-none w-full bg-white px-4 py-2 pr-10 rounded-md text-dark"
+                required
+              >
+                <option value="">Select Owner type</option>
+                <option value="Business">Business</option>
+                <option value="Investor">Investor</option>
+                <option value="Owner Occupier">Owner Occupier</option>
+              </select>
+              <svg
+                class="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 011.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
+                />
+              </svg>
+            </div>
+          </div>
+          <div class="flex w-full flex-col gap-2 ownerCompanyss">
+            <label for="ownerCompany" class="text-h3 text-dark"
+              >Owner Company</label
+            >
+            <div class="relative">
+              <input type="text" class="hidden hiddenCompanyId" />
+              <input type="text" class="hidden hiddenCompanyUId" />
+              <input
+                id="ownerCompany"
+                type="text"
+                placeholder="Search"
+                class="text-dark text-label w-full bg-white border border-gray-300 px-4 pr-8 py-2 pl-10 rounded-md"
+              />
+              <ul
+                id="companyDropdown"
+                class="absolute z-10 mt-1 hidden max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-md"
+              >
+                <!-- Create New Company Button -->
+                <li
+                  id="createNewCompanyButton"
+                  @click="propertyOwnerAndResidentModal=false;addnewCompanyModal=true;"
+                  class="text-primary mx-auto flex w-full cursor-pointer items-center gap-3 text-nowrap p-3 text-center justify-center bg-primary text-white hover:bg-secondary"
+                >
+                  <svg
+                    width="13"
+                    height="12"
+                    viewBox="0 0 13 12"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M6.5 1C6.07452 1 5.73077 1.34375 5.73077 1.76923V5.23077H1.76923C1.34375 5.23077 1 5.57452 1 6C1 6.42548 1.34375 6.76923 1.76923 6.76923H5.73077V10.2308C5.73077 10.6562 6.07452 11 6.5 11C6.92548 11 7.26923 10.6562 7.26923 10.2308V6.76923H11.2308C11.6562 6.76923 12 6.42548 12 6C12 5.57452 11.6562 5.23077 11.2308 5.23077H7.26923V1.76923C7.26923 1.34375 6.92548 1 6.5 1Z"
+                      fill="#FFFFFF"
+                    />
+                  </svg>
+                  <div>Create New Company</div>
+                </li>
+                <!-- Search Results will be appended here dynamically -->
+              </ul>
+              <svg
+                class="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500"
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M16.3311 15.5156L12.7242 11.9095C13.7696 10.6544 14.2909 9.04453 14.1797 7.41486C14.0684 5.7852 13.3331 4.26116 12.1268 3.15979C10.9205 2.05843 9.33603 1.46453 7.70299 1.50164C6.06995 1.53875 4.51409 2.20402 3.35906 3.35906C2.20402 4.51409 1.53875 6.06995 1.50164 7.70299C1.46453 9.33603 2.05843 10.9205 3.15979 12.1268C4.26116 13.3331 5.7852 14.0684 7.41486 14.1797C9.04453 14.2909 10.6544 13.7696 11.9095 12.7242L15.5156 16.3311C15.5692 16.3847 15.6328 16.4271 15.7027 16.4561C15.7727 16.4851 15.8477 16.5 15.9234 16.5C15.9991 16.5 16.0741 16.4851 16.144 16.4561C16.214 16.4271 16.2776 16.3847 16.3311 16.3311C16.3847 16.2776 16.4271 16.214 16.4561 16.144C16.4851 16.0741 16.5 15.9991 16.5 15.9234C16.5 15.8477 16.4851 15.7727 16.4561 15.7027C16.4271 15.6328 16.3847 15.5692 16.3311 15.5156ZM2.66852 7.8552C2.66852 6.82937 2.97271 5.82658 3.54263 4.97364C4.11255 4.12069 4.9226 3.4559 5.87035 3.06333C6.81809 2.67076 7.86096 2.56805 8.86708 2.76818C9.87319 2.96831 10.7974 3.46229 11.5227 4.18766C12.2481 4.91303 12.7421 5.83721 12.9422 6.84333C13.1424 7.84945 13.0396 8.89232 12.6471 9.84006C12.2545 10.7878 11.5897 11.5979 10.7368 12.1678C9.88383 12.7377 8.88103 13.0419 7.8552 13.0419C6.48008 13.0404 5.16171 12.4934 4.18935 11.5211C3.21699 10.5487 2.67004 9.23033 2.66852 7.8552Z"
+                  fill="#78829D"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <div class="flex w-full flex-col gap-2 individualOwnerss">
+            <label for="individualOwners" class="text-h3 text-dark"
+              >Individual Owner</label
+            >
+            <div class="relative">
+              <input type="text" class="hidden hiddenIndOwnerId" />
+              <input type="text" class="hidden hiddenIndOwnerUId" />
+              <input
+                id="individualOwners"
+                type="text"
+                placeholder="Search"
+                class="text-dark text-label w-full bg-white border border-gray-300 px-4 pr-8 py-2 pl-10 rounded-md"
+              />
+              <ul
+                id="clientIndDropdown"
+                class="absolute z-10 mt-1 hidden max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-md"
+              >
+                <!-- Create New Contact Button -->
+                <li
+                  id="createIndButton"
+                  @click="propertyOwnerAndResidentModal=false;newClientModal=true;"
+                  class="text-primary mx-auto flex w-full cursor-pointer items-center justify-center gap-3 text-nowrap p-3 text-center bg-primary text-white hover:bg-secondary"
+                >
+                  <svg
+                    width="13"
+                    height="12"
+                    viewBox="0 0 13 12"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M7.26923 1.76923C7.26923 1.34375 6.92548 1 6.5 1C6.07452 1 5.73077 1.34375 5.73077 1.76923V5.23077H2.26923C1.84375 5.23077 1.5 5.57452 1.5 6C1.5 6.42548 1.84375 6.76923 2.26923 6.76923H5.73077V10.2308C5.73077 10.6562 6.07452 11 6.5 11C6.92548 11 7.26923 10.6562 7.26923 10.2308V6.76923H10.7308C11.1562 6.76923 11.5 6.42548 11.5 6C11.5 5.57452 11.1562 5.23077 10.7308 5.23077H7.26923V1.76923Z"
+                      fill="#FFFFFF"
+                    />
+                  </svg>
+                  <div>Create New Contact</div>
+                </li>
+                <!-- Search Results will be appended here dynamically -->
+              </ul>
+              <svg
+                class="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500"
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M16.3311 15.5156L12.7242 11.9095C13.7696 10.6544 14.2909 9.04453 14.1797 7.41486C14.0684 5.7852 13.3331 4.26116 12.1268 3.15979C10.9205 2.05843 9.33603 1.46453 7.70299 1.50164C6.06995 1.53875 4.51409 2.20402 3.35906 3.35906C2.20402 4.51409 1.53875 6.06995 1.50164 7.70299C1.46453 9.33603 2.05843 10.9205 3.15979 12.1268C4.26116 13.3331 5.7852 14.0684 7.41486 14.1797C9.04453 14.2909 10.6544 13.7696 11.9095 12.7242L15.5156 16.3311C15.5692 16.3847 15.6328 16.4271 15.7027 16.4561C15.7727 16.4851 15.8477 16.5 15.9234 16.5C15.9991 16.5 16.0741 16.4851 16.144 16.4561C16.214 16.4271 16.2776 16.3847 16.3311 16.3311C16.3847 16.2776 16.4271 16.214 16.4561 16.144C16.4851 16.0741 16.5 15.9991 16.5 15.9234C16.5 15.8477 16.4851 15.7727 16.4561 15.7027C16.4271 15.6328 16.3847 15.5692 16.3311 15.5156ZM2.66852 7.8552C2.66852 6.82937 2.97271 5.82658 3.54263 4.97364C4.11255 4.12069 4.9226 3.4559 5.87035 3.06333C6.81809 2.67076 7.86096 2.56805 8.86708 2.76818C9.87319 2.96831 10.7974 3.46229 11.5227 4.18766C12.2481 4.91303 12.7421 5.83721 12.9422 6.84333C13.1424 7.84945 13.0396 8.89232 12.6471 9.84006C12.2545 10.7878 11.5897 11.5979 10.7368 12.1678C9.88383 12.7377 8.88103 13.0419 7.8552 13.0419C6.48008 13.0404 5.16171 12.4934 4.18935 11.5211C3.21699 10.5487 2.67004 9.23033 2.66852 7.8552Z"
+                  fill="#78829D"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col">
+          <div class="flex w-full flex-col gap-2">
+            <label for="residentName" class="text-h3 text-dark"
+              >Resident's Name</label
+            >
+            <input
+              id="residentName"
+              type="text"
+              placeholder="Enter Resident's Name"
+              class="text-dark text-label"
+            />
+          </div>
+          <div class="flex w-full flex-col gap-2">
+            <label for="residentMobile" class="text-h3 text-dark"
+              >Resident's Mobile</label
+            >
+            <input
+              id="residentMobile"
+              type="text"
+              placeholder="Enter Resident's Mobile"
+              class="text-dark text-label"
+            />
+          </div>
+        </div>
+        <div class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col">
+          <div class="flex w-full flex-col gap-2">
+            <label for="residentEmail" class="text-h3 text-dark"
+              >Resident's Email</label
+            >
+            <input
+              id="residentEmail"
+              type="email"
+              placeholder="Enter Resident's Email"
+              class="text-dark text-label"
+            />
+          </div>
+        </div>
+      </div>
+      <!-- Submit Button -->
+      <div
+        class="flex items-center justify-end gap-2 border-t border-neutral-300 bg-white p-4 max-[1100px]:fixed max-[1100px]:bottom-0 max-[1100px]:w-full max-[1100px]:pb-6 max-[1100px]:shadow-[0px_0px_4px_0px_rgba(0,0,0,0.10)]"
+      >
+        <div
+          @click="propertyOwnerAndResidentModal = false"
+          class="button-plain max-[1100px]:border-primary max-[1100px]:w-full max-[1100px]:rounded-[4px] max-[1100px]:border text-center"
+        >
+          Back
+        </div>
+        <button
+          type="button"
+          class="button-primary text-h3 cursor-pointer max-[1100px]:w-full createContactBtn"
+          @click="createContact();"
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          class="button-primary text-h3 cursor-pointer max-[1100px]:w-full createCompanyBtn"
+          @click="createCompany();"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Contact--->
+
+<!--end-->
+
+<div
+  x-cloak
+  x-show="propertyDescriptionModal"
+  x-transition.opacity.duration.200ms
+  x-trap.inert.noscroll="propertyDescriptionModal"
+  @keydown.esc.window="propertyDescriptionModal = false"
+  @click.self="propertyDescriptionModal = false"
+  class="xlg:px-4 xlg:pb-8 fixed inset-0 z-30 flex items-center justify-center bg-black/20 backdrop-blur-md max-[1100px]:h-full sm:items-center lg:p-8"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="propertyDescriptionModalTitle"
+>
+  <!-- Modal Dialog -->
+  <div
+    x-show="propertyDescriptionModal"
+    x-transition:enter="transition ease-out duration-200 delay-100 motion-reduce:transition-opacity"
+    x-transition:enter-start="opacity-0 scale-50"
+    x-transition:enter-end="opacity-100 scale-100"
+    class="xlg:w-[600px] xlg:rounded-md xlg:bg-white text-dark flex w-full flex-col gap-4 overflow-hidden bg-[#f6f6f6] max-[1100px]:h-full"
+  >
+    <form>
+      <div
+        class="xlg:bg-white flex items-center justify-between border-b border-neutral-300 p-4 max-[1100px]:flex-row-reverse max-[1100px]:justify-end max-[1100px]:gap-4"
+      >
+        <div
+          id="propertyDescriptionModalTitle"
+          class="text-h3 text-dark font-semibold tracking-wide"
+        >
+          Property Description
+        </div>
+        <button
+          type="button"
+          @click="propertyDescriptionModal = false"
+          aria-label="close modal"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            stroke="currentColor"
+            fill="none"
+            stroke-width="1.4"
+            class="h-5 w-5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="flex flex-col gap-4 p-4">
+        <div class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col">
+          <div class="flex w-full flex-col gap-2">
+            <label for="propertyType" class="text-h3 text-dark"
+              >Property Type</label
+            >
+            <div class="relative">
+              <select
+                id="propertyType"
+                class="!block appearance-none w-full bg-white px-4 py-2 pr-10 rounded-md text-dark"
+              >
+                <option value="">Select Property Type</option>
+                <option value="Residential">Residential</option>
+                <option value="Commercial">Commercial</option>
+                <option value="Industrial">Industrial</option>
+              </select>
+              <svg
+                class="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 011.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
+                />
+              </svg>
+            </div>
+          </div>
+          <div class="flex w-full flex-col gap-2">
+            <label for="buildingType" class="text-h3 text-dark"
+              >Building Type</label
+            >
+            <div class="relative">
+              <select
+                id="buildingType"
+                class="!block appearance-none w-full bg-white px-4 py-2 pr-10 rounded-md text-dark"
+              >
+                <option value="">Select Building Type</option>
+                <option value="House">House</option>
+                <option value="Unit">Unit</option>
+                <option value="Offices">Offices</option>
+                <option value="Warehouse">Warehouse</option>
+                <option value="Other">Other</option>
+              </select>
+              <svg
+                class="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 011.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col">
+          <!-- Combobox Container -->
+          <div
+            id="buildingFeaturesCombobox"
+            class="w-full flex flex-col gap-1 relative"
+          >
+            <!-- Label -->
+            <label for="buildingFeatures" class="text-h3 text-dark"
+              >Building Features</label
+            >
+            <!-- Trigger Button -->
+            <div
+              id="comboboxButton"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              tabindex="0"
+              class="inline-flex w-full items-center justify-between gap-2 bg-white p-3 border border-[#d3d7e2] text-bodyText rounded cursor-pointer bg-white"
+            >
+              <!-- Selected Options Label -->
+              <span
+                id="comboboxLabel"
+                class="text-sm font-normal text-start overflow-hidden text-ellipsis line-clamp-1"
+                >Please Select</span
+              >
+              <!-- Chevron Icon -->
+              <div class="size-6">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M16.3002 6.41453L9.48236 13.2324C9.41904 13.2958 9.34385 13.346 9.26108 13.3804C9.17831 13.4147 9.0896 13.4323 9 13.4323C8.9104 13.4323 8.82168 13.4147 8.73892 13.3804C8.65615 13.346 8.58096 13.2958 8.51764 13.2324L1.6998 6.41453C1.57187 6.28659 1.5 6.11308 1.5 5.93216C1.5 5.75124 1.57187 5.57773 1.6998 5.4498C1.82773 5.32187 2.00124 5.25 2.18216 5.25C2.36308 5.25 2.53659 5.32187 2.66452 5.4498L9 11.7861L15.3355 5.4498C15.3988 5.38646 15.474 5.33621 15.5568 5.30193C15.6395 5.26764 15.7283 5.25 15.8178 5.25C15.9074 5.25 15.9961 5.26764 16.0789 5.30193C16.1617 5.33621 16.2369 5.38646 16.3002 5.4498C16.3635 5.51315 16.4138 5.58835 16.4481 5.67111C16.4824 5.75387 16.5 5.84258 16.5 5.93216C16.5 6.02175 16.4824 6.11045 16.4481 6.19322C16.4138 6.27598 16.3635 6.35118 16.3002 6.41453Z"
+                    fill="#78829D"
+                  />
+                </svg>
+              </div>
+            </div>
+            <!-- Hidden Input to Store Selected Values -->
+            <input
+              id="buildingFeatures"
+              name="buildingFeatures"
+              type="text"
+              hidden
+            />
+            <!-- Dropdown List -->
+            <ul
+              id="featuresList"
+              class="absolute z-10 left-0 top-full mt-2 w-full bg-white rounded shadow-[0px_3px_8px_0px_rgba(0,0,0,0.16)] max-h-60 overflow-y-auto hidden"
+            >
+              <!-- Options will be dynamically inserted here -->
+            </ul>
+          </div>
+
+          <div class="flex w-full flex-col gap-2">
+            <label for="otherBuildingType" class="text-h3 text-dark"
+              >Building Type: Other</label
+            >
+            <input
+              id="otherBuildingType"
+              type="text"
+              placeholder="Enter Building Type: Other"
+              class="text-dark text-label"
+            />
+          </div>
+        </div>
+        <div class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col">
+          <div class="flex w-full flex-col gap-2">
+            <label for="bedrooms" class="text-h3 text-dark">Bedrooms</label>
+            <input
+              id="bedrooms"
+              type="text"
+              placeholder="Enter Number of Bedrooms"
+              class="text-dark text-label"
+              required
+            />
+          </div>
+          <div class="flex w-full flex-col gap-2">
+            <label for="Stories" class="text-h3 text-dark">Stories</label>
+            <input
+              id="Stories"
+              type="text"
+              placeholder="Enter Number of Stories"
+              class="text-dark text-label"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="xlg:items-center flex w-full gap-4 max-[1100px]:flex-col">
+          <div class="flex w-full flex-col gap-2">
+            <label for="foundationType" class="text-h3 text-dark"
+              >Foundation Type</label
+            >
+            <div class="relative">
+              <select
+                id="foundationType"
+                class="!block appearance-none w-full bg-white px-4 py-2 pr-10 rounded-md text-dark"
+              >
+                <option value="">Select Foundation Type</option>
+                <option value="Slab on Ground">Slab on Ground</option>
+                <option value="Lowset">Lowset</option>
+                <option value="Highset">Highset</option>
+              </select>
+              <svg
+                class="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 011.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <div
+            class="checkbox-container w-full flex items-center gap-3"
+            style="cursor: pointer"
+            onclick="toggleBuildingIsTwoStorey()"
+          >
+            <!-- Unclicked State -->
+            <svg
+              id="manholeUnchecked"
+              class="unchecked"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M16.7563 8.91042C16.8337 8.98781 16.8952 9.07972 16.9371 9.18088C16.9791 9.28205 17.0007 9.39049 17.0007 9.5C17.0007 9.60951 16.9791 9.71795 16.9371 9.81912C16.8952 9.92028 16.8337 10.0122 16.7563 10.0896L10.9229 15.9229C10.8455 16.0004 10.7536 16.0619 10.6524 16.1038C10.5513 16.1457 10.4428 16.1673 10.3333 16.1673C10.2238 16.1673 10.1154 16.1457 10.0142 16.1038C9.91305 16.0619 9.82114 16.0004 9.74375 15.9229L7.24375 13.4229C7.08738 13.2665 6.99954 13.0545 6.99954 12.8333C6.99954 12.6122 7.08738 12.4001 7.24375 12.2437C7.40012 12.0874 7.6122 11.9995 7.83333 11.9995C8.05447 11.9995 8.26655 12.0874 8.42292 12.2437L10.3333 14.1552L15.5771 8.91042C15.6545 8.83294 15.7464 8.77147 15.8475 8.72953C15.9487 8.6876 16.0572 8.66601 16.1667 8.66601C16.2762 8.66601 16.3846 8.6876 16.4858 8.72953C16.5869 8.77147 16.6789 8.83294 16.7563 8.91042ZM22 3.66667V20.3333C22 20.7754 21.8244 21.1993 21.5118 21.5118C21.1993 21.8244 20.7754 22 20.3333 22H3.66667C3.22464 22 2.80072 21.8244 2.48816 21.5118C2.17559 21.1993 2 20.7754 2 20.3333V3.66667C2 3.22464 2.17559 2.80072 2.48816 2.48816C2.80072 2.17559 3.22464 2 3.66667 2H20.3333C20.7754 2 21.1993 2.17559 21.5118 2.48816C21.8244 2.80072 22 3.22464 22 3.66667ZM20.3333 20.3333V3.66667H3.66667V20.3333H20.3333Z"
+                fill="#D3D7E2"
+              />
+            </svg>
+
+            <svg
+              id="manholeChecked"
+              class="hidden"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M20.3333 2H3.66667C3.22464 2 2.80072 2.17559 2.48816 2.48816C2.17559 2.80072 2 3.22464 2 3.66667V20.3333C2 20.7754 2.17559 21.1993 2.48816 21.5118C2.80072 21.8244 3.22464 22 3.66667 22H20.3333C20.7754 22 21.1993 21.8244 21.5118 21.5118C21.8244 21.1993 22 20.7754 22 20.3333V3.66667C22 3.22464 21.8244 2.80072 21.5118 2.48816C21.1993 2.17559 20.7754 2 20.3333 2ZM16.7563 10.0896L10.9229 15.9229C10.8455 16.0004 10.7536 16.0619 10.6524 16.1038C10.5513 16.1457 10.4428 16.1673 10.3333 16.1673C10.2238 16.1673 10.1154 16.1457 10.0142 16.1038C9.91305 16.0619 9.82114 16.0004 9.74375 15.9229L7.24375 13.4229C7.08738 13.2665 6.99954 13.0545 6.99954 12.8333C6.99954 12.6122 7.08738 12.4001 7.24375 12.2437C7.40012 12.0874 7.6122 11.9995 7.83333 11.9995C8.05447 11.9995 8.26655 12.0874 8.42292 12.2437L10.3333 14.1552L15.5771 8.91042C15.6545 8.83299 15.7464 8.77157 15.8476 8.72967C15.9487 8.68777 16.0572 8.6662 16.1667 8.6662C16.2762 8.6662 16.3846 8.68777 16.4857 8.72967C16.5869 8.77157 16.6788 8.83299 16.7563 8.91042C16.8337 8.98784 16.8951 9.07976 16.937 9.18092C16.9789 9.28208 17.0005 9.3905 17.0005 9.5C17.0005 9.6095 16.9789 9.71792 16.937 9.81908C16.8951 9.92024 16.8337 10.0122 16.7563 10.0896Z"
+                fill="#003882"
+              />
+            </svg>
+            <div class="text-bodyText text-dark">Manhole ?</div>
+          </div>
+        </div>
+      </div>
+      <!-- Submit Button -->
+      <div
+        class="flex items-center justify-end gap-2 border-t border-neutral-300 bg-white p-4 max-[1100px]:fixed max-[1100px]:bottom-0 max-[1100px]:w-full max-[1100px]:pb-6 max-[1100px]:shadow-[0px_0px_4px_0px_rgba(0,0,0,0.10)]"
+      >
+        <div
+          @click="propertyDescriptionModal = false"
+          class="button-plain max-[1100px]:border-primary max-[1100px]:w-full max-[1100px]:rounded-[4px] max-[1100px]:border text-center"
+        >
+          Back
+        </div>
+        <button
+          type="button"
+          class="button-primary text-h3 cursor-pointer max-[1100px]:w-full"
+          @click="editBuindingDesc();"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<div
+  x-cloak
+  x-show="newClientModal"
+  x-transition.opacity.duration.200ms
+  x-trap.inert.noscroll="newClientModal"
+  @keydown.esc.window="newClientModal = false; window.closePropertySubModal && window.closePropertySubModal();"
+  @click.self="newClientModal = false; window.closePropertySubModal && window.closePropertySubModal();"
+  class="fixed inset-0 z-30 flex items-end justify-center bg-black/20 p-4 pb-8 backdrop-blur-md sm:items-center lg:p-8 max-[1100px]:p-0"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="newClientModalTitle"
+>
+  <!-- Modal Dialog -->
+  <div
+    x-show="newClientModal"
+    x-transition:enter="transition ease-out duration-200 delay-100 motion-reduce:transition-opacity"
+    x-transition:enter-start="opacity-0 scale-50"
+    x-transition:enter-end="opacity-100 scale-100"
+    class="flex max-w-lg flex-col gap-4 overflow-hidden rounded-md border border-neutral-300 bg-white text-dark max-[1100px]:size-full"
+  >
+    <!-- Dialog Header -->
+    <div
+      class="flex items-center justify-between border-b border-neutral-300 bg-white p-4 xlg:w-[450px] max-[1100px]:flex-row-reverse max-[1100px]:gap-4 max-[1100px]:justify-end"
+    >
+      <h3
+        id="newClientModalTitle"
+        class="font-semibold tracking-wide text-dark"
+      >
+        Add Client Information
+      </h3>
+      <button
+        @click="newClientModal = false; window.closePropertySubModal && window.closePropertySubModal();"
+        aria-label="close modal"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          stroke="currentColor"
+          fill="none"
+          stroke-width="1.4"
+          class="w-5 h-5"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+    <!-- Dialog Body -->
+    <div class="px-4 flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <div class="text-h3 text-dark">First Name</div>
+        <input
+          class="focus:outline-none !mb-[0px]"
+          id="newClientFirstName"
+          type="text"
+          placeholder="Enter First Name"
+        />
+      </div>
+      <div class="flex flex-col gap-2">
+        <div class="text-h3 text-dark">Last Name</div>
+        <input
+          class="focus:outline-none !mb-[0px]"
+          id="newClientLastName"
+          type="text"
+          placeholder="Enter Last Name"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <div class="text-h3 text-dark">SMS Number</div>
+        <input
+          class="focus:outline-none !mb-[0px]"
+          id="newClientSms"
+          type="text"
+          placeholder="Enter SMS Number"
+        />
+      </div>
+      <div class="flex flex-col gap-2">
+        <div class="text-h3 text-dark">Email</div>
+        <input
+          class="focus:outline-none !mb-[0px]"
+          id="newClientEmail"
+          type="text"
+          placeholder="Enter Email"
+        />
+      </div>
+
+      <div class="flex w-full flex-col gap-2">
+        <label for="newClietOwnerType" class="text-h3 text-dark"
+          >Owner Type</label
+        >
+        <div class="relative">
+          <select
+            id="newClietOwnerType"
+            class="!block appearance-none w-full bg-white px-4 py-2 pr-10 rounded-md text-dark"
+          >
+            <option value="">Select Owner Type</option>
+            <option value="Investor">Investor</option>
+            <option value="Owner Occupier">Owner Occupier</option>
+          </select>
+          <svg
+            class="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 011.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+    <!-- Dialog Footer -->
+    <div
+      class="flex flex-col-reverse justify-between gap-2 border-t border-neutral-300 bg-white p-4 sm:flex-row sm:items-center md:justify-end"
+    >
+      <button
+        class="button-plain"
+        @click="newClientModal = false; window.closePropertySubModal && window.closePropertySubModal();"
+      >
+        Cancel
+      </button>
+      <button type="button" class="button-primary" @click="addNewIndividual();">
+        Add
+      </button>
+    </div>
+  </div>
+</div>
+
+<div
+  x-cloak
+  x-show="addnewCompanyModal"
+  x-transition.opacity.duration.200ms
+  x-trap.inert.noscroll="addnewCompanyModal"
+  @keydown.esc.window="addnewCompanyModal = false; window.closePropertySubModal && window.closePropertySubModal();"
+  @click.self="addnewCompanyModal = false; window.closePropertySubModal && window.closePropertySubModal();"
+  class="fixed inset-0 z-30 flex items-end justify-center bg-black/20 p-4 pb-8 backdrop-blur-md sm:items-center lg:p-8 max-[1100px]:p-0"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="addnewCompanyModalTitle"
+>
+  <!-- Modal Dialog -->
+  <div
+    x-show="addnewCompanyModal"
+    x-transition:enter="transition ease-out duration-200 delay-100 motion-reduce:transition-opacity"
+    x-transition:enter-start="opacity-0 scale-50"
+    x-transition:enter-end="opacity-100 scale-100"
+    class="text-dark flex max-w-lg flex-col gap-4 overflow-hidden rounded-md border border-neutral-300 bg-white max-[1100px]:size-full"
+  >
+    <!-- Dialog Header -->
+    <div
+      class="flex items-center justify-between border-b border-neutral-300 bg-white p-4"
+    >
+      <h3
+        id="addnewCompanyModalTitle"
+        class="text-dark font-semibold tracking-wide"
+      >
+        Add Company Information
+      </h3>
+      <button
+        @click="addnewCompanyModal = false; window.closePropertySubModal && window.closePropertySubModal();"
+        aria-label="close modal"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          stroke="currentColor"
+          fill="none"
+          stroke-width="1.4"
+          class="h-5 w-5"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+    <!-- Dialog Body -->
+    <div class="flex flex-col gap-4 px-4">
+      <div class="flex flex-col gap-2">
+        <div class="text-h3 text-dark">Company Name</div>
+        <input
+          class="!mb-[0px] focus:outline-none"
+          id="addNewCompanyName"
+          type="text"
+          placeholder="Enter Company Name"
+        />
+      </div>
+    </div>
+    <!-- Dialog Footer -->
+    <div
+      class="flex flex-col-reverse justify-between gap-2 border-t border-neutral-300 bg-white p-4 sm:flex-row sm:items-center md:justify-end"
+    >
+      <button
+        class="button-plain"
+        @click="addnewCompanyModal = false; window.closePropertySubModal && window.closePropertySubModal();"
+      >
+        Cancel
+      </button>
+      <button class="button-primary" @click="addNewCompany();">Add</button>
+    </div>
+  </div>
+</div>

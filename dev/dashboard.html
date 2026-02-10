@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PTPM Dashboard (Dev)</title>
+
+  <!-- ========== MOCK DATA (dev only) ========== -->
+  <script src="./mock-data.js"></script>
+
+  <!-- ========== SIMULATED ONTRAPORT HEADER ========== -->
+  <script>
+    window.AppConfig = window.AppConfig || {};
+    if (window.__ONTRAPORT_MOCK__) {
+      Object.assign(window.AppConfig, {
+        SLUG: 'peterpm',
+        API_KEY: window.__MOCK_API_KEY__ || '',
+        CONTACT_ID: window.__MOCK_CONTACT_ID__ || '',
+        LOGGED_IN_USER_ID: window.__MOCK_LOGGED_IN_USER_ID__ || '',
+        SERVICE_PROVIDER_ID: window.__MOCK_SERVICE_PROVIDER_ID__ || '',
+        ACCOUNT_TYPE: window.__MOCK_ACCOUNT_TYPE__ || '',
+        DEBUG: true,
+      });
+    }
+  </script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#e8f0fb', 100: '#cedef5', 200: '#9bbced', 300: '#689be5',
+              400: '#346adc', 500: '#003882', 600: '#002f6b', 700: '#002555',
+              800: '#001c3f', 900: '#00122a',
+            },
+          },
+          boxShadow: { card: '0 10px 40px rgba(15, 23, 42, 0.05)' },
+        },
+        fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+      },
+    };
+  </script>
+
+  <!-- VitalSync SDK -->
+  <script async data-chunk="client"
+    src="https://static-au03.vitalstats.app/static/sdk/v1/latest.js"
+    crossorigin="anonymous"></script>
+
+  <!-- Dayjs + Timezone plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/timezone.js"></script>
+  <script>dayjs.extend(dayjs_plugin_utc); dayjs.extend(dayjs_plugin_timezone);</script>
+
+  <!-- Flatpickr -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="../src/css/styles.css">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-100 font-sans text-slate-900" data-page="dashboard">
+  <!-- ========== DEV BANNER ========== -->
+  <div style="background:#fff3cd;padding:8px 16px;font-size:12px;text-align:center;font-family:monospace;">
+    DEV MODE &mdash; Dashboard &bull; <a href="./index.html" style="color:#003882;text-decoration:underline;">&larr; Back to dev home</a>
+  </div>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="flex flex-col space-y-6 mb-4">
+
+    <!-- ─── Header Bar ─── -->
+    <header class="w-full px-4 sm:px-5 py-4 bg-[#003882] border-b border-gray-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white shadow-card">
+      <div class="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+        <!-- Logo / Title -->
+        <div class="flex items-center gap-3">
+          <span class="text-lg font-bold">PTPM Dashboard</span>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="w-full sm:w-auto flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-12">
+          <!-- Global search -->
+          <div class="px-4 py-2 bg-white/10 rounded flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white/60" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+            <input id="global-search" type="text" placeholder="Search all records..." class="bg-transparent outline-none text-white placeholder:text-white/60 text-sm flex-1 w-48">
+          </div>
+
+          <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4">
+            <!-- Create button -->
+            <button id="create-btn" class="px-4 py-2 bg-white rounded text-[#003882] text-sm font-medium inline-flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+              </svg>
+              Create
+            </button>
+            <!-- Print -->
+            <button id="print-btn" class="px-4 py-2 rounded outline outline-1 outline-white text-white text-sm font-medium">Print</button>
+            <!-- Batch Actions -->
+            <button id="batch-actions-btn" class="px-4 py-2 rounded outline outline-1 outline-white text-white text-sm font-medium">Batch Actions</button>
+          </div>
+
+          <!-- Notification Bell + User -->
+          <div class="flex items-center gap-6 sm:gap-8">
+            <button id="notification-btn" class="h-8 relative flex items-center gap-2">
+              <span id="notification-count" class="w-4 h-4 absolute -top-1 -right-1 bg-red-600 rounded-full text-[10px] font-semibold text-white flex items-center justify-center hidden"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="white">
+                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+              </svg>
+            </button>
+            <!-- Notification popover -->
+            <div id="notificationPopover" class="hidden absolute right-4 top-16 w-80 bg-white rounded-lg shadow-xl border border-slate-200 z-50">
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 bg-white/20 rounded-full"></div>
+              <span class="text-sm font-medium text-white">Admin</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ─── Content Area (Sidebar + Main) ─── -->
+    <div class="flex flex-col gap-4 px-2 lg:px-4 lg:flex-row">
+
+      <!-- Mobile filter toggle -->
+      <div class="flex items-center justify-end lg:hidden">
+        <button id="filters-toggle" type="button" aria-controls="filters-panel" aria-expanded="false"
+          class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-600" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3 4.5A1.5 1.5 0 014.5 3h11a1.5 1.5 0 011.106 2.5L13 9.117V15.5a1.5 1.5 0 01-2.316 1.236l-2.5-1.667A1.5 1.5 0 017.5 13.75V9.117L3 5.5A1.5 1.5 0 013 4.5z" clip-rule="evenodd"/>
+          </svg>
+          Filters
+        </button>
+      </div>
+
+      <!-- ═══ Filters Sidebar ═══ -->
+      <aside id="filters-panel" class="hidden w-full lg:block lg:w-[340px] lg:shrink-0 lg:grow-0 lg:basis-[360px]">
+        <div class="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <!-- Filter header -->
+          <div class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
+            <div class="flex items-center gap-3">
+              <span class="font-semibold text-neutral-700">All Filters</span>
+              <button id="filters-close" type="button" class="lg:hidden rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600">Close</button>
+            </div>
+            <div class="inline-flex items-center gap-2">
+              <button id="apply-filters-btn" class="px-2 py-2 bg-brand-600 rounded outline outline-1 outline-[#003882] text-white text-sm font-medium">Apply Filters</button>
+              <button id="reset-filters-btn" class="px-2 py-2 bg-brand-600 rounded outline outline-1 outline-[#003882] text-white text-sm font-medium hidden">Reset Filters</button>
+            </div>
+          </div>
+
+          <!-- Filter sections -->
+          <div class="flex-1 space-y-0 overflow-y-auto">
+            <!-- Status filter -->
+            <div class="space-y-3 border-b border-slate-200 px-3 py-4" id="related-filters">
+              <button id="status-filter-btn" type="button" class="flex w-full items-center justify-between rounded border border-slate-200 px-4 py-2 text-left text-sm font-medium text-slate-500">
+                <span>Status</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.21l3.71-3.98a.75.75 0 111.08 1.04l-4.25 4.56a.75.75 0 01-1.1 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+              </button>
+              <div id="status-filter-card" class="hidden mt-2 w-full rounded border border-slate-200 bg-white shadow-xl p-2">
+                <ul id="status-filter-list" class="max-h-64 overflow-auto text-sm text-slate-700 space-y-1">
+                  <li class="px-2 py-1 flex items-center gap-2"><input id="status-new-inquiry" data-status value="new inquiry" type="checkbox" class="h-4 w-4 accent-[#003882]"><label for="status-new-inquiry">New Inquiry</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input id="status-not-allocated" data-status value="not allocated" type="checkbox" class="h-4 w-4 accent-[#003882]"><label for="status-not-allocated">Not Allocated</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input id="status-contact-client" data-status value="contact client" type="checkbox" class="h-4 w-4 accent-[#003882]"><label for="status-contact-client">Contact Client</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input id="status-site-visit" data-status value="site visit scheduled" type="checkbox" class="h-4 w-4 accent-[#003882]"><label for="status-site-visit">Site Visit Scheduled</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input id="status-generate-quote" data-status value="generate quote" type="checkbox" class="h-4 w-4 accent-[#003882]"><label for="status-generate-quote">Generate Quote</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input id="status-completed" data-status value="completed" type="checkbox" class="h-4 w-4 accent-[#003882]"><label for="status-completed">Completed</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input id="status-cancelled" data-status value="cancelled" type="checkbox" class="h-4 w-4 accent-[#003882]"><label for="status-cancelled">Cancelled</label></li>
+                </ul>
+              </div>
+
+              <!-- Service Provider filter -->
+              <button id="service-provider-filter-btn" type="button" class="flex w-full items-center justify-between rounded border border-slate-200 px-4 py-2 text-left text-sm font-medium text-slate-500">
+                <span>Service Provider</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.21l3.71-3.98a.75.75 0 111.08 1.04l-4.25 4.56a.75.75 0 01-1.1 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+              </button>
+              <div id="service-provider-filter-card" class="hidden mt-2 w-full rounded border border-slate-200 bg-white shadow-xl p-2">
+                <ul class="max-h-64 overflow-auto text-sm text-slate-700 space-y-1">
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-service-provider value="Andrew Knights" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Andrew Knights</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-service-provider value="Anthony Dempsey" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Anthony Dempsey</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-service-provider value="Craig & Sabine" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Craig &amp; Sabine</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-service-provider value="David Williamson" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>David Williamson</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-service-provider value="Fraser Grant" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Fraser Grant</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-service-provider value="Glen Collins" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Glen Collins</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-service-provider value="Matt Gardner" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Matt Gardner</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-service-provider value="Shane Meehan" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Shane Meehan</label></li>
+                </ul>
+              </div>
+
+              <!-- Account Name text input -->
+              <div class="w-full">
+                <div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2">
+                  <input id="filter-account-name" type="text" placeholder="Account Name" class="flex-1 outline-none text-slate-500 placeholder:text-slate-500 text-sm bg-transparent">
+                </div>
+              </div>
+
+              <!-- Resident Search -->
+              <div class="w-full">
+                <div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2">
+                  <input id="filter-resident" type="text" placeholder="Resident Search" class="flex-1 outline-none text-slate-500 placeholder:text-slate-500 text-sm bg-transparent">
+                </div>
+              </div>
+
+              <!-- Address -->
+              <div class="w-full">
+                <div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2">
+                  <input id="filter-address" type="text" placeholder="Address" class="flex-1 outline-none text-slate-500 placeholder:text-slate-500 text-sm bg-transparent">
+                </div>
+              </div>
+
+              <!-- Account Type filter -->
+              <button id="account-type-filter-btn" type="button" class="flex w-full items-center justify-between rounded border border-slate-200 px-4 py-2 text-left text-sm font-medium text-slate-500">
+                <span>Account Type</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.21l3.71-3.98a.75.75 0 111.08 1.04l-4.25 4.56a.75.75 0 01-1.1 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+              </button>
+              <div id="account-type-filter-card" class="hidden mt-2 w-full rounded border border-slate-200 bg-white shadow-xl p-2">
+                <ul class="max-h-64 overflow-auto text-sm text-slate-700 space-y-1">
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-account-type value="Body Corp" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Body Corp</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-account-type value="Business & Gov" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Business &amp; Gov</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-account-type value="Real Estate Agent" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Real Estate Agent</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-account-type value="Tenant to Pay" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Tenant to Pay</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-account-type value="Wildlife Rescue" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Wildlife Rescue</label></li>
+                </ul>
+              </div>
+
+              <!-- Source filter -->
+              <button id="source-filter-btn" type="button" class="flex w-full items-center justify-between rounded border border-slate-200 px-4 py-2 text-left text-sm font-medium text-slate-500">
+                <span>Source</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.21l3.71-3.98a.75.75 0 111.08 1.04l-4.25 4.56a.75.75 0 01-1.1 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+              </button>
+              <div id="source-filter-card" class="hidden mt-2 w-full rounded border border-slate-200 bg-white shadow-xl p-2">
+                <ul id="source-filter-list" class="max-h-64 overflow-auto text-sm text-slate-700 space-y-1">
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-source value="Website" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Website</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-source value="Phone" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Phone</label></li>
+                  <li class="px-2 py-1 flex items-center gap-2"><input data-source value="Referral" type="checkbox" class="h-4 w-4 accent-[#003882]"><label>Referral</label></li>
+                </ul>
+              </div>
+
+              <!-- Serviceman text input -->
+              <div class="w-full">
+                <div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2">
+                  <input id="filter-serviceman" type="text" placeholder="Serviceman" class="flex-1 outline-none text-slate-500 placeholder:text-slate-500 text-sm bg-transparent">
+                </div>
+              </div>
+            </div>
+
+            <!-- Date filters -->
+            <div class="space-y-3 border-b border-slate-200 px-3 py-4" id="date-filters">
+              <div class="flex gap-3">
+                <label class="min-w-0 flex-1 rounded border border-slate-200 px-4 py-2 text-sm text-slate-500">
+                  <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2v2m12-2v2M4 7h16M5 5h14a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+                    <input id="date-from" type="text" class="min-w-0 flex-1 outline-none text-slate-700 text-sm" placeholder="Start date">
+                  </div>
+                </label>
+                <label class="min-w-0 flex-1 rounded border border-slate-200 px-4 py-2 text-sm text-slate-500">
+                  <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2v2m12-2v2M4 7h16M5 5h14a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+                    <input id="date-to" type="text" class="min-w-0 flex-1 outline-none text-slate-700 text-sm" placeholder="End date">
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Payment-related filters -->
+            <div class="space-y-3 border-b border-slate-200 px-3 py-4" id="payment-related-filter">
+              <div class="w-full">
+                <div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2">
+                  <input id="filter-quote-number" type="text" placeholder="Quote Number" class="flex-1 outline-none text-slate-500 placeholder:text-slate-500 text-sm bg-transparent">
+                </div>
+              </div>
+              <div class="w-full">
+                <div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2">
+                  <input id="filter-invoice-number" type="text" placeholder="Invoice Number" class="flex-1 outline-none text-slate-500 placeholder:text-slate-500 text-sm bg-transparent">
+                </div>
+              </div>
+              <div class="w-full">
+                <div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2">
+                  <input id="filter-recommendation" type="text" placeholder="Recommendation" class="flex-1 outline-none text-slate-500 placeholder:text-slate-500 text-sm bg-transparent">
+                </div>
+              </div>
+            </div>
+
+            <!-- Price range -->
+            <div class="space-y-3 px-3 py-4" id="price-range-filter">
+              <span class="text-sm font-medium text-slate-500">Price Range</span>
+              <div class="flex gap-3">
+                <div class="flex-1">
+                  <input id="price-min" type="number" placeholder="Min" class="w-full px-3 py-2 rounded border border-slate-200 text-sm outline-none" value="">
+                </div>
+                <div class="flex-1">
+                  <input id="price-max" type="number" placeholder="Max" class="w-full px-3 py-2 rounded border border-slate-200 text-sm outline-none" value="">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ═══ Main Content Area ═══ -->
+      <aside class="flex flex-col w-full gap-5">
+
+        <!-- Calendar summary -->
+        <section class="rounded-xl">
+          <div id="calendar-grid" class="flex w-full flex-wrap gap-3 overflow-x-auto rounded-lg bg-slate-100 sm:flex-nowrap sm:overflow-visible"></div>
+        </section>
+
+        <!-- Tabs + Table Card -->
+        <section class="w-full flex flex-col bg-white rounded-lg outline outline-1 outline-gray-300 shadow-card overflow-hidden">
+          <div class="flex flex-col w-full">
+            <!-- Tab navigation -->
+            <div class="px-6 py-4 border-b border-gray-300 flex justify-between items-center gap-4">
+              <div id="top-tabs" class="flex flex-wrap items-center gap-1 text-base font-medium text-neutral-700">
+                <!-- Tabs rendered by dashboard.js -->
+              </div>
+              <div class="flex flex-wrap items-center gap-3">
+                <span id="record-count" class="text-sm text-slate-500"></span>
+              </div>
+            </div>
+
+            <!-- Applied filter chips -->
+            <div class="px-4 py-3 flex justify-start items-center gap-4">
+              <div id="filter-applied" class="flex flex-wrap items-center gap-2"></div>
+            </div>
+
+            <!-- Data table -->
+            <div class="flex-1 overflow-hidden border-t border-slate-200 shadow-sm">
+              <div id="inquiry-table-container" class="w-full overflow-x-auto"></div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="p-3 border-t border-gray-300 flex justify-center items-start text-sm text-slate-600">
+              <div class="flex items-center gap-2">
+                <button id="lt-btn" class="h-8 px-3 py-1 rounded text-slate-500">&lt;</button>
+                <button id="prev-page-btn" class="h-8 px-3 py-1 rounded text-slate-500">Previous</button>
+                <div id="pagination-pages" class="flex gap-2"></div>
+                <button id="next-page-btn" class="h-8 px-3 py-1 rounded text-slate-500">Next</button>
+                <button id="gt-btn" class="h-8 px-3 py-1 rounded text-slate-500">&gt;</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </aside>
+    </div>
+  </main>
+
+  <!-- ========== SIMULATED ONTRAPORT FOOTER (Script loading order) ========== -->
+  <script src="../src/js/config.js"></script>
+  <script src="../src/js/utils.js"></script>
+  <script src="../src/js/vitalsync.js"></script>
+  <script src="../src/js/domain.js"></script>
+  <script src="../src/js/table.js"></script>
+  <script src="../src/js/pages/dashboard.js"></script>
+
+  <!-- Initialize dashboard -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Toggle filter dropdowns
+      var togglePairs = [
+        ['status-filter-btn', 'status-filter-card'],
+        ['service-provider-filter-btn', 'service-provider-filter-card'],
+        ['account-type-filter-btn', 'account-type-filter-card'],
+        ['source-filter-btn', 'source-filter-card'],
+      ];
+      togglePairs.forEach(function (pair) {
+        var btn = document.getElementById(pair[0]);
+        var card = document.getElementById(pair[1]);
+        if (btn && card) {
+          btn.addEventListener('click', function () { card.classList.toggle('hidden'); });
+        }
+      });
+
+      // Mobile filter toggle
+      var filtersToggle = document.getElementById('filters-toggle');
+      var filtersPanel = document.getElementById('filters-panel');
+      var filtersClose = document.getElementById('filters-close');
+      if (filtersToggle && filtersPanel) {
+        filtersToggle.addEventListener('click', function () {
+          filtersPanel.classList.toggle('hidden');
+        });
+      }
+      if (filtersClose && filtersPanel) {
+        filtersClose.addEventListener('click', function () {
+          filtersPanel.classList.add('hidden');
+        });
+      }
+
+      // Init dashboard
+      if (window.PtpmDashboard) {
+        window.PtpmDashboard.init();
+      }
+    });
+  </script>
+</body>
+</html>
