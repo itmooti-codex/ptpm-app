@@ -1,0 +1,34 @@
+<!-- ptpm-app — Ontraport Header Code -->
+<!-- Paste this into: Ontraport > Site Settings > Header Code -->
+<!-- Or into a specific page's Header Code section -->
+
+<!-- App Configuration (set values via Ontraport merge fields) -->
+<script>
+  window.AppConfig = {
+    SLUG: 'peterpm',
+    API_KEY: '', /* Set via merge field if needed, e.g. [Contact//API Key] */
+    CONTACT_ID: '[Visitor//Contact ID]',
+    DEBUG: false,
+  };
+</script>
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- VitalSync SDK -->
+<script async data-chunk="client"
+  src="https://static-au03.vitalstats.app/static/sdk/v1/latest.js"
+  crossorigin="anonymous"></script>
+
+<!-- VitalStats Dynamic List SDK -->
+<script async
+  src="https://static-au03.vitalstats.app/static/dynamic-list/v1/latest.js"
+  crossorigin="anonymous"></script>
+
+<!-- Custom Styles (from GitHub Pages) -->
+<link rel="stylesheet" href="https://itmooti-codex.github.io/ptpm-app/css/styles.css">
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
