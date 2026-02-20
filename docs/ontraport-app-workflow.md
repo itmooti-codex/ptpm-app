@@ -43,6 +43,8 @@ Same as React workflow — ask the user to export their VitalStats schema XML an
 
 Parse it using `docs/schema-format.md`.
 
+> **MCP note:** The schema XML is used by `parse-schema.cjs` to generate JSDoc types. For ad-hoc field lookups during development, use the `vitalsync_describe_model` MCP tool instead — it returns live schema data including field names, types, enums, and correct query syntax.
+
 ## Step 4: Generate JSDoc Types
 
 From the parsed XML schema, generate JSDoc type definitions in `src/types/models.js`.
@@ -89,6 +91,8 @@ node ../VibeCodeApps/scripts/research.cjs \
 ```
 
 Read the generated `research/knowledge-base.md` and discuss findings with the user before building.
+
+> **MCP note:** After research completes, MCP tools (`vitalsync_introspect_schema`, `vitalsync_query`, `vitalsync_calc_query`, `vitalsync_ontraport_read`) are available throughout development for live API queries. The research knowledge base provides business context; MCP tools provide technical execution. See `docs/research-phase.md` for the full MCP vs. research comparison.
 
 ## Step 6: Persona & Feature Discovery
 

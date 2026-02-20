@@ -2,34 +2,34 @@
 <!-- Paste this into: Ontraport Page → HTML Block in Body -->
 
 <main class="flex min-h-screen flex-col" data-page="new-inquiry">
-  <!-- Header -->
-  <header class="w-full px-6 py-4 bg-[#003882] border-b border-gray-300 flex justify-between items-center text-white shadow-card">
+  <!-- Header (sticky) -->
+  <header class="sticky top-0 z-50 w-full px-6 py-4 bg-[#003882] border-b border-gray-300 flex justify-between items-center text-white shadow-card">
     <div class="flex items-center gap-3">
       <span class="text-xl font-medium">Inquiry Information</span>
     </div>
-    <div class="flex items-center gap-3 text-sm font-medium">
+    <div class="flex items-center gap-3 text-sm font-medium flex-wrap justify-end">
       <button id="cancel-btn" type="button" class="px-4 py-3 rounded outline outline-1 outline-white text-white text-sm font-medium">Cancel</button>
       <button id="reset-btn" type="button" class="px-4 py-3 rounded outline outline-1 outline-white text-white text-sm font-medium inline-flex items-center gap-2">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.6667 0.855V3.772a.486.486 0 01-.486.486H8.264a.486.486 0 010-.972h1.743l-.889-.889A5.556 5.556 0 005.716.973h-.036A5.556 5.556 0 002.284 2.357a.486.486 0 01-.68-.694A6.528 6.528 0 015.716 0a6.528 6.528 0 014.092 1.71l.886.889V.855a.486.486 0 01.972 0zM9.383 9.076a5.556 5.556 0 01-3.426 1.384 5.556 5.556 0 01-3.409-1.424L1.66 8.147h1.743a.486.486 0 000-.972H.486A.486.486 0 000 7.661v2.917a.486.486 0 00.972 0V8.834l.889.889A6.528 6.528 0 005.955 11.432h.032a6.528 6.528 0 004.076-2.06.486.486 0 00-.68-.296z" fill="white"/></svg>
         Reset Form
       </button>
-      <button id="save-btn" type="button" class="px-4 py-3 rounded outline outline-1 outline-white text-white text-sm font-medium inline-flex items-center gap-2">
+      <button id="save-btn" type="button" class="px-4 py-3 rounded outline outline-1 outline-white text-white text-sm font-medium inline-flex items-center gap-2" title="Save draft to finish later">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.123 4.064L9.936 1.877a.437.437 0 00-.311-.127H2.625A.875.875 0 001.75 2.625v8.75c0 .483.392.875.875.875h8.75a.875.875 0 00.875-.875V4.375a.437.437 0 00-.127-.311zM5.25 2.625h3.5v1.75h-3.5v-1.75zm3.5 8.75h-3.5v-3.5h3.5v3.5zm.875 0v-3.5a.875.875 0 00-.875-.875h-3.5a.875.875 0 00-.875.875v3.5H2.625v-8.75h1.75v1.75c0 .483.392.875.875.875h3.5a.875.875 0 00.875-.875V2.804l1.75 1.75v6.821h-1.75z" fill="white"/></svg>
-        Save
+        Save draft
       </button>
-      <button id="submit-btn" type="button" class="px-4 py-3 bg-white rounded text-[#003882] text-sm font-medium inline-flex items-center gap-2">
+      <button id="submit-btn" type="button" class="px-4 py-3 bg-white rounded text-[#003882] text-sm font-medium inline-flex items-center gap-2" title="Submit to create inquiry and notify team">
         <svg width="11" height="9" viewBox="0 0 11 9" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.75 4.25L3.8125 7.3125L9.9375 0.75" stroke="#003882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Submit Inquiry
+        Submit inquiry
       </button>
     </div>
   </header>
 
   <!-- Main Form Section -->
   <section class="flex-1 px-4 py-4">
-    <div class="flex w-full gap-4">
+    <div class="flex flex-col lg:flex-row w-full gap-4">
 
       <!-- LEFT COLUMN: Contact Details + Related Data -->
-      <div class="min-w-[460px] flex flex-col flex-1 gap-4">
+      <div class="min-w-0 lg:min-w-[460px] flex flex-col flex-1 gap-4">
 
         <!-- Contact Details Card -->
         <div class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -246,7 +246,7 @@
       </div>
 
       <!-- RIGHT COLUMN: Inquiry Details + Resident Feedback -->
-      <div class="min-w-[420px] flex flex-col flex-1 gap-4">
+      <div class="min-w-0 lg:min-w-[420px] flex flex-col flex-1 gap-4">
 
         <!-- Inquiry Details Card -->
         <div id="inquiry-detail" data-inquiry-id="inquiry-detail" class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm p-4 gap-4">

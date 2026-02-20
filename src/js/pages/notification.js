@@ -198,7 +198,11 @@
     var plugin = window.VitalSync.getPlugin();
     if (!plugin) { console.warn('[Notification] SDK not ready'); return; }
 
-    plugin.switchTo('PeterpmAnnouncement').then(function (model) {
+    var modelOrPromise = plugin.switchTo('PeterpmAnnouncement');
+    var modelPromise = modelOrPromise && typeof modelOrPromise.then === 'function'
+      ? modelOrPromise
+      : Promise.resolve(modelOrPromise);
+    modelPromise.then(function (model) {
       state.model = model;
       state.query = model.query()
         .where('notified_contact_id', '=', config.LOGGED_IN_USER_ID || '')

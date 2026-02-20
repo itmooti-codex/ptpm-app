@@ -36,5 +36,15 @@
   // Brand
   config.BRAND_COLOR = config.BRAND_COLOR || '#003882';
 
+  // Detail page URLs (for dashboard row navigation). In production set via Ontraport merge fields.
+  // Use {id} as placeholder for the record id (e.g. ./inquiry-detail.html?inquiry={id}).
+  config.INQUIRY_DETAIL_URL_TEMPLATE = config.INQUIRY_DETAIL_URL_TEMPLATE || '';
+  config.JOB_DETAIL_URL_TEMPLATE = config.JOB_DETAIL_URL_TEMPLATE || '';
+  config.QUOTE_DETAIL_URL_TEMPLATE = config.QUOTE_DETAIL_URL_TEMPLATE || '';
+  config.PAYMENT_DETAIL_URL_TEMPLATE = config.PAYMENT_DETAIL_URL_TEMPLATE || '';
+  config.NEW_INQUIRY_URL = config.NEW_INQUIRY_URL || '';
+  // Where to send user after new inquiry submit (e.g. dashboard). Empty = history.back().
+  config.DASHBOARD_URL = config.DASHBOARD_URL || '';
+
   Object.freeze(config);
 })();

@@ -44,6 +44,8 @@ Ask the user to export their VitalStats schema XML. They should place it at:
 
 This is an XML file containing the full database schema. Parse it to understand all models, fields, types, relationships, and field groupings. See `docs/schema-format.md` for full parsing details.
 
+> **MCP note:** The schema XML is used by `parse-schema.cjs` to generate TypeScript types and `schema-reference.json`. For ad-hoc field lookups during development, use the `vitalsync_describe_model` MCP tool instead — it returns live schema data including field names, types, enums, and correct query syntax.
+
 ## Step 4: Generate TypeScript Types
 
 From the parsed XML schema, generate TypeScript interfaces in `src/types/index.ts`.
@@ -133,6 +135,8 @@ node ../VibeCodeApps/scripts/research.cjs \
 **Use `--skip-ontraport` if no dataSourceId is available** — GraphQL-only research still produces useful results.
 
 Read the knowledge base and present key findings to the user before proceeding to build.
+
+> **MCP note:** After research completes, MCP tools (`vitalsync_introspect_schema`, `vitalsync_query`, `vitalsync_calc_query`, `vitalsync_ontraport_read`) are available throughout development for live API queries. The research knowledge base provides business context; MCP tools provide technical execution. See `docs/research-phase.md` for the full MCP vs. research comparison.
 
 ## Step 6: Persona & Feature Discovery
 

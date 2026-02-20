@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PTPM Dashboard (Dev)</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23003882'/><text x='16' y='22' font-size='18' text-anchor='middle' fill='white' font-family='sans-serif'>P</text></svg>">
 
   <!-- ========== MOCK DATA (dev only) ========== -->
   <script src="./mock-data.js"></script>
+  <script src="./mock-data.local.js"></script>
 
   <!-- ========== SIMULATED ONTRAPORT HEADER ========== -->
   <script>
@@ -20,6 +22,12 @@
         SERVICE_PROVIDER_ID: window.__MOCK_SERVICE_PROVIDER_ID__ || '',
         ACCOUNT_TYPE: window.__MOCK_ACCOUNT_TYPE__ || '',
         DEBUG: true,
+        // Dev: navigate to local pages with ?id= so you can see all pages, then copy code to Ontraport
+        INQUIRY_DETAIL_URL_TEMPLATE: './inquiry-detail.html?inquiry={id}',
+        JOB_DETAIL_URL_TEMPLATE: './job-detail.html?job={id}',
+        QUOTE_DETAIL_URL_TEMPLATE: './job-detail.html?job={id}',
+        PAYMENT_DETAIL_URL_TEMPLATE: './job-detail.html?job={id}',
+        NEW_INQUIRY_URL: './new-inquiry.html',
       });
     }
   </script>
@@ -354,12 +362,12 @@
   </main>
 
   <!-- ========== SIMULATED ONTRAPORT FOOTER (Script loading order) ========== -->
-  <script src="../src/js/config.js"></script>
-  <script src="../src/js/utils.js"></script>
-  <script src="../src/js/vitalsync.js"></script>
-  <script src="../src/js/domain.js"></script>
-  <script src="../src/js/table.js"></script>
-  <script src="../src/js/pages/dashboard.js"></script>
+  <script src="../src/js/config.js?v=2"></script>
+  <script src="../src/js/utils.js?v=2"></script>
+  <script src="../src/js/vitalsync.js?v=2"></script>
+  <script src="../src/js/domain.js?v=2"></script>
+  <script src="../src/js/table.js?v=2"></script>
+  <script src="../src/js/pages/dashboard.js?v=2"></script>
 
   <!-- Initialize dashboard -->
   <script>

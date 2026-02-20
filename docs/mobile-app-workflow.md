@@ -46,9 +46,13 @@ npx cap add android
 
 Same as React App Workflow Steps 3–4. See `docs/react-app-workflow.md`.
 
+> **MCP note:** The schema XML is used by `parse-schema.cjs` to generate TypeScript types. For ad-hoc field lookups during development, use the `vitalsync_describe_model` MCP tool instead — it returns live schema data including field names, types, enums, and correct query syntax.
+
 ## Step 4: Research Phase (Automated Business Intelligence)
 
 Same as React App Workflow Step 5 — run the research script to collect business intelligence and generate a knowledge base. Read findings and discuss with user before building.
+
+> **MCP note:** After research completes, MCP tools (`vitalsync_introspect_schema`, `vitalsync_query`, `vitalsync_calc_query`, `vitalsync_ontraport_read`) are available throughout development for live API queries. The research knowledge base provides business context; MCP tools provide technical execution. See `docs/research-phase.md` for the full MCP vs. research comparison.
 
 ## Step 5: Persona & Feature Discovery
 

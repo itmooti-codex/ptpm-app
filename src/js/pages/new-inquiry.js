@@ -125,10 +125,13 @@
   };
 
   function getModel(name) {
-    if (state.models[name]) return state.models[name];
     if (!state.plugin) return Promise.reject(new Error('Plugin not available'));
-    state.models[name] = state.plugin.switchTo(MODEL_NAMES[name] || name);
-    return Promise.resolve(state.models[name]);
+    if (!state.models[name]) {
+      var result = state.plugin.switchTo(MODEL_NAMES[name] || name);
+      state.models[name] = result && typeof result.then === 'function' ? result : Promise.resolve(result);
+    }
+    var modelOrPromise = state.models[name];
+    return typeof modelOrPromise.then === 'function' ? modelOrPromise : Promise.resolve(modelOrPromise);
   }
 
   function unwrapRecord(record) {
@@ -136,11 +139,11 @@
     if (typeof record.getState === 'function') {
       try {
         var s = record.getState();
-        if (s && typeof s === 'object') return Object.assign({}, record, s);
+        if (s && typeof s === 'object') return Object.assign({}, s);
       } catch (_) { /* ignore */ }
     }
     if (record.state && typeof record.state === 'object') {
-      return Object.assign({}, record, record.state);
+      return Object.assign({}, record.state);
     }
     return record;
   }
@@ -149,39 +152,56 @@
     return getModel(modelName).then(function (model) {
       var q = model.query();
       if (queryFn) q = queryFn(q);
-      return q.fetchAllRecords().pipe(window.toMainInstance(true)).toPromise();
+      if (q.getOrInitQueryCalc) q.getOrInitQueryCalc();
+      return q.fetchDirect().toPromise();
     });
+  }
+
+  function extractRecordsFromResult(result) {
+    if (!result) return [];
+    if (Array.isArray(result)) return result;
+    if (Array.isArray(result.resp)) return result.resp;
+    if (Array.isArray(result.data)) return result.data;
+    if (result.data && typeof result.data === 'object' && !Array.isArray(result.data)) {
+      var keys = Object.keys(result.data);
+      for (var i = 0; i < keys.length; i++) {
+        var val = result.data[keys[i]];
+        if (Array.isArray(val)) return val;
+      }
+    }
+    return [];
   }
 
   function loadContacts() {
     return fetchAllFromModel('contact', function (q) {
-      return q.field('id', 'id')
-        .field('first_name', 'first_name')
-        .field('last_name', 'last_name')
-        .field('email', 'email')
-        .field('sms_number', 'sms_number')
-        .field('office_phone', 'office_phone')
-        .limit(500);
+      return q.deSelectAll()
+        .select(['id', 'first_name', 'last_name', 'email', 'sms_number', 'office_phone'])
+        .limit(500)
+        .noDestroy();
     }).then(function (result) {
-      var records = (result && result.data) || [];
+      var records = extractRecordsFromResult(result);
       state.contacts = records.map(function (r, i) { return formatContact(unwrapRecord(r), i); });
       renderContactList('');
       return state.contacts;
     }).catch(function (err) {
       console.error('[NewInquiry] Failed to load contacts:', err);
       state.contacts = [];
+      renderContactList('');
     });
   }
 
   function formatContact(source, index) {
     var s = source || {};
-    var firstName = str(s.first_name || s.firstName);
-    var lastName = str(s.last_name || s.lastName);
-    var email = str(s.email);
-    var sms = str(s.sms_number || s.smsNumber);
-    var office = str(s.office_phone || s.officePhone);
+    // VitalSync/Ontraport may return snake_case, camelCase, or PascalCase
+    var firstName = str(s.first_name || s.firstName || s.First_Name);
+    var lastName = str(s.last_name || s.lastName || s.Last_Name);
+    var email = str(s.email || s.Email);
+    var sms = str(s.sms_number || s.smsNumber || s.SMS_Number);
+    var office = str(s.office_phone || s.officePhone || s.Office_Phone);
     var fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
-    var label = fullName || email || sms || office || 'Unknown Contact';
+    var label = fullName || email || sms || office;
+    if (!label && s.id != null) label = 'Contact #' + s.id;
+    if (!label) label = 'Unknown Contact';
     var meta = email || sms || office || '';
     var contactId = s.contact_id || s.id || s.ID || (email ? 'contact-' + email : 'contact-' + Date.now() + '-' + index);
     return {
@@ -196,55 +216,71 @@
 
   function createContact(data) {
     return getModel('contact').then(function (model) {
-      return model.mutation().createOne(data).execute(true).toPromise();
+      var mut = model.mutation();
+      mut.createOne(data);
+      return mut.execute(true).toPromise();
     });
   }
 
   function updateContact(id, data) {
     return getModel('contact').then(function (model) {
-      return model.mutation().updateOne(id, data).execute(true).toPromise();
+      var mut = model.mutation();
+      mut.updateOne(id, data);
+      return mut.execute(true).toPromise();
     });
   }
 
   function createInquiry(payload) {
     return getModel('deal').then(function (model) {
-      return model.mutation().createOne(payload).execute(true).toPromise();
+      var mut = model.mutation();
+      mut.createOne(payload);
+      return mut.execute(true).toPromise();
     });
   }
 
   function updateInquiry(id, payload) {
     return getModel('deal').then(function (model) {
-      return model.mutation().updateOne(id, payload).execute(true).toPromise();
+      var mut = model.mutation();
+      mut.updateOne(id, payload);
+      return mut.execute(true).toPromise();
     });
   }
 
   function createProperty(data) {
     return getModel('property').then(function (model) {
-      return model.mutation().createOne(data).execute(true).toPromise();
+      var mut = model.mutation();
+      mut.createOne(data);
+      return mut.execute(true).toPromise();
     });
   }
 
   function createAffiliation(data) {
     return getModel('affiliation').then(function (model) {
+      var mut = model.mutation();
       var payload = {
         Contact_ID: { id: data.contact_id },
         Property_ID: { id: data.property_id },
         Role: data.role || '',
         Primary_Owner_Contact: data.isPrimary || false,
       };
-      return model.mutation().createOne(payload).execute(true).toPromise();
+      mut.createOne(payload);
+      return mut.execute(true).toPromise();
     });
   }
 
   function updateAffiliation(id, data) {
     return getModel('affiliation').then(function (model) {
-      return model.mutation().updateOne(id, data).execute(true).toPromise();
+      var mut = model.mutation();
+      mut.updateOne(id, data);
+      return mut.execute(true).toPromise();
     });
   }
 
   function deleteAffiliation(id) {
     return getModel('affiliation').then(function (model) {
-      return model.mutation().deleteOne(id).execute(true).toPromise();
+      var mut = model.mutation();
+      mut.deleteOne(id);
+      return mut.execute(true).toPromise();
     });
   }
 
@@ -328,7 +364,9 @@
 
   function createUpload(data) {
     return getModel('upload').then(function (model) {
-      return model.mutation().createOne(data).execute(true).toPromise();
+      var mut = model.mutation();
+      mut.createOne(data);
+      return mut.execute(true).toPromise();
     });
   }
 
@@ -941,6 +979,15 @@
     renderCheckboxList('noise-signs-options-as-text', NOISES, 'data-feedback-id');
     renderCheckboxList('pest-active-times-options-as-text', TIMES, 'data-feedback-id');
     renderCheckboxList('pest-location-options-as-text', PEST_LOCATIONS, 'data-feedback-id');
+
+    // Smart default: restore last-used service
+    try {
+      var lastService = sessionStorage.getItem('ptpm_last_service');
+      var serviceSelect = $q('#service-inquiry');
+      if (lastService && serviceSelect && Array.from(serviceSelect.options).some(function (o) { return o.value === lastService; })) {
+        serviceSelect.value = lastService;
+      }
+    } catch (_) { /* ignore */ }
   }
 
   function populateSelect(selector, options) {
@@ -970,8 +1017,8 @@
   // ─── View: Google Places Autocomplete ─────────────────────────────────────────
 
   window.initAutocomplete = function () {
-    var input = $('search-properties');
-    if (!input || !window.google || !window.google.maps) return;
+    var input = $('search-properties') || $q('[data-property-id="search-properties"]');
+    if (!input || !window.google || !window.google.maps || !window.google.maps.places) return;
 
     var autocomplete = new google.maps.places.Autocomplete(input, {
       types: ['address'],
@@ -1043,8 +1090,10 @@
       if (!list) return;
 
       if (typeof utils.initFileUploadArea === 'function') {
+        var label = input.closest('label');
+        var dropZone = label && label.parentElement ? label.parentElement : (label || input.parentElement);
         utils.initFileUploadArea({
-          triggerEl: input.closest('label') || input.parentElement,
+          triggerEl: dropZone,
           inputEl: input,
           listEl: list,
           uploadPath: 'inquiries/resident-feedback',
@@ -1230,6 +1279,11 @@
       submitBtn.addEventListener('click', function () { onSubmit(); });
     }
 
+    var headerSaveBtn = $q('#save-btn') || $('save-btn');
+    if (headerSaveBtn) {
+      headerSaveBtn.addEventListener('click', function () { onSaveDraft(); });
+    }
+
     // Save (contact add) button
     var saveBtn = $q('[data-contact-save]');
     if (saveBtn) {
@@ -1294,10 +1348,70 @@
     }
   }
 
-  // ─── Controller: Submit Inquiry ───────────────────────────────────────────────
+  // ─── Validation ───────────────────────────────────────────────────────────────
 
-  function onSubmit() {
-    // Validate contact
+  var validationBanner = null;
+  function ensureValidationBanner() {
+    if (validationBanner) return validationBanner;
+    var section = document.querySelector('main section');
+    if (!section) return null;
+    validationBanner = document.createElement('div');
+    validationBanner.id = 'ptpm-validation-banner';
+    validationBanner.className = 'hidden mx-4 mb-3 px-4 py-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-sm';
+    validationBanner.setAttribute('role', 'alert');
+    section.insertBefore(validationBanner, section.firstChild);
+    return validationBanner;
+  }
+  function showValidationBanner(count) {
+    var el = ensureValidationBanner();
+    if (!el) return;
+    el.textContent = 'Please fix the ' + count + ' field' + (count === 1 ? '' : 's') + ' below.';
+    el.classList.remove('hidden');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function hideValidationBanner() {
+    if (validationBanner) validationBanner.classList.add('hidden');
+  }
+  function showFieldError(inputEl, message) {
+    if (!inputEl) return;
+    inputEl.classList.add('!outline-rose-500', '!outline-1');
+    inputEl.setAttribute('aria-invalid', 'true');
+    var wrap = inputEl.closest('div');
+    if (!wrap) return;
+    var err = wrap.querySelector('.ptpm-field-error');
+    if (err) {
+      err.textContent = message;
+      err.classList.remove('hidden');
+    } else {
+      err = document.createElement('p');
+      err.className = 'ptpm-field-error text-rose-600 text-xs mt-0.5';
+      err.textContent = message;
+      wrap.appendChild(err);
+    }
+  }
+  function clearFieldError(inputEl) {
+    if (!inputEl) return;
+    inputEl.classList.remove('!outline-rose-500', '!outline-1');
+    inputEl.removeAttribute('aria-invalid');
+    var wrap = inputEl.closest('div');
+    if (wrap) {
+      var err = wrap.querySelector('.ptpm-field-error');
+      if (err) err.classList.add('hidden');
+    }
+  }
+  function clearAllValidationErrors() {
+    hideValidationBanner();
+    $qa('.ptpm-field-error').forEach(function (el) { el.classList.add('hidden'); });
+    $qa('[data-contact-field], [data-inquiry-id], [data-feedback-id]').forEach(function (el) {
+      if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+        el.classList.remove('!outline-rose-500', '!outline-1');
+        el.removeAttribute('aria-invalid');
+      }
+    });
+  }
+  var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function collectValidationErrors() {
+    var errors = [];
     var contactId = '';
     var entityId = '';
     if (state.activeContactTab === 'individual') {
@@ -1307,14 +1421,85 @@
       var eidInput = $q('[data-contact-field="entity-id"]');
       entityId = eidInput ? eidInput.value : '';
     }
-
     if (!contactId && !entityId) {
-      if (typeof utils.showAlertModal === 'function') {
-        utils.showAlertModal({ title: 'Contact Required', message: 'Please select a contact first.', buttonLabel: 'OK' });
-      } else {
-        alert('Please select a contact first.');
+      var contactSection = $q('[data-contact-section="' + state.activeContactTab + '"]');
+      var firstInput = contactSection ? contactSection.querySelector('[data-contact-field="first_name"], [data-contact-field="email"]') : null;
+      errors.push({ el: firstInput || $q('[data-search-root="contact-individual"] input') || document.body, message: 'Please select or add a contact.' });
+    }
+    var section = $q('[data-contact-section="' + state.activeContactTab + '"]');
+    if (section) {
+      var fn = section.querySelector('[data-contact-field="first_name"]');
+      if (fn && !(fn.value || '').trim()) errors.push({ el: fn, message: 'First name is required.' });
+      var em = section.querySelector('[data-contact-field="email"]');
+      if (em) {
+        var v = (em.value || '').trim();
+        if (!v) errors.push({ el: em, message: 'Email is required.' });
+        else if (!emailRegex.test(v)) errors.push({ el: em, message: 'Enter a valid email address.' });
+      }
+    }
+    var serviceEl = $q('#service-inquiry');
+    if (serviceEl && !(serviceEl.value || '').trim()) errors.push({ el: serviceEl, message: 'Service is required.' });
+    return { valid: errors.length === 0, errors: errors };
+  }
+  function initValidation() {
+    function validateOne(input, validate) {
+      if (!input) return;
+      input.addEventListener('blur', function () {
+        var msg = validate(input);
+        if (msg) showFieldError(input, msg);
+        else clearFieldError(input);
+      });
+      input.addEventListener('input', function () {
+        var msg = validate(input);
+        if (!msg) clearFieldError(input);
+      });
+    }
+    $qa('[data-contact-section="individual"] [data-contact-field="first_name"]').forEach(function (el) {
+      validateOne(el, function (inp) { return (inp.value || '').trim() ? '' : 'First name is required.'; });
+    });
+    $qa('[data-contact-section="individual"] [data-contact-field="email"]').forEach(function (el) {
+      validateOne(el, function (inp) {
+        var v = (inp.value || '').trim();
+        if (!v) return 'Email is required.';
+        if (!emailRegex.test(v)) return 'Enter a valid email address.';
+        return '';
+      });
+    });
+    $qa('[data-contact-section="entity"] [data-contact-field="first_name"]').forEach(function (el) {
+      validateOne(el, function (inp) { return (inp.value || '').trim() ? '' : 'First name is required.'; });
+    });
+    $qa('[data-contact-section="entity"] [data-contact-field="email"]').forEach(function (el) {
+      validateOne(el, function (inp) {
+        var v = (inp.value || '').trim();
+        if (!v) return 'Email is required.';
+        if (!emailRegex.test(v)) return 'Enter a valid email address.';
+        return '';
+      });
+    });
+  }
+
+  // ─── Controller: Submit Inquiry ───────────────────────────────────────────────
+
+  function onSubmit() {
+    clearAllValidationErrors();
+    var validation = collectValidationErrors();
+    if (!validation.valid) {
+      showValidationBanner(validation.errors.length);
+      validation.errors.forEach(function (err) { showFieldError(err.el, err.message); });
+      if (validation.errors[0] && validation.errors[0].el && validation.errors[0].el.scrollIntoView) {
+        validation.errors[0].el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
       return;
+    }
+
+    var contactId = '';
+    var entityId = '';
+    if (state.activeContactTab === 'individual') {
+      var cidInput = $q('[data-contact-section="individual"] [data-contact-field="contact_id"]');
+      contactId = cidInput ? cidInput.value : '';
+    } else {
+      var eidInput = $q('[data-contact-field="entity-id"]');
+      entityId = eidInput ? eidInput.value : '';
     }
 
     // Collect inquiry detail values
@@ -1337,12 +1522,16 @@
       if (el.tagName === 'UL') {
         var checked = Array.from(el.querySelectorAll('input:checked')).map(function (cb) { return cb.value; });
         if (checked.length) inquiryPayload[normalizedKey] = checked.map(function (v) { return '*/*' + v + '*/*'; }).join('');
-      } else if (normalizedKey === 'date_job_required_by' && el.value) {
-        var parts = el.value.split('/');
-        if (parts.length === 3) {
-          var epoch = Math.floor(new Date(parts[2], parts[1] - 1, parts[0]).getTime() / 1000);
-          inquiryPayload[normalizedKey] = epoch || '';
+      } else if (normalizedKey === 'date_job_required_by') {
+        var dateVal = (el.value || '').trim();
+        if (dateVal) {
+          var parts = dateVal.split('/');
+          if (parts.length === 3) {
+            var epoch = Math.floor(new Date(parts[2], parts[1] - 1, parts[0]).getTime() / 1000);
+            if (!isNaN(epoch)) inquiryPayload[normalizedKey] = epoch;
+          }
         }
+        // When empty, omit so SDK does not receive "" (expects number or omit)
       } else {
         inquiryPayload[normalizedKey] = (el.value || '').trim();
       }
@@ -1363,7 +1552,15 @@
     var propertyData = collectPropertyFields();
     Object.assign(inquiryPayload, propertyData);
 
+    // Save last-used service for smart default next time
+    try {
+      var svc = (inquiryPayload.services || '').trim();
+      if (svc) sessionStorage.setItem('ptpm_last_service', svc);
+    } catch (_) { /* ignore */ }
+
     // Submit
+    var submitBtn = $q('#submit-btn') || $('submit-btn');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('opacity-70'); }
     if (typeof utils.showLoader === 'function') utils.showLoader(null, null, null, 'Submitting inquiry...');
 
     var inquiryIdFromUrl = new URLSearchParams(window.location.search).get('inquiry');
@@ -1389,11 +1586,13 @@
             upload_type: 'resident_feedback',
           }).catch(function (err) { console.warn('[NewInquiry] Upload failed:', err); });
         })).then(function () {
-          showSubmitSuccess(inquiryIdFromUrl ? 'Inquiry updated.' : 'Inquiry submitted.');
+          showSubmitSuccess(inquiryIdFromUrl ? 'Inquiry updated.' : 'Inquiry submitted.', targetId);
         });
       }
 
-      showSubmitSuccess(inquiryIdFromUrl ? 'Inquiry updated.' : 'Inquiry submitted.');
+      showSubmitSuccess(inquiryIdFromUrl ? 'Inquiry updated.' : 'Inquiry submitted.', newId || inquiryIdFromUrl);
+    }).then(function () {
+      try { sessionStorage.removeItem(DRAFT_KEY); } catch (_) { /* ignore */ }
     }).catch(function (err) {
       console.error('[NewInquiry] Submit failed:', err);
       if (typeof utils.showAlertModal === 'function') {
@@ -1403,21 +1602,186 @@
       }
     }).finally(function () {
       if (typeof utils.hideLoader === 'function') utils.hideLoader(null, null, true);
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-70'); }
     });
   }
 
-  function showSubmitSuccess(message) {
+  function showSubmitSuccess(message, inquiryId) {
+    var goToDashboard = function () {
+      if (config.DASHBOARD_URL) {
+        window.location.href = config.DASHBOARD_URL;
+      } else {
+        window.history.back();
+      }
+    };
+    var viewInquiryUrl = inquiryId && config.INQUIRY_DETAIL_URL_TEMPLATE
+      ? (config.INQUIRY_DETAIL_URL_TEMPLATE.replace(/\{id\}/g, String(inquiryId)))
+      : '';
     if (typeof utils.showAlertModal === 'function') {
       utils.showAlertModal({
         title: 'Success',
         message: message,
-        buttonLabel: 'OK',
-        onConfirm: function () { window.history.back(); },
+        buttonLabel: viewInquiryUrl ? 'Back to dashboard' : 'OK',
+        onConfirm: goToDashboard,
+        secondaryButtonLabel: viewInquiryUrl ? 'View inquiry' : '',
+        onSecondary: viewInquiryUrl ? function () { window.location.href = viewInquiryUrl; } : undefined,
       });
     } else {
       alert(message);
-      window.history.back();
+      goToDashboard();
     }
+  }
+
+  // ─── Draft (sessionStorage) ───────────────────────────────────────────────────
+
+  var DRAFT_KEY = 'ptpm_inquiry_draft';
+  function getDraftState() {
+    var out = { tab: state.activeContactTab, propertyId: state.propertyId || '' };
+    out.contactIndividual = {};
+    out.contactEntity = {};
+    var ind = $q('[data-contact-section="individual"]');
+    if (ind) {
+      $qa('[data-contact-field]', ind).forEach(function (el) {
+        var k = el.dataset.contactField;
+        if (k) out.contactIndividual[k] = (el.value || '').trim();
+      });
+    }
+    var ent = $q('[data-contact-section="entity"]');
+    if (ent) {
+      $qa('[data-contact-field]', ent).forEach(function (el) {
+        var k = el.dataset.contactField;
+        if (k) out.contactEntity[k] = (el.value || '').trim();
+      });
+    }
+    out.inquiry = {};
+    $qa('#inquiry-detail [data-inquiry-id]').forEach(function (el) {
+      if (el.id === 'inquiry-detail') return;
+      var k = (el.dataset.inquiryId || '').replace(/-/g, '_').toLowerCase();
+      if (k) out.inquiry[k] = (el.value || '').trim();
+    });
+    out.feedback = {};
+    $qa('#resident-feedback [data-feedback-id]').forEach(function (el) {
+      if (el.id === 'resident-feedback') return;
+      var k = (el.dataset.feedbackId || '').replace(/-/g, '_').toLowerCase();
+      if (!k) return;
+      if (el.tagName === 'UL') {
+        var checked = Array.from(el.querySelectorAll('input:checked')).map(function (c) { return c.value; });
+        if (checked.length) out.feedback[k] = checked.map(function (v) { return '*/*' + v + '*/*'; }).join('');
+      } else {
+        out.feedback[k] = (el.value || '').trim();
+      }
+    });
+    out.property = collectPropertyFields();
+    return out;
+  }
+  function applyDraftState(data) {
+    if (!data) return;
+    if (data.tab) {
+      state.activeContactTab = data.tab;
+      switchContactSection(data.tab);
+    }
+    if (data.propertyId) state.propertyId = data.propertyId;
+    if (data.contactIndividual) {
+      var ind = $q('[data-contact-section="individual"]');
+      if (ind) Object.keys(data.contactIndividual).forEach(function (k) {
+        var el = ind.querySelector('[data-contact-field="' + k + '"]');
+        if (el && el.value !== undefined) el.value = data.contactIndividual[k] || '';
+      });
+    }
+    if (data.contactEntity) {
+      var ent = $q('[data-contact-section="entity"]');
+      if (ent) Object.keys(data.contactEntity).forEach(function (k) {
+        var el = ent.querySelector('[data-contact-field="' + k + '"]');
+        if (el && el.value !== undefined) el.value = data.contactEntity[k] || '';
+      });
+    }
+    if (data.inquiry) {
+      $qa('#inquiry-detail [data-inquiry-id]').forEach(function (el) {
+        if (el.id === 'inquiry-detail') return;
+        var key = el.dataset.inquiryId;
+        if (!key) return;
+        var nk = key.replace(/-/g, '_').toLowerCase();
+        var val = data.inquiry[nk];
+        if (val != null) el.value = val;
+      });
+    }
+    if (data.feedback) {
+      $qa('#resident-feedback [data-feedback-id]').forEach(function (el) {
+        if (el.id === 'resident-feedback') return;
+        var key = el.dataset.feedbackId;
+        if (!key) return;
+        var nk = key.replace(/-/g, '_').toLowerCase();
+        var val = data.feedback[nk];
+        if (el.tagName === 'UL' && val) {
+          var selected = val.split('*/*').filter(Boolean);
+          el.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+            cb.checked = selected.indexOf(cb.value) >= 0;
+          });
+        } else if (val != null) {
+          el.value = val;
+        }
+      });
+    }
+    if (data.property) {
+      Object.keys(data.property).forEach(function (nk) {
+        var el = $q('[data-property-id="' + nk.replace(/_/g, '-') + '"]');
+        if (!el) return;
+        if (el.tagName === 'UL') {
+          var selected = (data.property[nk] || '').split('*/*').filter(Boolean);
+          el.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+            cb.checked = selected.indexOf(cb.value) >= 0;
+          });
+        } else if (el.type !== 'checkbox') {
+          el.value = data.property[nk] || '';
+        }
+      });
+    }
+  }
+  function onSaveDraft() {
+    try {
+      var draft = getDraftState();
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      if (typeof utils.showAlertModal === 'function') {
+        utils.showAlertModal({
+          title: 'Draft saved',
+          message: 'Your progress has been saved locally. You can leave and come back to finish later.',
+          buttonLabel: 'OK',
+        });
+      } else {
+        alert('Draft saved. You can leave and come back to finish later.');
+      }
+    } catch (e) {
+      console.warn('[NewInquiry] Save draft failed:', e);
+      if (typeof utils.showAlertModal === 'function') {
+        utils.showAlertModal({ title: 'Draft save failed', message: 'Could not save draft. Try again.', buttonLabel: 'OK' });
+      } else {
+        alert('Could not save draft.');
+      }
+    }
+  }
+  function offerRestoreDraft() {
+    try {
+      var raw = sessionStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      var draft = JSON.parse(raw);
+      if (!draft) return;
+      if (typeof utils.showAlertModal === 'function') {
+        utils.showAlertModal({
+          title: 'Saved draft',
+          message: 'You have a saved draft. Restore it?',
+          buttonLabel: 'Discard',
+          secondaryButtonLabel: 'Restore',
+          onConfirm: function () { sessionStorage.removeItem(DRAFT_KEY); },
+          onSecondary: function () {
+            applyDraftState(draft);
+            sessionStorage.removeItem(DRAFT_KEY);
+          },
+        });
+      } else if (confirm('You have a saved draft. Restore it?')) {
+        applyDraftState(draft);
+        sessionStorage.removeItem(DRAFT_KEY);
+      }
+    } catch (_) { /* ignore */ }
   }
 
   // ─── Controller: Edit Mode (load existing inquiry from URL) ───────────────────
@@ -1555,6 +1919,7 @@
     bindSameAsContactAddress();
     initFlatpickr();
     initFileUploads();
+    initValidation();
 
     // Bind same-as-contact checkbox for each section
     $qa('[data-same-as-contact]').forEach(function (cb) {
@@ -1565,6 +1930,12 @@
     $qa('[data-contact-field="first_name"], [data-contact-field="last_name"]').forEach(function (input) {
       input.addEventListener('input', function () { syncWorkRequested(); });
     });
+
+    // Offer to restore saved draft when not editing an existing inquiry
+    var url = new URL(window.location.href);
+    if (!url.searchParams.get('inquiry')) {
+      setTimeout(offerRestoreDraft, 400);
+    }
   }
 
   // ─── Expose ───────────────────────────────────────────────────────────────────

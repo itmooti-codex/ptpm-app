@@ -18,7 +18,9 @@
     if (!modelCache[modelName]) {
       var plugin = window.VitalSync.getPlugin();
       if (!plugin) throw new Error('VitalSync not connected — cannot switch to model: ' + modelName);
-      modelCache[modelName] = plugin.switchTo(modelName);
+      var result = plugin.switchTo(modelName);
+      // SDK may return model directly or a Promise; normalize to Promise
+      modelCache[modelName] = result && typeof result.then === 'function' ? result : Promise.resolve(result);
     }
     return modelCache[modelName];
   }

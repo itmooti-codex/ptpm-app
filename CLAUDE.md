@@ -8,23 +8,26 @@
 - **Script Load Order:** config.js → utils.js → models.js → vitalsync.js → app.js
 
 ## Quick Commands
-- `npm run dev` — Start local dev server
+- `npm run dev` — Start local dev server at **http://localhost:8000/dev/**
 - `npm run parse-schema` — Re-generate types + schema reference from schema.xml
 
 <!-- GOTCHAS:START — Auto-synced from VibeCodeApps. Do not edit manually. -->
-## Critical SDK & Pattern Gotchas
 
 These are the most important gotchas — memorize these to avoid common bugs:
 
 - **`plugin.switchTo()` needs the INTERNAL prefixed name** (e.g. `ThcContact`), NOT `publicName` (`Contact`). The `publicName` is for UI labels and TypeScript type names only.
 - **Always `.pipe(window.toMainInstance(true))`** on all `fetchAllRecords()` / `fetchOneRecord()` queries
-- **SDK records have NON-ENUMERABLE properties** — `{ ...record }` and `Object.keys(record)` produce `{}` / `[]`. Use `record.getState()` to get a plain JS object with all properties.
+- **SDK records have NON-ENUMERABLE properties** — `{ ...record }` and `Object.keys(record)` produce `{}` / `[]`. Use `record.getState()` to get a plain JS object with all properties. Critical for MUI DataGrid which needs enumerable `id` field.
 - **Records are immutable** — never `Object.assign(record, data)` or `record.field = value`, always spread `{ ...existingData, ...newData }`
 - **Subscription payloads are PLAIN objects** (no `getState()`), do NOT include `id`, and have `null`/`undefined` for unchanged fields — never blind-merge, only merge defined non-null values, and always preserve the known `id`
 - **Mutations disrupt subscriptions** — after `mutation.execute()`, clean up and re-subscribe
+- **MUI DataGrid editable columns should NOT use `valueGetter`** — it interferes with the edit mechanism
+- **`import 'dotenv/config'` MUST be the first import** in Express server entry points
+- **Express MUST bind `0.0.0.0`** (not `127.0.0.1`) for Docker and mobile access
 - **Direct GraphQL `fetch()` is an alternative to SDK for complex queries** — useful for calc/aggregation queries, cross-model joins, `orderBy`, and `field()` aliasing. The SDK query builder *does* support calc queries; past failures were due to invalid field references, not SDK limitations.
+- **VitalSync SDK rejects `capacitor://localhost` origin** — must set `server.url` in capacitor config to a real HTTP/HTTPS URL
 - **Keep `.limit()` reasonable** — limits above ~1,000 can cause the SDK to hang. Use pagination instead.
-- **Vite dev server**: root: `.` with `open: '/dev/'` — NOT `root: 'dev'` which breaks `../src/` paths
+- **Ontraport Vite dev server**: root: `.` with `open: '/dev/'` — NOT `root: 'dev'` which breaks `../src/` paths
 <!-- GOTCHAS:END -->
 
 ## Reference Docs

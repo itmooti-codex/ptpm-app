@@ -155,45 +155,67 @@ GitHub Pages and browsers aggressively cache static files. After pushing code ch
 
 ## Server Details (React Apps)
 
-- **Host**: 10.65.65.15
-- **SSH user**: `admin` (SSH keys pre-configured in `~/.ssh`)
+- **Public IP**: `15.204.34.114` (OVH) — use for GitHub Actions SSH deploy (`SERVER_HOST` secret)
+- **Private IP**: `10.65.65.15` — local network access only
+- **SSH user**: `admin` (key: `~/.ssh/id_ed25519`)
 - **Projects dir**: `/srv/projects/` (exists, subdirectories created per app on first deploy)
 - **Node.js**: Installed via `nvm` — multiple versions available
 - **Docker**: Installed, `admin` user is in docker group (no `sudo` needed)
-- **Cloudflare Tunnel**: Pre-provisioned — tunnel container + config can be deployed when needed for public access
+
+### Deployed Apps (Feb 2026)
+
+| App | Deploy Port | API Port | Tunnel | Repo |
+|-----|-------------|----------|--------|------|
+| phyx-contact-lookup | 3000 | — | No | itmooti/phyx-contact-lookup |
+| phyx-nurse-admin | 3010 | 4000 | Yes | itmooti/phyx-nurse-dashboard |
+| thc-portal | 3020 | 4020 | Yes | itmooti/thc-portal |
+| bb-dashboard | 3030 | 4030 | No | itmooti/bb-dashboard |
+| n8n-onboarding | 3050 | — | Yes | itmooti/n8n-onboarding |
+| database | 3306 | — | — | — |
 
 ---
 
 ## Cloudflare Tunnel Setup
 
-To expose an app publicly via HTTPS (e.g., `app.clientdomain.com`):
+**For the full step-by-step procedure with API calls, see `docs/deployment-procedure.md`.**
 
-### 1. Create a Tunnel in Cloudflare Zero Trust
-1. Go to **Cloudflare Zero Trust Dashboard** → **Networks** → **Tunnels**
-2. Create a new tunnel (or use an existing one)
-3. Copy the tunnel token — this becomes the `CLOUDFLARE_TUNNEL_TOKEN` secret
+### Critical: Use Per-App Tunnels, NOT the Shared Tunnel
 
-### 2. Add the Tunnel Service to docker-compose.yml
-```yaml
-  tunnel:
-    image: cloudflare/cloudflared:latest
-    command: tunnel run --token ${CLOUDFLARE_TUNNEL_TOKEN}
-    restart: unless-stopped
-    depends_on:
-      - app
-```
+There is a shared Cloudflare Tunnel `vitalstats-kc1` (ID: `3c5b5989-7ed0-4ec1-bb2f-2d94ee1e1e2d`) running inside a **Kubernetes cluster**. It handles `*.awesomate.ai`, `*.vitalstats.app`, etc. via K8s services.
 
-### 3. Configure the Route
-In the Cloudflare Zero Trust dashboard:
-1. Open the tunnel → **Public Hostname** tab
-2. Add a route: subdomain + domain → `http://app:80` (uses Docker network)
-3. The `app` service name matches the docker-compose service
+**DO NOT add app-specific ingress rules to this shared tunnel.** The K8s cluster cannot reach the deploy server (`15.204.34.114`) — this results in 502 Bad Gateway errors.
 
-### 4. DNS
-Cloudflare automatically creates a CNAME record pointing the subdomain to the tunnel.
+**Each app gets its own dedicated Cloudflare Tunnel** running as a Docker container alongside the app.
+
+### Cloudflare API Details
+
+| Item | Value |
+|------|-------|
+| Account ID | `87b9a19e13a4483ff4af7dc002733763` |
+| API Token | `VKxcyQ6ddPJLZ7lBboGCVfPpA1OIk-tMUAsmBjjc` |
+| Zone (awesomate.ai) | `2d016639a8eccda2d6a9259ded9a7a21` |
+
+**API Token Permissions**: The token must have **Zone:DNS (Edit)** and **Account:Cloudflare Tunnel (Edit)** permissions. When deploying to a **new domain** (not `awesomate.ai`), you must add that domain/zone to the token's permission scope in the Cloudflare dashboard (API Tokens → Edit → Zone Resources).
+
+### Quick Summary
+
+1. **Create a dedicated tunnel** via Cloudflare API (Python — see `docs/deployment-procedure.md`)
+2. **Configure ingress** — service: `http://app:80` (Docker Compose service name)
+3. **Create DNS CNAME** — `<subdomain>` → `<tunnel-id>.cfargotunnel.com`, proxied
+4. **Add tunnel service** to `docker-compose.yml`:
+   ```yaml
+     tunnel:
+       image: cloudflare/cloudflared:latest
+       command: tunnel run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+       restart: unless-stopped
+       depends_on:
+         - app
+   ```
+5. **Set `CLOUDFLARE_TUNNEL_TOKEN`** as a GitHub Actions secret
 
 ### Key Points
-- The tunnel container connects outbound to Cloudflare — no inbound ports needed
+- The tunnel container connects outbound to Cloudflare — no inbound ports needed on the server
 - HTTPS is terminated at Cloudflare — the tunnel carries HTTP internally
 - Mobile apps set `server.url` in `capacitor.config.ts` to the tunnel domain
-- The tunnel token is stored as a GitHub Actions secret (`CLOUDFLARE_TUNNEL_TOKEN`) and written to the `.env` file on deploy
+- Specific CNAME records take priority over wildcard records for proxied DNS
+- Use Python `urllib.request` instead of `curl` for Cloudflare API calls (avoids shell escaping issues)

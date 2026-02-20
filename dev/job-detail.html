@@ -42,9 +42,21 @@
   <script src="https://static-au03.vitalstats.app/static/sdk/v1/latest.js"></script>
 </head>
 <body class="bg-slate-50 font-['Inter']" data-page="job-detail" data-job-id="">
+  <script>
+    (function () {
+      var p = new URLSearchParams(window.location.search);
+      var jobId = p.get('job') || p.get('quote') || p.get('payment');
+      if (jobId) document.body.setAttribute('data-job-id', jobId);
+    })();
+  </script>
+  <!-- Dev nav: back to dashboard / dev home -->
+  <div style="background:#fff3cd;padding:6px 12px;font-size:12px;text-align:center;font-family:monospace;">
+    DEV MODE &mdash; Job Detail &bull; <a href="./index.html" style="color:#003882;text-decoration:underline;">Dev home</a> &bull; <a href="./dashboard.html" style="color:#003882;text-decoration:underline;">Dashboard</a>
+  </div>
 
   <!-- Mock data (dev only) -->
   <script src="./mock-data.js"></script>
+  <script src="./mock-data.local.js"></script>
 
   <!-- Ontraport AppConfig bridge (dev) -->
   <script>

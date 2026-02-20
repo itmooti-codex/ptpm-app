@@ -628,7 +628,10 @@
       if (!plugin) return;
 
       var announcementModel = plugin.switchTo('PeterpmAnnouncement');
-      announcementModel.then(function (model) {
+      var modelPromise = announcementModel && typeof announcementModel.then === 'function'
+        ? announcementModel
+        : Promise.resolve(announcementModel);
+      modelPromise.then(function (model) {
         var query = model.query()
           .andWhere('notified_contact_id', '=', config.LOGGED_IN_USER_ID || '')
           .orderBy('created_at', 'desc')
@@ -712,32 +715,71 @@
   // ROW CLICK HANDLING
   // ═══════════════════════════════════════════════════════════
 
+  function getDetailUrlTemplateForTab(tabKey) {
+    var c = config;
+    switch (tabKey) {
+      case 'inquiry':
+      case 'urgent-calls':
+        return c.INQUIRY_DETAIL_URL_TEMPLATE || '';
+      case 'quote':
+        return c.QUOTE_DETAIL_URL_TEMPLATE || '';
+      case 'jobs':
+      case 'active-jobs':
+        return c.JOB_DETAIL_URL_TEMPLATE || '';
+      case 'payment':
+        return c.PAYMENT_DETAIL_URL_TEMPLATE || c.JOB_DETAIL_URL_TEMPLATE || '';
+      default:
+        return '';
+    }
+  }
+
+  function parseNumericId(uniqueId) {
+    if (uniqueId == null) return '';
+    var s = String(uniqueId).trim();
+    return s.charAt(0) === '#' ? s.slice(1) : s;
+  }
+
   function bindTableRowClicks() {
     if (!tableContainerEl) return;
     tableContainerEl.addEventListener('click', function (e) {
-      // View icon click
-      var viewIcon = e.target.closest('#view-icon');
-      if (viewIcon) {
-        var row = viewIcon.closest('tr[data-unique-id]');
+      var viewBtn = e.target.closest('[data-action="view"]');
+      if (viewBtn) {
+        var row = viewBtn.closest('tr[data-unique-id]');
         if (row) {
           var uniqueId = row.getAttribute('data-unique-id');
-          if (uniqueId) {
-            // Navigate to detail page based on active tab
-            console.log('View record:', uniqueId, 'tab:', state.activeTab);
+          var numericId = parseNumericId(uniqueId);
+          if (numericId) {
+            var template = getDetailUrlTemplateForTab(state.activeTab);
+            if (template) {
+              var url = template.replace(/\{id\}/g, numericId);
+              window.location.href = url;
+            } else if (config.DEBUG) {
+              console.log('View record:', numericId, 'tab:', state.activeTab, '(no URL template set)');
+            }
           }
         }
+        e.preventDefault();
         return;
       }
 
-      // Delete icon click
-      var deleteIcon = e.target.closest('#delete-icon');
-      if (deleteIcon) {
-        var delRow = deleteIcon.closest('tr[data-unique-id]');
+      var deleteBtn = e.target.closest('[data-action="delete"]');
+      if (deleteBtn) {
+        var delRow = deleteBtn.closest('tr[data-unique-id]');
         if (delRow) {
-          console.log('Delete record:', delRow.getAttribute('data-unique-id'));
+          console.log('Delete record:', delRow.getAttribute('data-unique-id'), '(not implemented)');
         }
+        e.preventDefault();
         return;
       }
+    });
+  }
+
+  function bindCreateButton() {
+    var btn = document.getElementById('create-btn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var url = config.NEW_INQUIRY_URL || './new-inquiry.html';
+      window.location.href = url;
     });
   }
 
@@ -754,37 +796,51 @@
 
     tableContainerEl = typeof tableId === 'string' ? document.getElementById(tableId) : tableId;
 
+    function renderUI() {
+      renderCalendar(calendarId);
+      renderTabs(tabNavId);
+      initPagination();
+      bindFilters();
+      initDatePickers();
+      bindTableRowClicks();
+      bindCreateButton();
+    }
+
+    function showEmptyConnectionState() {
+      if (tableContainerEl) {
+        tbl.renderDynamicTable({
+          container: tableContainerEl,
+          headers: getInquiryHeaders(),
+          rows: [],
+          emptyState: 'No data — set your VitalSync API key in dev/mock-data.js (window.__MOCK_API_KEY__) to connect.',
+        });
+      }
+      state.totalCount = 0;
+      updateRecordCount();
+    }
+
+    var hasApiKey = config.API_KEY && String(config.API_KEY).trim();
+
+    if (!hasApiKey) {
+      // Don't call VitalSync when key is missing — SDK throws "Missing required options: slug and/or apiKey"
+      renderUI();
+      showEmptyConnectionState();
+      utils.showToast('No API key set. Add your VitalSync API key in dev/mock-data.js as window.__MOCK_API_KEY__ = "your-key";', 'error');
+      return;
+    }
+
     // Wait for VitalSync to connect
     window.VitalSync.connect()
       .then(function () {
         if (config.DEBUG) console.log('Dashboard: VitalSync connected');
-
-        // Render calendar
-        renderCalendar(calendarId);
-
-        // Render tabs
-        renderTabs(tabNavId);
-
-        // Init pagination
-        initPagination();
-
-        // Bind filters
-        bindFilters();
-
-        // Init date pickers
-        initDatePickers();
-
-        // Init notifications
+        renderUI();
         initNotifications();
-
-        // Bind table row clicks
-        bindTableRowClicks();
-
-        // Fetch initial data
         fetchAndRenderCurrentTab();
       })
       .catch(function (err) {
         console.error('Dashboard: VitalSync connection failed', err);
+        renderUI();
+        showEmptyConnectionState();
         utils.showToast('Failed to connect to data service. Please refresh.', 'error');
       });
   }

@@ -35,32 +35,103 @@ export interface VitalSyncModel {
   subscribe: (callback: (model: unknown) => void) => { unsubscribe: () => void };
 }
 
+// Full API reference: docs/sdk-queries.md
 export interface VitalSyncQuery {
-  select: (fields: string[]) => VitalSyncQuery;
-  where: (field: string, operatorOrValue: string, value?: unknown) => VitalSyncQuery;
-  orWhere: (field: string, operatorOrValue: string, value?: unknown) => VitalSyncQuery;
-  andWhere: (field: string, operatorOrValue: string, value?: unknown) => VitalSyncQuery;
+  // Selection
+  select: (fields: string[] | string) => VitalSyncQuery;
+  selectAll: () => VitalSyncQuery;
+  deSelectAll: () => VitalSyncQuery;
+
+  // Where clauses (field, operatorOrValue, value?)
+  where: (field: string | string[] | Record<string, unknown> | ((q: VitalSyncQuery) => VitalSyncQuery), operatorOrValue?: unknown, value?: unknown) => VitalSyncQuery;
+  andWhere: (field: string | string[] | ((q: VitalSyncQuery) => VitalSyncQuery), operatorOrValue?: unknown, value?: unknown) => VitalSyncQuery;
+  orWhere: (field: string | string[] | ((q: VitalSyncQuery) => VitalSyncQuery), operatorOrValue?: unknown, value?: unknown) => VitalSyncQuery;
+  whereNot: (field: string | ((q: VitalSyncQuery) => VitalSyncQuery), operatorOrValue?: unknown, value?: unknown) => VitalSyncQuery;
+  andWhereNot: (field: string | ((q: VitalSyncQuery) => VitalSyncQuery), operatorOrValue?: unknown, value?: unknown) => VitalSyncQuery;
+  orWhereNot: (field: string | ((q: VitalSyncQuery) => VitalSyncQuery), operatorOrValue?: unknown, value?: unknown) => VitalSyncQuery;
+  whereIn: (field: string, values: unknown[]) => VitalSyncQuery;
+  andWhereIn: (field: string, values: unknown[]) => VitalSyncQuery;
+  orWhereIn: (field: string, values: unknown[]) => VitalSyncQuery;
+  whereNotIn: (field: string, values: unknown[]) => VitalSyncQuery;
+  andWhereNotIn: (field: string, values: unknown[]) => VitalSyncQuery;
+  orWhereNotIn: (field: string, values: unknown[]) => VitalSyncQuery;
+
+  // Related records (virtual fields) — see docs/sdk-virtual-fields.md
+  include: (virtualFieldName: string, callback: (q: VitalSyncQuery) => VitalSyncQuery) => VitalSyncQuery;
+  includeFields: (virtualFieldName: string, fields?: string[]) => VitalSyncQuery;
+
+  // Pagination & ordering
   limit: (count: number) => VitalSyncQuery;
   offset: (count: number) => VitalSyncQuery;
+  orderBy: (field: string, direction?: 'asc' | 'desc') => VitalSyncQuery;
+
+  // Calc/aggregation — see "Calc / Aggregation Query Pattern" section below
+  count: (field: string, alias: string) => VitalSyncQuery;
+  sum: (field: string, alias: string) => VitalSyncQuery;
+  avg: (field: string, alias: string) => VitalSyncQuery;
+  min: (field: string, alias: string) => VitalSyncQuery;
+  max: (field: string, alias: string) => VitalSyncQuery;
+  field: (fieldName: string, alias: string) => VitalSyncQuery;
+
+  // Lifecycle
   noDestroy: () => VitalSyncQuery;
   destroy: () => void;
-  fetchAllRecords: () => {
+
+  // Async execution (use .pipe(window.toMainInstance(true)) on all fetch/find methods)
+  fetch: (opts?: { variables?: Record<string, unknown> }) => {
     pipe: <T>(fn: T) => { toPromise: () => Promise<Record<string, unknown> | null> };
   };
-  fetchOneRecord: () => {
+  fetchAllRecords: (opts?: { variables?: Record<string, unknown> }) => {
+    pipe: <T>(fn: T) => { toPromise: () => Promise<Record<string, unknown> | null> };
+  };
+  fetchOneRecord: (opts?: { variables?: Record<string, unknown> }) => {
     pipe: <T>(fn: T) => { toPromise: () => Promise<unknown | null> };
   };
+  fetchAllRecordsArray: (opts?: { variables?: Record<string, unknown> }) => {
+    pipe: <T>(fn: T) => { toPromise: () => Promise<unknown[]> };
+  };
+  fetchDirect: (opts?: { variables?: Record<string, unknown> }) => {
+    toPromise: () => Promise<{ resp: unknown[] | null }>;
+  };
+  findAllRecords: (opts?: { variables?: Record<string, unknown> }) => {
+    pipe: <T>(fn: T) => { toPromise: () => Promise<Record<string, unknown> | null> };
+  };
+  findOneRecord: (opts?: { variables?: Record<string, unknown> }) => {
+    pipe: <T>(fn: T) => { toPromise: () => Promise<unknown | null> };
+  };
+
+  // Sync execution (local state only — no toMainInstance needed)
+  get: () => { records: Record<string, unknown> | null };
+  getAllRecords: () => Record<string, unknown> | null;
+  getOneRecord: () => unknown | null;
+  getAllRecordsArray: () => unknown[];
+
+  // GraphQL
+  toGraphql: (opts?: unknown) => string;
+  fromGraphql: (graphqlString: string) => VitalSyncQuery;
+
+  // Subscriptions
   subscribe: () => {
     subscribe: (callback: (payload: unknown) => void) => { unsubscribe: () => void };
   };
 }
 
+// Full API reference: docs/sdk-mutations.md
 export interface VitalSyncMutation {
   switchTo: (modelName: string) => VitalSyncMutation;
   createOne: (data: Record<string, unknown>) => unknown;
+  create: (dataArray: Record<string, unknown>[]) => VitalSyncMutation;
   update: (queryOrRecord: unknown, data?: Record<string, unknown>) => VitalSyncMutation;
   delete: (queryOrRecord: unknown) => VitalSyncMutation;
-  execute: (commit: boolean) => { toPromise: () => Promise<unknown> };
+  getMutableRecord: (record: unknown) => unknown;
+  execute: (waitForMain?: boolean) => {
+    toPromise: () => Promise<unknown>;
+    subscribe: (callback: (result: unknown) => void) => { unsubscribe: () => void };
+  };
+  ofComplete: (waitForMain?: boolean) => {
+    subscribe: (callback: (result: unknown) => void) => { unsubscribe: () => void };
+  };
+  controller: VitalSyncMutation; // Access the PluginMutation
 }
 ```
 
@@ -627,7 +698,7 @@ When attaching uploaded files to VitalStats records (e.g., Feed posts), store me
 
 ---
 
-## Mutation Pattern
+## Mutation Pattern (SDK)
 
 **IMPORTANT:** Mutations disrupt active subscriptions. After a mutation completes, clean up the existing subscription and re-subscribe. Capture the record ID before creating the mutation to avoid closure issues.
 
@@ -645,6 +716,74 @@ await mutation.execute(true).toPromise();
 // After mutation: re-establish subscription (mutation disrupts it)
 cleanupSubscription();
 subscribeToRecord(contactId);
+```
+
+## Direct GraphQL Mutations (HTTP API)
+
+When performing mutations via direct `fetch()` against the GraphQL API (not the SDK), the `query` parameter **MUST** be inline in the GraphQL string with `_OPERATOR_` specified.
+
+### CRITICAL: Never Pass `query` as a GraphQL Variable
+
+The VitalStats GraphQL API **silently ignores `where` clauses** when `query` is passed as a `$variable` (e.g., `$query: [ContactQueryBuilderInput]`). This causes the mutation to apply to **ALL records** instead of the targeted one. The API returns success with no error — making this an extremely dangerous silent failure.
+
+```typescript
+// WRONG — silently ignores where clause, updates ALL records!
+const result = await gql(
+  `mutation updateContact($payload: ContactUpdateInput, $query: [ContactQueryBuilderInput]) {
+    updateContact(payload: $payload, query: $query) { id }
+  }`,
+  {
+    query: [{ where: { id: 9113 } }],  // ← SILENTLY IGNORED
+    payload: fields,
+  },
+);
+
+// CORRECT — inline query with _OPERATOR_ targets specific record
+const numericId = Number(recordId);
+const result = await gql(
+  `mutation updateContact($payload: ContactUpdateInput) {
+    updateContact(payload: $payload, query: [{ where: { id: ${numericId}, _OPERATOR_: eq } }]) { id }
+  }`,
+  { payload: fields },
+);
+```
+
+### Required Pattern for All Direct GraphQL Mutations
+
+1. **`query:` must be inline** in the GraphQL string (NOT a `$variable`)
+2. **`_OPERATOR_` must be specified** in the where clause (e.g., `_OPERATOR_: eq`)
+3. **`$payload` can still be a variable** — only `$query` is broken
+4. **Always validate the returned ID** matches the requested ID:
+
+```typescript
+if (result?.updateContact?.id !== numericId) {
+  console.error('TARGETING ERROR: requested', numericId, 'but updated', result?.updateContact?.id);
+}
+```
+
+### Create Mutations (no query needed)
+
+Create mutations don't need a `query` parameter and work fine with `$payload` as a variable:
+
+```typescript
+const result = await gql(
+  `mutation createContact($payload: ContactCreateInput) {
+    createContact(payload: $payload) { id email }
+  }`,
+  { payload: fields },
+);
+```
+
+### Read Queries (same inline rule applies)
+
+`getContact` (singular) always returns the first record regardless of query. Use `getContacts` (plural) with inline query:
+
+```graphql
+# WRONG — getContact ignores query, always returns first record
+{ getContact(query: [...]) { id } }
+
+# CORRECT — getContacts (plural) with inline query
+{ getContacts(query: [{ where: { id: 9113, _OPERATOR_: eq } }]) { id email } }
 ```
 
 ## CRITICAL: Record Immutability
@@ -736,18 +875,200 @@ function RecordList() {
 
 ## Calc / Aggregation Query Pattern
 
-The SDK supports calc queries. The query name is `calc` + pluralized publicName (e.g., `calcContacts`, `calcObjectLogEntries`).
+VitalSync's `calc` queries (`calcModelName`) are far more powerful than basic `get` queries (`getModelName`). They resolve related records server-side in a single request, eliminating the need for separate queries per relationship.
 
-### Native Aggregation (count / sum / avg / min / max)
+**Performance impact:** A page that previously needed 4+ sequential GraphQL requests (records, then related child records, then contacts) was reduced to 1 request using a calc query with field traversal. Page load dropped from ~8s to ~2.5s.
 
-Use the `args` pattern — returns a single number without fetching records. Response is always an array with one element: `[{ "result": 17813 }]`.
+The query name is `calc` + pluralized publicName (e.g., `calcContacts`, `calcObjectLogEntries`, `calcDispenseRequests`).
 
-**IMPORTANT:** The bare `{ count }` syntax does NOT work (400 error). You MUST use the `args: [{ field: [...] }]` pattern.
+### Basic Syntax
 
 ```graphql
-# Count all contacts
-{ calcContacts { total: count(args: [{ field: ["id"] }]) } }
+{
+  calcContacts(
+    query: [
+      { where: { status: "Active", _OPERATOR_: eq } }
+      { andWhere: { created_at: $start, _OPERATOR_: gte } }
+    ]
+    limit: 20
+    offset: 0
+    orderBy: [{ path: ["created_at"], type: desc }]
+  ) {
+    # fields go here using field(), count(), max(), concat(), etc.
+  }
+}
+```
 
+Supports the same `query`, `limit`, `offset`, and `orderBy` parameters as `get` queries.
+
+### Calc vs Get — When to Use Each
+
+| Feature | `get` Query | `calc` Query |
+|---|---|---|
+| Returns | Raw record objects | Calculated/aggregated result objects |
+| Related data | Must fetch separately | Resolved server-side via `field()` traversal |
+| Aggregations | Not supported | `count()`, `sum()`, `avg()`, `min()`, `max()` |
+| String ops | Not supported | `concat()` for combining fields |
+| Network calls | 1 per model + relationships | 1 total |
+| `id` field | Included automatically | Must explicitly request via `field(arg: ["id"])` |
+
+**Use calc queries when:**
+- You need data from related models (avoid N+1 query waterfalls)
+- You need counts or aggregations of child records
+- You want to combine fields (e.g. first + last name)
+- Performance matters (list pages, dashboards)
+
+**Use get queries when:**
+- You need the raw record with all standard fields
+- You're doing simple single-model lookups
+- You need SDK record objects (with `getState()`, subscriptions, etc.)
+
+### Field Functions
+
+#### `field()` — Read a field value
+
+Read a field directly from the queried model:
+
+```graphql
+status: field(arg: ["status"])
+unique_id: field(arg: ["unique_id"])
+request_date: field(arg: ["request_date"])
+```
+
+The alias (left of `:`) is the key name in the returned JSON. The `arg` array is the field path.
+
+#### `field()` — Traverse relationships (the N+1 killer)
+
+Follow FK relationships to read fields from related models in a single query:
+
+```graphql
+# One level deep: Order → Line_Item
+line_item_name: field(arg: ["Line_Item", "name"])
+line_item_variant: field(arg: ["Line_Item", "variant_title"])
+
+# Two levels deep: Order → Line_Item → Customer (Contact)
+patient_first: field(arg: ["Line_Item", "Customer", "first_name"])
+
+# Another relationship: Order → Script
+script_type: field(arg: ["Patient_Script", "script_type"])
+```
+
+**Relationship names** are derived from the FK field name by removing the `_id` suffix and using the model reference name. Check the schema for the exact names. Common patterns:
+
+| FK Field | Relationship Name |
+|---|---|
+| `line_item_id` | `Line_Item` |
+| `customer_id` | `Customer` |
+| `contact_id` | `Contact` |
+| `owner_id` | `Owner` |
+
+#### `count()` — Count records or related records
+
+```graphql
+# Count the queried records themselves
+total: count(args: [{ field: ["id"] }])
+
+# Count child records through a reverse relationship
+notes_count: count(args: [{ field: ["Notes", "id"] }])
+```
+
+**IMPORTANT:** The bare `{ count }` syntax does NOT work (400 error). You MUST use the `args: [{ field: [...] }]` pattern. Response is always an array: `[{ "result": N }]` — access `[0].result`.
+
+#### `sum()` / `avg()` / `max()` / `min()` — Aggregations
+
+```graphql
+total_spent: sum(args: [{ field: ["Purchases", "total_purchase"] }])
+avg_order: avg(args: [{ field: ["Purchases", "total_purchase"] }])
+latest_note: max(args: [{ field: ["Notes", "note"] }])
+```
+
+#### `concat()` — Combine multiple fields
+
+Join field values with separators:
+
+```graphql
+patient_name: concat(args: [
+  { field: ["Line_Item", "Customer", "first_name"] }
+  { value: " ", operator: "+" }
+  { field: ["Line_Item", "Customer", "last_name"], operator: "+" }
+])
+```
+
+Each item after the first needs `operator: "+"` to concatenate. The `value` property inserts a literal string (here a space separator).
+
+### Aliased Count Queries
+
+Request multiple calc operations in a single GraphQL query using aliases. Ideal for fetching counts per status:
+
+```graphql
+{
+  active: calcContacts(
+    query: [{ where: { status: "Active", _OPERATOR_: eq } }]
+  ) {
+    result: count(args: [{ field: ["id"] }])
+  }
+
+  inactive: calcContacts(
+    query: [{ where: { status: "Inactive", _OPERATOR_: eq } }]
+  ) {
+    result: count(args: [{ field: ["id"] }])
+  }
+}
+```
+
+Returns:
+```json
+{
+  "active": [{ "result": 258 }],
+  "inactive": [{ "result": 14 }]
+}
+```
+
+This replaces N individual count requests with 1 network call.
+
+### Complete Real-World Example
+
+Single query that fetches paginated records with all related data resolved server-side:
+
+```graphql
+{
+  calcDispenseRequests(
+    query: [
+      { where: { pharmacy_contact_id: 364, _OPERATOR_: eq } }
+      { andWhere: { status: "Preparing", _OPERATOR_: eq } }
+    ]
+    limit: 20
+    offset: 0
+    orderBy: [{ path: ["request_date"], type: asc }]
+  ) {
+    unique_id: field(arg: ["unique_id"])
+    status: field(arg: ["status"])
+    request_date: field(arg: ["request_date"])
+    item: field(arg: ["item"])
+    notes_count: count(args: [{ field: ["Notes", "id"] }])
+    latest_note: max(args: [{ field: ["Notes", "note"] }])
+    line_item_name: field(arg: ["Line_Item", "name"])
+    line_item_variant: field(arg: ["Line_Item", "variant_title"])
+    patient_name: concat(args: [
+      { field: ["Line_Item", "Customer", "first_name"] }
+      { value: " ", operator: "+" }
+      { field: ["Line_Item", "Customer", "last_name"], operator: "+" }
+    ])
+    script_type: field(arg: ["Patient_Script", "script_type"])
+    escript_link: field(arg: ["Patient_Script", "escript_link"])
+  }
+}
+```
+
+This single query replaces what would otherwise be:
+1. `getDispenseRequests` — fetch the 20 records
+2. `getLineItems` — fetch related line items by ID
+3. `getScripts` — fetch related scripts by ID
+4. `getContacts` — fetch patient contacts by ID (depends on LineItem data)
+
+### Aggregation with Time Variables
+
+```graphql
 # Count with date filter
 query q($start: TimestampSecondsScalar!, $end: TimestampSecondsScalar!) {
   calcContacts(
@@ -812,7 +1133,7 @@ Tested against the live API — these are the valid `_OPERATOR_` values for dire
 - The `_var` suffixed operators (`eq_var`, `gt_var`, etc.) do **NOT** work via direct GraphQL. They are not needed — regular operators work with `$variable` references automatically.
 - The `contains` operator does not exist — use `eq` for exact match
 
-### TypeScript Helper
+### TypeScript / JavaScript Helper
 
 For complex filtering, use direct GraphQL with a helper function:
 
@@ -830,6 +1151,28 @@ async function gqlFetch<T>(query: string, variables: Record<string, unknown>, da
   if (json.errors?.length) throw new Error(json.errors[0].message);
   return (json.data?.[dataKey] ?? []) as T[];
 }
+```
+
+Vanilla JS version (Ontraport apps):
+
+```javascript
+var url = 'https://' + slug + '.vitalstats.app/api/v1/graphql';
+
+fetch(url, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Api-Key': apiKey,
+  },
+  body: JSON.stringify({ query: queryString }),
+})
+  .then(function (res) { return res.json(); })
+  .then(function (json) {
+    var rows = json.data.calcModelName || [];
+    // Each row is a flat object with your aliased field names
+    // e.g. rows[0].patient_name, rows[0].line_item_name, etc.
+  });
 ```
 
 **SDK + GraphQL hybrid pattern** — use GraphQL for bulk filtering/aggregation, SDK for final record fetch:
@@ -854,6 +1197,15 @@ const parents = convertRecords(records);
 const parentMap = new Map(parents.map(p => [p.id, p]));
 return orderedParentIds.map(id => parentMap.get(id)).filter(Boolean);
 ```
+
+### Calc Query Gotchas
+
+- **Null relationships:** If a related record doesn't exist (e.g. no Script linked), traversed fields return `null`. Always handle nulls in your rendering code.
+- **Relationship names:** These come from the schema's FK field definitions, not the model names. Check your schema for the exact relationship path names.
+- **`count()` on self vs children:** Use `count(args: [{ field: ["id"] }])` (no relationship prefix) to count the queried records themselves. Use `count(args: [{ field: ["RelatedModel", "id"] }])` to count child records.
+- **Aliased counts return arrays:** Even `count()` returns `[{ "result": N }]` — always access `[0].result`.
+- **`orderBy` path syntax:** Uses `path: ["field_name"]` array format, same as get queries.
+- **`id` field not automatic:** Unlike `get` queries, calc queries do NOT include `id` by default. You must explicitly request it: `id: field(arg: ["id"])`.
 
 ---
 

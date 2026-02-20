@@ -412,6 +412,7 @@
     var title = opts.title || 'Notice';
     var message = opts.message || '';
     var buttonLabel = opts.buttonLabel || 'OK';
+    var secondaryButtonLabel = opts.secondaryButtonLabel || '';
 
     var modal = byId('ptpm-alert-modal');
     if (!modal) {
@@ -427,7 +428,8 @@
         '</button></div>' +
         '<div class="px-4 py-5 space-y-4 text-left">' +
         '<p class="text-sm text-slate-700" data-alert-message></p>' +
-        '<div class="flex justify-end gap-3">' +
+        '<div class="flex justify-end gap-3 flex-wrap" data-alert-buttons>' +
+        '<button type="button" data-alert-secondary class="!px-4 !py-2 !rounded !border !border-slate-300 !text-slate-700 !text-sm !font-semibold hidden">Secondary</button>' +
         '<button type="button" data-alert-confirm class="!px-4 !py-2 !rounded !bg-[' + (config.BRAND_COLOR || '#003882') + '] !text-white !text-sm !font-semibold">OK</button>' +
         '</div></div></div>';
 
@@ -438,19 +440,36 @@
         document.body.style.overflow = '';
       };
       modal.querySelector('[data-alert-close]').addEventListener('click', close);
-      modal.querySelector('[data-alert-confirm]').addEventListener('click', close);
+      modal.querySelector('[data-alert-confirm]').addEventListener('click', function () {
+        if (modal._currentOpts && modal._currentOpts.onConfirm) modal._currentOpts.onConfirm();
+        close();
+      });
+      modal.querySelector('[data-alert-secondary]').addEventListener('click', function () {
+        if (modal._currentOpts && modal._currentOpts.onSecondary) modal._currentOpts.onSecondary();
+        close();
+      });
       modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
       document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && !modal.classList.contains('hidden')) close();
       });
     }
 
+    modal._currentOpts = opts;
     var titleEl = modal.querySelector('[data-alert-title]');
     var msgEl = modal.querySelector('[data-alert-message]');
     var confirmEl = modal.querySelector('[data-alert-confirm]');
+    var secondaryEl = modal.querySelector('[data-alert-secondary]');
     if (titleEl) titleEl.textContent = title;
     if (msgEl) msgEl.textContent = message;
     if (confirmEl) confirmEl.textContent = buttonLabel;
+    if (secondaryEl) {
+      if (secondaryButtonLabel) {
+        secondaryEl.textContent = secondaryButtonLabel;
+        secondaryEl.classList.remove('hidden');
+      } else {
+        secondaryEl.classList.add('hidden');
+      }
+    }
 
     modal.classList.remove('hidden');
     modal.classList.add('flex');
@@ -561,6 +580,174 @@
         return details.url;
       });
     });
+  }
+
+  var fileDropZones = [];
+  var fileDropDocListenersBound = false;
+
+  function injectFileDropStyles() {
+    if (document.getElementById('ptpm-file-drop-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'ptpm-file-drop-styles';
+    style.textContent =
+      '[data-file-drop-zone] { position: relative; min-height: 5rem; }' +
+      '[data-file-drop-zone] .ptpm-file-drop-overlay {' +
+      'position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;' +
+      'width: 100% !important; height: 100% !important; z-index: 1 !important; cursor: pointer !important;' +
+      '}' +
+      '[data-file-drop-zone] label { pointer-events: none !important; }' +
+      '[data-file-drop-zone].ptpm-file-drop-active {' +
+      'border-color: #003882 !important; border-width: 2px !important;' +
+      'background-color: #e0f2fe !important;' +
+      'box-shadow: 0 0 0 3px rgba(0,56,130,0.3);' +
+      '}' +
+      '[data-file-drop-zone].ptpm-file-drop-active::after {' +
+      'content: "Drop to upload"; display: block; margin-top: 0.25rem;' +
+      'font-weight: 600; color: #003882; font-size: 0.875rem;' +
+      '}';
+    (document.head || document.documentElement).appendChild(style);
+  }
+
+  function bindDocumentFileDropHandlers() {
+    if (fileDropDocListenersBound) return;
+    fileDropDocListenersBound = true;
+    injectFileDropStyles();
+
+    document.addEventListener('dragover', function (e) {
+      var hasFiles = e.dataTransfer && e.dataTransfer.types &&
+        Array.prototype.indexOf.call(e.dataTransfer.types, 'Files') !== -1;
+      if (!hasFiles) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+
+      var target = e.target;
+      for (var i = 0; i < fileDropZones.length; i++) {
+        var z = fileDropZones[i];
+        if (z.zone.contains(target)) {
+          z.zone.classList.add('ptpm-file-drop-active');
+        } else {
+          z.zone.classList.remove('ptpm-file-drop-active');
+        }
+      }
+    }, true);
+
+    document.addEventListener('drop', function (e) {
+      if (!e.dataTransfer || !e.dataTransfer.files || !e.dataTransfer.files.length) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      var x = e.clientX;
+      var y = e.clientY;
+      var underCursor = document.elementFromPoint(x, y);
+      var target = e.target;
+      for (var i = 0; i < fileDropZones.length; i++) {
+        var z = fileDropZones[i];
+        z.zone.classList.remove('ptpm-file-drop-active');
+        var hit = (underCursor && z.zone.contains(underCursor)) || (target && z.zone.contains(target));
+        if (!hit && z.zone.getBoundingClientRect) {
+          var r = z.zone.getBoundingClientRect();
+          if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) hit = true;
+        }
+        if (hit) {
+          z.processFiles(e.dataTransfer.files);
+          return;
+        }
+      }
+    }, true);
+
+    document.addEventListener('dragleave', function (e) {
+      if (e.target !== document) return;
+      for (var i = 0; i < fileDropZones.length; i++) {
+        fileDropZones[i].zone.classList.remove('ptpm-file-drop-active');
+      }
+    }, true);
+
+    window.addEventListener('dragover', function (e) {
+      var hasFiles = e.dataTransfer && e.dataTransfer.types &&
+        Array.prototype.indexOf.call(e.dataTransfer.types, 'Files') !== -1;
+      if (!hasFiles) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    }, true);
+    window.addEventListener('drop', function (e) {
+      if (!e.dataTransfer || !e.dataTransfer.files || !e.dataTransfer.files.length) return;
+      e.preventDefault();
+    }, true);
+  }
+
+  function initFileUploadArea(opts) {
+    opts = opts || {};
+    var triggerEl = opts.triggerEl;
+    var inputEl = opts.inputEl;
+    var listEl = opts.listEl;
+    var uploadPath = opts.uploadPath || '';
+    var acceptRegex = opts.acceptRegex || /^(image\/|application\/pdf)/;
+    var multiple = opts.multiple !== false;
+    var renderItem = typeof opts.renderItem === 'function' ? opts.renderItem : function (meta) {
+      var div = document.createElement('div');
+      div.className = 'text-sm text-slate-600';
+      div.textContent = meta.name || 'Uploaded file';
+      return div;
+    };
+
+    if (!inputEl || !listEl) return;
+
+    var zone = triggerEl && triggerEl.nodeType === 1 ? triggerEl : inputEl.parentElement;
+    if (!zone) zone = inputEl;
+
+    zone.setAttribute('data-file-drop-zone', 'true');
+    var overlay = document.createElement('div');
+    overlay.className = 'ptpm-file-drop-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (inputEl) inputEl.click();
+    });
+    zone.insertBefore(overlay, zone.firstChild);
+
+    function acceptFile(file) {
+      if (!file || !file.type) return false;
+      return acceptRegex.test(file.type);
+    }
+
+    function addFile(file) {
+      if (!acceptFile(file)) return Promise.resolve();
+      return uploadAndGetFileLink(file, uploadPath).then(function (url) {
+        var meta = { url: url, name: file.name || 'Upload', type: file.type || '' };
+        var card = renderItem(meta, {
+          onDelete: function () {
+            if (card && card.parentNode) card.parentNode.removeChild(card);
+          },
+        });
+        if (card) {
+          if (typeof card.setAttribute === 'function') {
+            card.setAttribute('data-upload-url', meta.url);
+            card.setAttribute('data-file-name', meta.name || 'Upload');
+            card.setAttribute('file-type', meta.type || '');
+          }
+          listEl.appendChild(card);
+        }
+      });
+    }
+
+    function processFiles(files) {
+      var list = files && files.length ? Array.from(files) : [];
+      var toUpload = list.filter(acceptFile);
+      if (!toUpload.length) return;
+      toUpload.forEach(function (file) {
+        addFile(file);
+      });
+      if (inputEl) inputEl.value = '';
+    }
+
+    fileDropZones.push({ zone: zone, processFiles: processFiles });
+    bindDocumentFileDropHandlers();
+
+    if (inputEl) {
+      inputEl.addEventListener('change', function () {
+        processFiles(inputEl.files);
+      });
+    }
   }
 
   function readFileAsBase64(file) {
@@ -695,6 +882,7 @@
     requestUploadDetails: requestUploadDetails,
     uploadFileToS3: uploadFileToS3,
     uploadAndGetFileLink: uploadAndGetFileLink,
+    initFileUploadArea: initFileUploadArea,
     readFileAsBase64: readFileAsBase64,
     buildUploadCard: buildUploadCard,
 

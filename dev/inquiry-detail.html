@@ -68,26 +68,35 @@
   </head>
 
   <body data-page="inquiry-detail" x-data="pageActions()">
-    <!-- Mock Data + AppConfig for Dev -->
+    <!-- Mock Data + AppConfig for Dev (URL params override when present) -->
     <script src="./mock-data.js"></script>
+    <script src="./mock-data.local.js"></script>
     <script>
-      window.AppConfig = {
-        SLUG: 'peterpm',
-        API_KEY: window.__MOCK_API_KEY__ || '',
-        LOGGED_IN_USER_ID: window.__MOCK_LOGGED_IN_USER_ID__ || '',
-        CONTACT_ID: window.__MOCK_CONTACT_ID__ || '',
-        BRAND_COLOR: '#003882',
-        TIMEZONE: 'Australia/Melbourne',
-        CDN_BASE: '',
-        INQUIRY_RECORD_ID: '312',
-        COMPANY_ID: '63',
-        JOB_ID: '375',
-        PROPERTY_ID: '174',
-        JOB_UNIQUE_ID: '62GF7PS',
-        ACCOUNT_TYPE: 'Company',
-        SERVICE_PROVIDER_ID: '1',
-      };
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var inquiryId = params.get('inquiry');
+        window.AppConfig = {
+          SLUG: 'peterpm',
+          API_KEY: window.__MOCK_API_KEY__ || '',
+          LOGGED_IN_USER_ID: window.__MOCK_LOGGED_IN_USER_ID__ || '',
+          CONTACT_ID: window.__MOCK_CONTACT_ID__ || '',
+          BRAND_COLOR: '#003882',
+          TIMEZONE: 'Australia/Melbourne',
+          CDN_BASE: '',
+          INQUIRY_RECORD_ID: inquiryId || '312',
+          COMPANY_ID: params.get('company') || '63',
+          JOB_ID: params.get('job') || '375',
+          PROPERTY_ID: params.get('property') || '174',
+          JOB_UNIQUE_ID: params.get('jobUnique') || '62GF7PS',
+          ACCOUNT_TYPE: params.get('accountType') || 'Company',
+          SERVICE_PROVIDER_ID: params.get('serviceProvider') || '1',
+        };
+      })();
     </script>
+    <!-- Dev nav: back to dashboard / dev home -->
+    <div style="background:#fff3cd;padding:6px 12px;font-size:12px;text-align:center;font-family:monospace;">
+      DEV MODE &mdash; Inquiry Detail &bull; <a href="./index.html" style="color:#003882;text-decoration:underline;">Dev home</a> &bull; <a href="./dashboard.html" style="color:#003882;text-decoration:underline;">Dashboard</a>
+    </div>
     <!-- Main Job Sheet -->
     <div id="job-sheet">
       <header>

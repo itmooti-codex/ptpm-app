@@ -6,3 +6,6 @@ node_modules/
 
 # Research raw data (contains PII)
 research/raw/
+
+# Local dev secrets (API key etc.) — create from mock-data.local.example if needed
+dev/mock-data.local.js
