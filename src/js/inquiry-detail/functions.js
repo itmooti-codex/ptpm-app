@@ -24,10 +24,44 @@ function pageActions() {
 
     // auto-open memos when collapsed
     init() {
+      this.organizeHubAndSpokeLayout();
       this.$watch("inquiryCollapsed", (value) => {
         if (value === true) {
           this.openmemos = true; // stay open when collapsed
         }
+      });
+    },
+
+    organizeHubAndSpokeLayout() {
+      window.requestAnimationFrame(() => {
+        const hub = document.querySelector("[data-inquiry-hub]");
+        const inquirySection = document.querySelector(".inquiry-section");
+        if (!hub || !inquirySection || hub.dataset.organized === "true") return;
+
+        const serviceSlot = hub.querySelector('[data-hub-slot="service"]');
+        const propertySlot = hub.querySelector('[data-hub-slot="property"]');
+        const contactsSlot = hub.querySelector('[data-hub-slot="contacts"]');
+        if (!serviceSlot || !propertySlot || !contactsSlot) return;
+
+        const cards = Array.from(
+          inquirySection.querySelectorAll(
+            "div.p-4.bg-white.rounded-lg.border.border-gray-300"
+          )
+        );
+        const findCard = (label) =>
+          cards.find((card) => card.textContent?.includes(label));
+
+        const topStrip = inquirySection.querySelector(".inquiry-top-strip");
+        const propertyContacts = findCard("Property Contacts");
+        const propertyAddress = findCard("Property Address");
+        const propertyDescription = findCard("Property Description");
+
+        if (topStrip) serviceSlot.appendChild(topStrip);
+        if (propertyAddress) propertySlot.appendChild(propertyAddress);
+        if (propertyDescription) propertySlot.appendChild(propertyDescription);
+        if (propertyContacts) contactsSlot.appendChild(propertyContacts);
+
+        hub.dataset.organized = "true";
       });
     },
 

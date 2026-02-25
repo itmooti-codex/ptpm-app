@@ -1,0 +1,10 @@
+{
+  "archivedAt": "2026-02-25",
+  "entries": [
+    {
+      "originalPath": "dev/api-test-contacts.html",
+      "archivedPath": "archive/pages/dev/api-test-contacts.html",
+      "reason": "Dev-only API probe page; removed from active launcher as part of full connectivity cleanup"
+    }
+  ]
+}

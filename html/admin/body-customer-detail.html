@@ -1,0 +1,141 @@
+<!-- PTPM Customer Detail — Ontraport Body HTML Block -->
+<!-- Paste into: Ontraport Page → HTML Block in Body. Use ?contact=ID in URL. -->
+
+<main class="flex flex-col gap-6 mb-4" data-page="customer-detail">
+  <div id="customer-detail-loading" class="loading-state flex items-center justify-center py-16">
+    <div class="loading-spinner"></div>
+    <span class="ml-3 text-slate-600">Loading customer…</span>
+  </div>
+  <div id="customer-detail-content" class="flex flex-col gap-6">
+    <header class="w-full px-4 sm:px-5 py-4 bg-[#003882] border-b border-gray-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white shadow-card">
+      <div class="flex items-center gap-3">
+        <a id="customer-detail-back" href="#" class="flex items-center gap-2 text-white hover:text-white/90" aria-label="Back to Menu">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+          <span id="customer-detail-title" class="text-lg font-bold">Customer Details</span>
+        </a>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <button type="button" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm">Delete Customer</button>
+        <button type="button" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm">View History</button>
+        <button type="button" id="customer-detail-book-job-btn" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm">Book A New Job</button>
+        <button type="button" id="customer-detail-edit-btn" class="ptpm-btn ptpm-btn-primary-on-dark ptpm-btn-sm">Edit Details</button>
+        <span id="customer-detail-edit-actions" class="hidden gap-2 inline-flex">
+          <button type="button" id="customer-detail-save-btn" class="ptpm-btn ptpm-btn-primary-on-dark ptpm-btn-sm">Save</button>
+          <button type="button" id="customer-detail-save-close-btn" class="ptpm-btn ptpm-btn-primary-on-dark ptpm-btn-sm">Save &amp; Close</button>
+          <button type="button" id="customer-detail-cancel-btn" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm">Cancel</button>
+        </span>
+      </div>
+    </header>
+    <div id="customer-edit-mode-indicator" class="hidden mx-4 lg:mx-6 px-4 py-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-sm font-medium">
+      Edit mode is ON. Update fields below, then click Save.
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 px-4 lg:px-6">
+      <!-- Account Overview (Figma) -->
+      <section class="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden">
+        <div class="border-b border-slate-200 px-4 py-3 bg-slate-50">
+          <h2 class="text-sm font-semibold text-slate-800">Account Overview</h2>
+        </div>
+        <div class="p-4 space-y-3 text-sm">
+          <div><label class="block text-slate-500 mb-1">Account #</label><div id="account-number" class="w-full px-3 py-2 text-slate-800">—</div></div>
+          <div><label class="block text-slate-500 mb-1">Account Property Type</label><div id="account-property-type" class="w-full px-3 py-2 text-slate-800">—</div></div>
+          <div><label class="block text-slate-500 mb-1">Principal First Name</label><input id="cd-first-name" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Last Name</label><input id="cd-last-name" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Email</label><input id="cd-email" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Mobile #</label><input id="cd-mobile" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">ABN/ACN</label><input id="cd-abn" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Customer Status</label><input id="cd-customer-status" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Customer Type</label><input id="cd-customer-type" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Customer Source</label><input id="cd-customer-source" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Created Date</label><div id="cd-created-date" class="w-full px-3 py-2 text-slate-800">—</div></div>
+          <div><label class="block text-slate-500 mb-1">Referred By</label><input id="cd-referred-by" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Notes</label><textarea id="cd-notes" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50 resize-y" readonly></textarea></div>
+        </div>
+      </section>
+
+      <!-- Contact Information (Figma) -->
+      <section class="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden">
+        <div class="border-b border-slate-200 px-4 py-3 bg-slate-50">
+          <h2 class="text-sm font-semibold text-slate-800">Contact Information</h2>
+        </div>
+        <div class="p-4 space-y-3 text-sm">
+          <div><label class="block text-slate-500 mb-1">Search address</label><input id="cd-address-search" type="text" placeholder="Type to search address…" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-white" autocomplete="off"></div>
+          <div><label class="block text-slate-500 mb-1">Address 1</label><input id="cd-address1" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Address 2</label><input id="cd-address2" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Suburb</label><input id="cd-suburb" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Postcode</label><input id="cd-postcode" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">State</label><input id="cd-state" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Country</label><input id="cd-country" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Phone</label><input id="cd-phone" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Email</label><input id="cd-contact-email" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+        </div>
+      </section>
+
+      <!-- Additional Information (Figma) -->
+      <section class="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden lg:col-span-2">
+        <div class="border-b border-slate-200 px-4 py-3 bg-slate-50">
+          <h2 class="text-sm font-semibold text-slate-800">Additional Information</h2>
+        </div>
+        <div class="p-4 space-y-3 text-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div><label class="block text-slate-500 mb-1">Region</label><input id="cd-region" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50 text-sm" readonly></div>
+            <div><label class="block text-slate-500 mb-1">Area</label><input id="cd-area" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50 text-sm" readonly></div>
+            <div><label class="block text-slate-500 mb-1">Sub Area</label><input id="cd-sub-area" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50 text-sm" readonly></div>
+            <div><label class="block text-slate-500 mb-1">Referral Source</label><input id="cd-referral-source" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50 text-sm" readonly></div>
+          </div>
+          <div><label class="block text-slate-500 mb-1">Service Agreement</label><input id="cd-service-agreement" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Next Service Date</label><input id="cd-next-service-date" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Preferred Time</label><input id="cd-preferred-time" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50" readonly></div>
+          <div><label class="block text-slate-500 mb-1">Customer Notes</label><textarea id="cd-customer-notes" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 bg-slate-50 resize-y" readonly></textarea></div>
+          <div class="flex flex-wrap items-center gap-2 pt-2">
+            <span id="cd-inquiries-tag" class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 cursor-pointer hover:bg-slate-200">Inquiries (0)</span>
+            <span id="cd-engagements-tag" class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 cursor-pointer hover:bg-slate-200">Engagements (0)</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Related Records (Figma: All Records, Inquiries, Engagements, Jobs, Payments, Credits, Notes) -->
+    <section class="px-4 lg:px-6">
+      <div class="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden">
+        <div class="border-b border-slate-200 px-4 py-3 bg-slate-50">
+          <h2 class="text-sm font-semibold text-slate-800">Related Records</h2>
+        </div>
+        <div class="p-4">
+          <div class="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3 mb-3">
+            <button type="button" id="tab-all" class="px-4 py-2 rounded-t-lg border-b-2 border-[#003882] bg-white text-[#003882] text-sm font-medium">All Records</button>
+            <button type="button" id="tab-inquiries" class="px-4 py-2 rounded-t-lg border-b-2 border-transparent text-slate-600 text-sm font-medium hover:bg-slate-50">Inquiries</button>
+            <button type="button" id="tab-engagements" class="px-4 py-2 rounded-t-lg border-b-2 border-transparent text-slate-600 text-sm font-medium hover:bg-slate-50">Engagements</button>
+            <button type="button" id="tab-jobs" class="px-4 py-2 rounded-t-lg border-b-2 border-transparent text-slate-600 text-sm font-medium hover:bg-slate-50">Jobs</button>
+            <button type="button" id="tab-payments" class="px-4 py-2 rounded-t-lg border-b-2 border-transparent text-slate-600 text-sm font-medium hover:bg-slate-50">Payments</button>
+            <button type="button" id="tab-credits" class="px-4 py-2 rounded-t-lg border-b-2 border-transparent text-slate-600 text-sm font-medium hover:bg-slate-50">Credits</button>
+            <button type="button" id="tab-notes" class="px-4 py-2 rounded-t-lg border-b-2 border-transparent text-slate-600 text-sm font-medium hover:bg-slate-50">Notes</button>
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div id="filter-chips-row" class="flex flex-wrap items-center gap-2"></div>
+            <div class="flex items-center gap-2">
+              <button type="button" class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm">Edit Columns</button>
+              <button type="button" class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm">Save View As</button>
+            </div>
+          </div>
+          <div id="client-records-table-container" class="w-full overflow-x-auto border border-slate-200 rounded-lg"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+<!-- Host page must load VitalStats SDK (latest.js) and vitalsync.js for Save to work. -->
+<script>
+(function () {
+  if (!document.getElementById('cd-address-search')) return;
+  if (window.google && window.google.maps && window.google.maps.places && typeof window.initCustomerDetailAutocomplete === 'function') {
+    window.initCustomerDetailAutocomplete();
+    return;
+  }
+  var s = document.createElement('script');
+  s.async = true;
+  s.defer = true;
+  s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDAB5BuHgOkYcnAcTJk6jLEkS7hSHtqNwo&libraries=places&callback=initCustomerDetailAutocomplete';
+  document.head.appendChild(s);
+})();
+</script>

@@ -1,0 +1,18 @@
+{
+  "entities": {
+    "inquiries": {
+      "lastPk": 14123,
+      "lastWatermark": "2026-04-11T00:00:00.000Z"
+    },
+    "jobs": {
+      "lastPk": 165706,
+      "lastWatermark": "2026-12-30T00:00:00.000Z"
+    },
+    "companies": {
+      "lastPk": 2775
+    },
+    "customers": {
+      "lastPk": 161
+    }
+  }
+}

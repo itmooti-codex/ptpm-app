@@ -21,6 +21,9 @@
   };
 </script>
 
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
 <!-- VitalSync SDK -->
 <script async data-chunk="client"
   src="https://static-au03.vitalstats.app/static/sdk/v1/latest.js"
@@ -42,7 +45,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <!-- Custom Styles -->
-<link rel="stylesheet" href="https://itmooti-codex.github.io/ptpm-app/css/styles.css?v=1">
+<link rel="stylesheet" href="https://itmooti-codex.github.io/ptpm-app/css/styles.css?v=6">
+<style>
+  [x-cloak] { display: none !important; }
+  .thin-scrollbar { scrollbar-width: thin; scrollbar-color: #94a3b8 transparent; }
+  .thin-scrollbar::-webkit-scrollbar { width: 6px; }
+  .thin-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+</style>
 
 <!-- AppConfig — Ontraport merge fields inject values in production -->
 <script>

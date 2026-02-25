@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-02-23T07:53:35.820Z",
+  "mode": "write",
+  "entities": [
+    {
+      "entity": "inquiries",
+      "extracted": 1,
+      "attemptedUpserts": 1,
+      "successfulUpserts": 1,
+      "failedUpserts": 0,
+      "batches": 1,
+      "firstCursor": {
+        "pk": 13172,
+        "watermark": "2026-02-20T00:00:00.000Z"
+      },
+      "lastCursor": {
+        "pk": 13172,
+        "watermark": "2026-02-20T00:00:00.000Z"
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {
+        "past_job_id": {
+          "count": 1,
+          "samples": [
+            "158736"
+          ]
+        }
+      }
+    }
+  ],
+  "totals": {
+    "extracted": 1,
+    "attemptedUpserts": 1,
+    "successfulUpserts": 1,
+    "failedUpserts": 0
+  },
+  "window": {
+    "from": "2026-02-20T00:00:00Z",
+    "to": "2026-02-24T00:00:00Z"
+  }
+}

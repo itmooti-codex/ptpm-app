@@ -1,0 +1,59 @@
+{
+  "entity": "inquiries",
+  "source": {
+    "schema": "dbo",
+    "table": "tbl_FollowUpJobs",
+    "pk": "FUJ_ID",
+    "watermark": {
+      "type": "datetime",
+      "column": "FUJ_Date_Due"
+    },
+    "select": [
+      { "expr": "FUJ_ID", "as": "FUJ_ID" },
+      { "expr": "FUJ_Cust_id", "as": "FUJ_Cust_id" },
+      { "expr": "CAST(FUJ_Date_Due AS datetime2)", "as": "source_created_at" },
+      { "expr": "CAST(FUJ_Date_Due AS datetime2)", "as": "FUJ_Date_Due" },
+      { "expr": "FUJ_type", "as": "FUJ_type" },
+      { "expr": "FUJ_Customer_Status", "as": "FUJ_Customer_Status" },
+      { "expr": "FUJ_Comments", "as": "FUJ_Comments" },
+      { "expr": "LTRIM(RTRIM(COALESCE(FUJ_StreetPrefix + ' ', '') + COALESCE(FUJ_Street, '') + CASE WHEN FUJ_Suburb IS NULL OR LTRIM(RTRIM(FUJ_Suburb)) = '' THEN '' ELSE ', ' + FUJ_Suburb END))", "as": "FUJ_Address_Text" },
+      { "expr": "FUJ_Value", "as": "FUJ_Value" },
+      { "expr": "FUJ_Contact", "as": "FUJ_Contact" },
+      { "expr": "FUJ_Orig_Jobs_ID", "as": "FUJ_Orig_Jobs_ID" },
+      { "expr": "FUJ_converted_to_Jobs_id", "as": "FUJ_converted_to_Jobs_id" }
+    ]
+  },
+  "target": {
+    "model": "Job",
+    "graphql": {
+      "inputVariable": "payload",
+      "mutation": "mutation CreateLegacyFollowupJob($payload: JobCreateInput) { createJob(payload: $payload) { id } }"
+    }
+  },
+  "idempotency": {
+    "sourceIdField": "FUJ_ID",
+    "targetLegacyIdField": "legacy_sql_followup_id"
+  },
+  "constants": {
+    "job_type": "Followup Inquiry - DW",
+    "job_status": "Call Back",
+    "legacy_source_system": "legacy_sql",
+    "legacy_source_entity": "tbl_FollowUpJobs",
+    "legacy_mapping_confidence": "medium"
+  },
+  "fieldMap": [
+    { "from": "source_created_at", "to": "created_at", "transforms": ["dateToEpochSeconds"] },
+    { "from": "FUJ_Date_Due", "to": "date_scheduled", "transforms": ["dateToEpochSeconds"] },
+    { "from": "FUJ_Date_Due", "to": "due_date", "transforms": ["dateToEpochSeconds"] },
+    { "from": "FUJ_Orig_Jobs_ID", "to": "legacy_sql_orig_job_id", "transforms": ["number"] },
+    { "from": "FUJ_Orig_Jobs_ID", "to": "past_job_id", "transforms": ["number"], "lookup": "legacyJobIdToTargetJobId" },
+    { "from": "FUJ_converted_to_Jobs_id", "to": "duplicate_job", "transforms": ["boolFromBit"] },
+    { "from": "FUJ_Value", "to": "job_total", "transforms": ["number"] },
+    { "from": "FUJ_Comments", "to": "last_note", "transforms": ["trim", "emptyToNull"] },
+    { "from": "FUJ_Address_Text", "to": "admin_recommendation", "transforms": ["trim", "emptyToNull"] },
+    { "from": "FUJ_Contact", "to": "popup_comment", "transforms": ["trim", "emptyToNull"] },
+    { "from": "FUJ_type", "to": "legacy_service_raw_prestart_activity", "transforms": ["trim", "emptyToNull"] },
+    { "from": "FUJ_Comments", "to": "legacy_service_raw_comments", "transforms": ["trim", "emptyToNull"] },
+    { "from": "FUJ_Customer_Status", "to": "legacy_mapping_notes", "transforms": ["trim", "emptyToNull"] }
+  ]
+}

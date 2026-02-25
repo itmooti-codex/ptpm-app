@@ -1,0 +1,51 @@
+{
+  "generatedAt": "2026-02-23T09:13:26.339Z",
+  "mode": "write",
+  "entities": [
+    {
+      "entity": "jobs",
+      "extracted": 525,
+      "attemptedUpserts": 525,
+      "successfulUpserts": 525,
+      "failedUpserts": 0,
+      "batches": 6,
+      "firstCursor": {
+        "pk": 167250,
+        "watermark": "2026-02-01T00:00:00.000Z"
+      },
+      "lastCursor": {
+        "pk": 167640,
+        "watermark": "2026-02-23T00:00:00.000Z"
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {
+        "primary_service_provider_id": {
+          "count": 4,
+          "samples": [
+            "16",
+            "8"
+          ]
+        }
+      },
+      "activitiesCreated": 0,
+      "activitiesAlreadyLinked": 508,
+      "activitiesSkippedNoService": 17,
+      "activitiesSkippedMissingService": 0,
+      "activitiesFailed": 0
+    }
+  ],
+  "totals": {
+    "extracted": 525,
+    "attemptedUpserts": 525,
+    "successfulUpserts": 525,
+    "failedUpserts": 0
+  },
+  "window": {
+    "from": "2026-02-01T00:00:00Z",
+    "to": "2026-03-01T00:00:00Z"
+  }
+}

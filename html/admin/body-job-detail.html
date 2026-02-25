@@ -9,21 +9,34 @@
       <span data-current-section-label class="ml-3 text-sm text-gray-200"></span>
     </div>
     <div class="flex items-center gap-3">
-      <button data-nav-action="cancel" class="px-4 py-2 rounded outline outline-1 outline-white text-white text-sm font-medium">Cancel</button>
-      <button data-nav-action="reset" class="px-4 py-2 rounded outline outline-1 outline-white text-white text-sm font-medium inline-flex items-center gap-2">
+      <button data-nav-action="cancel" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm">Cancel</button>
+      <button data-nav-action="reset" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-2">
         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
         Reset
       </button>
-      <button data-nav-action="back" class="hidden px-4 py-2 rounded bg-slate-200 text-[#003882] text-sm font-medium inline-flex items-center gap-2">
+      <button data-nav-action="back" class="ptpm-btn ptpm-btn-sm ptpm-btn-back hidden inline-flex items-center gap-2">
         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
         <span data-nav-back-label>Back</span>
       </button>
-      <button data-nav-action="next" class="px-4 py-2 rounded bg-white text-[#003882] text-sm font-medium inline-flex items-center gap-2">
+      <button data-nav-action="next" class="ptpm-btn ptpm-btn-primary-on-dark ptpm-btn-sm inline-flex items-center gap-2">
         <span data-nav-next-label>Next: Add Activities</span>
         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
       </button>
     </div>
   </header>
+
+  <div id="job-latest-action-banner" class="hidden px-6 py-2 bg-slate-50 border-b border-slate-200 text-xs text-slate-700">
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="font-semibold">Latest Action:</span>
+      <span id="job-latest-action-status" class="inline-flex items-center px-2 py-0.5 rounded border bg-gray-100 text-gray-700 border-gray-200">processing</span>
+      <span id="job-latest-action-type" class="font-medium">—</span>
+    </div>
+    <p id="job-latest-action-message" class="text-slate-600 mt-0.5">Awaiting action updates.</p>
+    <p class="text-[11px] text-slate-400 mt-0.5">
+      Source: <span id="job-latest-action-source">—</span> &middot;
+      At: <span id="job-latest-action-at">—</span>
+    </p>
+  </div>
 
   <div class="flex flex-1">
     <!-- Sidebar Navigation -->
@@ -102,8 +115,11 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="relative" data-search-root="contact-individual">
                   <label class="block text-sm font-medium text-neutral-700 mb-1">Client</label>
-                  <input data-field="client" type="text" placeholder="Search contact..." class="w-full px-3 py-2 rounded border border-slate-300 text-sm">
+                  <input data-field="client" type="text" placeholder="Search contact..." autocomplete="off" class="w-full px-3 py-2 rounded border border-slate-300 text-sm">
                   <input data-field="client_id" type="hidden">
+                  <div class="mt-1 flex justify-end">
+                    <button id="edit-contact-btn" type="button" class="text-xs text-[#003882] hover:underline">Edit selected contact</button>
+                  </div>
                   <div data-search-results class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded shadow-lg max-h-48 overflow-y-auto z-20"></div>
                 </div>
                 <div class="relative" data-search-root="service-provider">
@@ -132,8 +148,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="relative" data-search-root="property">
                 <label class="block text-sm font-medium text-neutral-700 mb-1">Property</label>
-                <input data-field="properties" type="text" placeholder="Search property..." class="w-full px-3 py-2 rounded border border-slate-300 text-sm">
+                <input data-field="properties" type="text" placeholder="Search property..." autocomplete="off" class="w-full px-3 py-2 rounded border border-slate-300 text-sm">
                 <input data-field="property_id" type="hidden">
+                <div class="mt-1 flex justify-end">
+                  <button id="edit-property-btn" type="button" class="text-xs text-[#003882] hover:underline">Edit selected property</button>
+                </div>
                 <div data-search-results class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded shadow-lg max-h-48 overflow-y-auto z-20"></div>
               </div>
               <div>
@@ -200,7 +219,7 @@
             </div>
 
             <div class="flex justify-end">
-              <button id="submit-information-btn" class="px-6 py-2 bg-[#003882] text-white text-sm font-medium rounded">Save Job Information</button>
+              <button id="submit-information-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Save Job Information</button>
             </div>
           </div>
 
@@ -253,7 +272,7 @@
               </div>
             </div>
             <div class="flex justify-end mt-4">
-              <button id="create-appointment" class="px-6 py-2 bg-[#003882] text-white text-sm font-medium rounded">Create Appointment</button>
+              <button id="create-appointment" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Create Appointment</button>
             </div>
           </div>
         </div>
@@ -314,8 +333,8 @@
             </div>
           </div>
           <div class="flex justify-end items-center gap-3 border-t border-slate-200 pt-3">
-            <button id="cancel-activities" class="text-slate-600 text-sm font-medium px-3 py-2">Cancel</button>
-            <button id="add-activities" class="bg-[#003882] text-white text-sm font-medium px-4 py-2 rounded">Add</button>
+            <button id="cancel-activities" class="ptpm-btn ptpm-btn-sm text-slate-600 text-sm font-medium px-3 py-2 border border-slate-300 rounded">Cancel</button>
+            <button id="add-activities" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Add</button>
           </div>
         </div>
         <!-- Activities Table -->
@@ -361,8 +380,8 @@
             </div>
           </div>
           <div class="flex justify-end items-center gap-3 border-t border-slate-200 pt-3">
-            <button id="cancel-material-btn" class="text-slate-600 text-sm font-medium px-3 py-2">Cancel</button>
-            <button id="add-material-btn" class="bg-[#003882] text-white text-sm font-medium px-4 py-2 rounded">Add</button>
+            <button id="cancel-material-btn" class="ptpm-btn ptpm-btn-sm text-slate-600 text-sm font-medium px-3 py-2 border border-slate-300 rounded">Cancel</button>
+            <button id="add-material-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Add</button>
           </div>
         </div>
         <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm">
@@ -382,7 +401,7 @@
           <p class="text-center text-slate-500 text-xs">SVG, PNG, JPG or PDF</p>
           <div class="flex flex-col gap-2" data-section="images-uploads"></div>
           <div class="flex justify-end items-center gap-3">
-            <button id="add-images-btn" class="bg-[#003882] text-white text-sm font-medium px-4 py-2 rounded">Save Uploads</button>
+            <button id="add-images-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Save Uploads</button>
           </div>
         </div>
         <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm">
@@ -433,8 +452,8 @@
         </div>
       </div>
       <div class="flex justify-end gap-3 border-t border-slate-200 pt-4">
-        <button onclick="document.getElementById('jobAddPropertyModal').classList.add('hidden')" class="text-slate-600 text-sm font-medium px-4 py-2">Cancel</button>
-        <button id="add-property-btn" class="bg-[#003882] text-white text-sm font-medium px-4 py-2 rounded">Add Property</button>
+        <button onclick="document.getElementById('jobAddPropertyModal').classList.add('hidden')" class="ptpm-btn ptpm-btn-sm text-slate-600 border border-slate-300 rounded">Cancel</button>
+        <button id="add-property-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Add Property</button>
       </div>
     </div>
   </div>

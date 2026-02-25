@@ -17,3 +17,11 @@ window.__MOCK_API_KEY__ = '';
 // Service provider context (for SP portal pages)
 window.__MOCK_SERVICE_PROVIDER_ID__ = '';
 window.__MOCK_ACCOUNT_TYPE__ = '';
+
+// Mock contacts for contact search when VitalSync is not connected or returns no data.
+// Override in mock-data.local.js to add more.
+window.__MOCK_CONTACTS__ = [
+  { id: '1', first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@example.com', sms_number: '0400000001', office_phone: '' },
+  { id: '2', first_name: 'John', last_name: 'Jones', email: 'john.jones@example.com', sms_number: '', office_phone: '07 3123 4567' },
+  { id: '3', first_name: 'Acme', last_name: 'Property', email: 'info@acmeproperty.com.au', sms_number: '', office_phone: '07 3234 5678' },
+];

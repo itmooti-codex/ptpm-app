@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-02-23T08:38:48.661Z",
+  "mode": "write",
+  "entities": [
+    {
+      "entity": "jobs",
+      "extracted": 1,
+      "attemptedUpserts": 1,
+      "successfulUpserts": 1,
+      "failedUpserts": 0,
+      "batches": 1,
+      "firstCursor": {
+        "pk": 166624,
+        "watermark": "2026-02-20T00:00:00.000Z"
+      },
+      "lastCursor": {
+        "pk": 166624,
+        "watermark": "2026-02-20T00:00:00.000Z"
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {},
+      "activitiesCreated": 0,
+      "activitiesAlreadyLinked": 1,
+      "activitiesSkippedNoService": 0,
+      "activitiesSkippedMissingService": 0,
+      "activitiesFailed": 0
+    }
+  ],
+  "totals": {
+    "extracted": 1,
+    "attemptedUpserts": 1,
+    "successfulUpserts": 1,
+    "failedUpserts": 0
+  },
+  "window": {
+    "from": "2026-02-20T00:00:00Z",
+    "to": "2026-02-24T00:00:00Z"
+  }
+}

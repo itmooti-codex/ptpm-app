@@ -207,6 +207,37 @@
     return promise.finally(hidePageLoader);
   }
 
+  // ── Button loading state (prevents double-submit, standardised UI) ───
+
+  /**
+   * Set a button into loading or idle state. Disables the button, shows spinner + label, prevents double-submit.
+   * @param {HTMLButtonElement|null} button - The button element
+   * @param {boolean} loading - true = show loading state, false = restore idle
+   * @param {{ label?: string }} [opts] - optional: loading label (default "Saving...")
+   */
+  function setButtonLoading(button, loading, opts) {
+    if (!button || typeof button !== 'object') return;
+    opts = opts || {};
+    var loadingLabel = opts.label != null ? opts.label : 'Saving...';
+    if (loading) {
+      if (!button.dataset.ptpmOriginalContent) {
+        button.dataset.ptpmOriginalContent = button.innerHTML;
+      }
+      button.disabled = true;
+      button.setAttribute('aria-busy', 'true');
+      button.classList.add('is-loading');
+      button.innerHTML =
+        '<span class="ptpm-btn-spinner" aria-hidden="true"></span><span>' + escapeHtml(loadingLabel) + '</span>';
+    } else {
+      button.disabled = false;
+      button.removeAttribute('aria-busy');
+      button.classList.remove('is-loading');
+      if (button.dataset.ptpmOriginalContent) {
+        button.innerHTML = button.dataset.ptpmOriginalContent;
+      }
+    }
+  }
+
   // ── Toast Notifications ─────────────────────────────────────
 
   var toastContainer = null;
@@ -261,7 +292,7 @@
         '<div id="statusIcon" class="w-12 h-12 rounded-full flex items-center justify-center text-white text-2xl"></div>' +
         '<h3 id="statusTitle" class="text-lg font-semibold text-gray-800">Success</h3>' +
         '<p id="statusMessage" class="text-sm text-gray-600">Your action was successful.</p>' +
-        '<button id="statusCloseBtn" class="!mt-3 !px-4 !py-2 !bg-[' + (config.BRAND_COLOR || '#003882') + '] !text-white !rounded">OK</button>' +
+        '<button id="statusCloseBtn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm !mt-3">OK</button>' +
         '</div>';
       document.body.appendChild(modal);
     }
@@ -315,10 +346,8 @@
         '<div class="text-neutral-700 text-base font-normal leading-5">You have unsaved changes. Do you want to discard them or save and exit?</div>' +
         '</div></div>' +
         '<div class="self-stretch px-6 py-4 bg-white border-t border-gray-300 inline-flex justify-end items-center gap-4">' +
-        '<button type="button" data-unsaved-discard class="!bg-transparent !px-4 !py-3 !rounded !outline !outline-1 !outline-offset-[-1px] !outline-red-600">' +
-        '<span class="text-red-600 text-sm font-medium">Discard Changes</span></button>' +
-        '<button type="button" data-unsaved-save class="!px-4 !py-3 !bg-[' + (config.BRAND_COLOR || '#003882') + '] !rounded !outline !outline-1 !outline-offset-[-1px] !outline-white">' +
-        '<span class="text-white text-sm font-medium">Save & Exit</span></button>' +
+        '<button type="button" data-unsaved-discard class="ptpm-btn ptpm-btn-sm !rounded !outline !outline-1 !outline-red-600 !text-red-600 bg-transparent">Discard Changes</button>' +
+        '<button type="button" data-unsaved-save class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Save & Exit</button>' +
         '</div></div>';
 
       var closeBtn = modal.querySelector('[data-unsaved-close]');
@@ -371,8 +400,8 @@
         '</button></div>' +
         '<div class="self-stretch p-6"><div class="w-96 rounded"><div class="text-neutral-700 text-base font-normal leading-5">This will clear all entered information. This action cannot be undone.</div></div></div>' +
         '<div class="self-stretch px-6 py-4 bg-white border-t border-gray-300 inline-flex justify-end items-center gap-4">' +
-        '<button type="button" data-reset-cancel class="!rounded !text-slate-500 !text-sm !font-medium">Cancel</button>' +
-        '<button type="button" data-reset-confirm class="!px-4 !py-3 !bg-red-600 !rounded !text-white !text-sm !font-semibold">Reset</button>' +
+        '<button type="button" data-reset-cancel class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm">Cancel</button>' +
+        '<button type="button" data-reset-confirm class="ptpm-btn ptpm-btn-danger ptpm-btn-sm">Reset</button>' +
         '</div></div>';
 
       var closeBtn = modal.querySelector('[data-reset-close]');
@@ -429,8 +458,8 @@
         '<div class="px-4 py-5 space-y-4 text-left">' +
         '<p class="text-sm text-slate-700" data-alert-message></p>' +
         '<div class="flex justify-end gap-3 flex-wrap" data-alert-buttons>' +
-        '<button type="button" data-alert-secondary class="!px-4 !py-2 !rounded !border !border-slate-300 !text-slate-700 !text-sm !font-semibold hidden">Secondary</button>' +
-        '<button type="button" data-alert-confirm class="!px-4 !py-2 !rounded !bg-[' + (config.BRAND_COLOR || '#003882') + '] !text-white !text-sm !font-semibold">OK</button>' +
+        '<button type="button" data-alert-secondary class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm hidden">Secondary</button>' +
+        '<button type="button" data-alert-confirm class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">OK</button>' +
         '</div></div></div>';
 
       document.body.appendChild(modal);
@@ -498,7 +527,7 @@
       '<iframe data-file-preview-frame class="w-full h-[70vh] hidden" frameborder="0"></iframe>' +
       '</div>' +
       '<div class="flex justify-end">' +
-      '<button type="button" data-file-preview-close class="!px-4 !py-2 !rounded !border !border-slate-300 !text-slate-700">Close</button>' +
+      '<button type="button" data-file-preview-close class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm">Close</button>' +
       '</div></div></div>';
 
     document.body.appendChild(modal);
@@ -867,6 +896,8 @@
     showPageLoader: showPageLoader,
     hidePageLoader: hidePageLoader,
     withPageLoader: withPageLoader,
+
+    setButtonLoading: setButtonLoading,
 
     // Toasts
     showToast: showToast,
