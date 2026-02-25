@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PTPM | Job Detail (Dev)</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          boxShadow: { card: '0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px -1px rgba(0,0,0,.1)' },
+        },
+      },
+    };
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Inter', sans-serif; } .pac-container { z-index: 10050 !important; }</style>
+
+  <!-- Day.js -->
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/timezone.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
+  <script>
+    dayjs.extend(dayjs_plugin_utc);
+    dayjs.extend(dayjs_plugin_timezone);
+    dayjs.extend(dayjs_plugin_customParseFormat);
+  </script>
+
+  <!-- Flatpickr -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <!-- App styles (buttons, etc.) -->
+  <link rel="stylesheet" href="../src/css/styles.css">
+
+  <!-- Header buttons: force real button look -->
+  <script>
+  (function(){
+    var css = [
+      'header .ptpm-btn,header button.ptpm-btn{min-height:2.5rem!important;padding:.5rem 1rem!important;border-radius:.5rem!important;font-weight:600!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:.5rem!important;border:1px solid transparent!important;box-sizing:border-box!important}',
+      'header .ptpm-btn-primary-on-dark,header button.ptpm-btn-primary-on-dark{background:#fff!important;color:#003882!important;border:1px solid rgba(0,56,130,.25)!important;box-shadow:0 1px 3px rgba(0,0,0,.12)!important}',
+      'header .ptpm-btn-primary-on-dark:hover:not(:disabled){background:#f0f5fc!important;color:#002a63!important;box-shadow:0 2px 6px rgba(0,56,130,.2)!important}',
+      'header .ptpm-btn-secondary,header button.ptpm-btn-secondary{background:transparent!important;color:#fff!important;border:2px solid rgba(255,255,255,.85)!important}',
+      'header .ptpm-btn-secondary:hover:not(:disabled){background:rgba(255,255,255,.15)!important;border-color:#fff!important}',
+      'button.ptpm-btn:active:not(:disabled){transform:scale(.98)}'
+    ].join('');
+    var el = document.createElement('style');
+    el.id = 'ptpm-button-hovers';
+    el.textContent = css;
+    document.head.appendChild(el);
+  })();
+  </script>
+
+  <!-- VitalSync SDK -->
+  <script src="https://static-au03.vitalstats.app/static/sdk/v1/latest.js"></script>
+</head>
+<body class="bg-slate-50 font-['Inter']" data-page="job-detail" data-job-id="">
+  <script>
+    (function () {
+      var p = new URLSearchParams(window.location.search);
+      var jobId = p.get('job') || p.get('quote') || p.get('payment');
+      if (jobId) document.body.setAttribute('data-job-id', jobId);
+    })();
+  </script>
+  <!-- Dev nav: back to dashboard / dev home -->
+  <div style="background:#fff3cd;padding:6px 12px;font-size:12px;text-align:center;font-family:monospace;">
+    DEV MODE &mdash; Job Detail &bull; <a href="./index.html" style="color:#003882;text-decoration:underline;">Dev home</a> &bull; <a href="./dashboard.html" style="color:#003882;text-decoration:underline;">Dashboard</a>
+  </div>
+
+  <!-- Mock data (dev only) -->
+  <script src="./mock-data.js"></script>
+  <script src="./mock-data.local.js"></script>
+
+  <!-- Ontraport AppConfig bridge (dev) -->
+  <script src="./mock-data.local.js"></script>
+  <script>
+    (function () {
+      var m = window.__ONTRAPORT_MOCK__ || false;
+      if (!m) return;
+      window.AppConfig = {
+        SLUG: 'peterpm',
+        API_KEY: window.__MOCK_API_KEY__ || '',
+        CONTACT_ID: window.__MOCK_CONTACT_ID__ || '',
+        LOGGED_IN_USER_ID: window.__MOCK_LOGGED_IN_USER_ID__ || '',
+        DEBUG: true,
+        TIMEZONE: 'Australia/Brisbane',
+        CDN_BASE: '../src',
+        API_BASE: 'https://peterpm.vitalstats.app',
+        BRAND_COLOR: '#003882',
+        N8N_ACTION_WEBHOOK_URL: 'https://peterpm.awesomate.io/webhook/ptpm/action-dispatch/v1',
+        N8N_ACTION_CONTRACT_VERSION: 'ptpm.action.v1',
+        N8N_ACTION_WEBHOOK_TOKEN: '',
+        N8N_ACTION_WEBHOOK_TIMEOUT_MS: 20000,
+      };
+    })();
+  </script>
+
+  <!-- Body HTML (same as Ontraport body block) -->
+  <main class="flex flex-col min-h-screen">
+    <!-- Header Bar -->
+    <header class="px-6 py-4 bg-[#003882] border-b border-gray-300 flex items-center justify-between text-white shadow-card">
+      <div class="flex items-center gap-3">
+        <span class="text-xl font-bold">New Direct Job</span>
+        <span data-current-section-label class="ml-3 text-sm text-gray-200"></span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button data-nav-action="cancel" class="px-4 py-2 rounded outline outline-1 outline-white text-white text-sm font-medium">Cancel</button>
+        <button data-nav-action="reset" class="px-4 py-2 rounded outline outline-1 outline-white text-white text-sm font-medium inline-flex items-center gap-2">
+          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+          Reset
+        </button>
+        <button data-nav-action="back" class="hidden px-4 py-2 rounded bg-slate-200 text-[#003882] text-sm font-medium inline-flex items-center gap-2">
+          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          <span data-nav-back-label>Back</span>
+        </button>
+        <button data-nav-action="next" class="px-4 py-2 rounded bg-white text-[#003882] text-sm font-medium inline-flex items-center gap-2">
+          <span data-nav-next-label>Next: Add Activities</span>
+          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="flex flex-1">
+      <!-- Sidebar -->
+      <aside data-sidebar-container class="w-16 bg-white border-r border-slate-200 shadow-sm flex flex-col py-6 px-3 gap-2 shrink-0 transition-all">
+        <div data-sidebar-toggle role="button" tabindex="0" aria-label="Toggle sidebar" class="p-2 rounded-lg hover:bg-slate-100 cursor-pointer text-slate-500 mb-4">
+          <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+        </div>
+        <div class="flex items-center gap-3 cursor-pointer" data-section-target="job-information">
+          <div class="p-3 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center" data-section-icon="job-information">
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+          </div>
+          <span class="text-sm text-neutral-700 hidden" data-section-label="job-information">Job Info</span>
+        </div>
+        <div class="ml-5 my-1" data-section-connector-after="job-information"><div class="h-6 border-l-2 border-sky-300"></div></div>
+        <div class="flex items-center gap-3 cursor-pointer" data-section-target="add-activities">
+          <div class="p-3 rounded-full bg-neutral-100 text-neutral-400 flex items-center justify-center" data-section-icon="add-activities">
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          </div>
+          <span class="text-sm text-neutral-700 hidden" data-section-label="add-activities">Activities</span>
+        </div>
+        <div class="ml-5 my-1" data-section-connector-after="add-activities"><div class="h-6 border-l-2 border-neutral-200"></div></div>
+        <div class="flex items-center gap-3 cursor-pointer" data-section-target="add-materials">
+          <div class="p-3 rounded-full bg-neutral-100 text-neutral-400 flex items-center justify-center" data-section-icon="add-materials">
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          </div>
+          <span class="text-sm text-neutral-700 hidden" data-section-label="add-materials">Materials</span>
+        </div>
+        <div class="ml-5 my-1" data-section-connector-after="add-materials"><div class="h-6 border-l-2 border-neutral-200"></div></div>
+        <div class="flex items-center gap-3 cursor-pointer" data-section-target="uploads">
+          <div class="p-3 rounded-full bg-neutral-100 text-neutral-400 flex items-center justify-center" data-section-icon="uploads">
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+          </div>
+          <span class="text-sm text-neutral-700 hidden" data-section-label="uploads">Uploads</span>
+        </div>
+        <div class="ml-5 my-1" data-section-connector-after="uploads"><div class="h-6 border-l-2 border-neutral-200"></div></div>
+        <div class="flex items-center gap-3 cursor-pointer" data-section-target="invoice">
+          <div class="p-3 rounded-full bg-neutral-100 text-neutral-400 flex items-center justify-center" data-section-icon="invoice">
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+          </div>
+          <span class="text-sm text-neutral-700 hidden" data-section-label="invoice">Invoice</span>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <div id="replaceable-section" data-section="replaceable-section" class="w-full flex flex-col gap-3 p-4 bg-slate-50 overflow-y-auto">
+
+        <!-- Section 1: Job Information -->
+        <div data-section="job-information" class="flex flex-col gap-3">
+          <div class="bg-white rounded-lg border border-slate-200 shadow-sm">
+            <div class="flex border-b border-slate-200">
+              <button data-tab="overview" class="px-6 py-3 text-sm font-medium border-b-2 border-[#003882] text-[#003882]">Overview</button>
+              <button data-tab="appointments" class="px-6 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500">Appointments</button>
+            </div>
+            <div data-job-section="job-section-individual" class="p-6 space-y-6">
+              <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-1 w-fit">
+                <button data-contact-toggle="individual" class="px-4 py-2 rounded-md text-sm bg-white text-[#003882] font-semibold">Individual</button>
+                <button data-contact-toggle="entity" class="px-4 py-2 rounded-md text-sm text-slate-500">Entity</button>
+              </div>
+              <div data-client-section="individual" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="relative" data-search-root="contact-individual">
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">Client</label>
+                    <input data-field="client" type="text" placeholder="Search contact..." autocomplete="off" class="w-full px-3 py-2 rounded border border-slate-300 text-sm">
+                    <input data-field="client_id" type="hidden">
+                    <div class="mt-1 flex justify-end">
+                      <button id="edit-contact-btn" type="button" class="text-xs text-[#003882] hover:underline">Edit selected contact</button>
+                    </div>
+                    <div data-search-results class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded shadow-lg max-h-48 overflow-y-auto z-20"></div>
+                  </div>
+                  <div class="relative" data-search-root="service-provider">
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">Serviceman</label>
+                    <input data-field="serviceman" type="text" placeholder="Search serviceman..." class="w-full px-3 py-2 rounded border border-slate-300 text-sm">
+                    <input data-field="serviceman_id" type="hidden">
+                    <div data-search-results class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded shadow-lg max-h-48 overflow-y-auto z-20"></div>
+                  </div>
+                </div>
+              </div>
+              <div data-client-section="entity" class="hidden space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="relative" data-search-root="contact-entity">
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">Company</label>
+                    <input data-field="entity_name" type="text" placeholder="Search company..." class="w-full px-3 py-2 rounded border border-slate-300 text-sm">
+                    <input data-field="company_id" type="hidden">
+                    <input data-field="contact_id" type="hidden">
+                    <div data-search-results class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded shadow-lg max-h-48 overflow-y-auto z-20"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="relative" data-search-root="property">
+                  <label class="block text-sm font-medium text-neutral-700 mb-1">Property</label>
+                  <input data-field="properties" type="text" placeholder="Search property..." autocomplete="off" class="w-full px-3 py-2 rounded border border-slate-300 text-sm">
+                  <input data-field="property_id" type="hidden">
+                  <div class="mt-1 flex justify-end">
+                    <button id="edit-property-btn" type="button" class="text-xs text-[#003882] hover:underline">Edit selected property</button>
+                  </div>
+                  <div data-search-results class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded shadow-lg max-h-48 overflow-y-auto z-20"></div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-1">Priority</label>
+                  <select data-field="priority" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"><option value="" disabled selected>Select</option><option>Low</option><option>Medium</option><option>High</option><option>Urgent</option></select>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-1">Job Status</label>
+                  <select data-field="job_status" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"><option value="" disabled selected>Select</option><option>Open</option><option>In Progress</option><option>Completed</option><option>Cancelled</option></select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-1">Payment Status</label>
+                  <select data-field="payment_status" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"><option value="" disabled selected>Select</option><option>Unpaid</option><option>Partial</option><option>Paid</option></select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-1">Job Required By</label>
+                  <input data-field="job_required_by" type="text" placeholder="dd/mm/yyyy" class="date-picker w-full px-3 py-2 rounded border border-slate-300 text-sm">
+                </div>
+              </div>
+              <div data-section-id="property" class="space-y-4 border-t border-slate-200 pt-4">
+                <div class="text-sm font-semibold text-neutral-700">Property Details</div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div><label class="block text-xs text-slate-500 mb-1">Stories</label><input data-property-id="stories" type="number" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+                  <div><label class="block text-xs text-slate-500 mb-1">Bedrooms</label><input data-property-id="bedrooms" type="number" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+                  <div><label class="block text-xs text-slate-500 mb-1">Building Age</label><input data-property-id="building_age" type="number" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+                  <div class="relative"><label class="block text-xs text-slate-500 mb-1">Building Features</label><button id="property-building-btn" class="w-full px-3 py-2 rounded border border-slate-300 text-sm text-left text-slate-500">Select</button><div id="property-building-card" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded shadow-lg z-20 max-h-64 overflow-y-auto"><ul id="property-building-list" class="p-2 space-y-1"></ul></div></div>
+                </div>
+              </div>
+              <div class="flex justify-end"><button id="submit-information-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Save Job Information</button></div>
+            </div>
+            <div data-job-section="job-section-appointment" class="hidden p-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="block text-sm font-medium text-neutral-700 mb-1">Status</label><select data-field="status" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
+                <div><label class="block text-sm font-medium text-neutral-700 mb-1">Type</label><select data-field="type" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
+                <div><label class="block text-sm font-medium text-neutral-700 mb-1">Title</label><input data-field="title" type="text" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+                <div><label class="block text-sm font-medium text-neutral-700 mb-1">Start</label><input data-field="start_time" type="text" placeholder="dd/mm/yyyy" class="date-picker w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+                <div><label class="block text-sm font-medium text-neutral-700 mb-1">End</label><input data-field="end_time" type="text" placeholder="dd/mm/yyyy" class="date-picker w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+                <div><label class="block text-sm font-medium text-neutral-700 mb-1">Location</label><select data-field="location_id" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
+                <div><label class="block text-sm font-medium text-neutral-700 mb-1">Host</label><select data-field="host_id" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
+                <div><label class="block text-sm font-medium text-neutral-700 mb-1">Guest</label><select data-field="primary_guest_id" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
+                <div><label class="block text-sm font-medium text-neutral-700 mb-1">Inquiry</label><select data-field="inquiry_id" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
+                <div><label class="block text-sm font-medium text-neutral-700 mb-1">Job</label><select data-field="job_id" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
+                <div class="md:col-span-2"><label class="block text-sm font-medium text-neutral-700 mb-1">Description</label><textarea data-field="description" rows="3" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></textarea></div>
+              </div>
+              <div class="flex justify-end mt-4"><button id="create-appointment" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Create Appointment</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Activities -->
+        <div data-section="add-activities" class="hidden w-full flex flex-row gap-4">
+          <div class="w-[440px] bg-white rounded-lg border border-slate-200 p-5 flex flex-col gap-4 shadow-sm shrink-0">
+            <div class="flex flex-col items-start gap-2">
+              <div class="text-neutral-800 text-base font-semibold">Add New Activity</div>
+              <label class="flex items-center gap-2 text-slate-600 text-sm"><input type="checkbox" data-field="invoice_to_client" class="w-4 h-4 accent-[#003882]"> Invoice to client</label>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div><label class="text-neutral-700 text-sm font-medium">Task</label><select data-field="task" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
+              <div><label class="text-neutral-700 text-sm font-medium">Primary Service</label><select data-field="service_name" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></select><input type="hidden" data-field="service_id"></div>
+              <div data-element="service_name_secondary" class="hidden"><label class="text-neutral-700 text-sm font-medium">Secondary</label><select class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
+              <div><label class="text-neutral-700 text-sm font-medium">Quantity</label><input type="number" data-field="quantity" value="1" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+              <div><label class="text-neutral-700 text-sm font-medium">Price</label><input type="text" data-field="activity_price" placeholder="$ 0.00" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+              <div><label class="text-neutral-700 text-sm font-medium">Activity Text</label><input type="text" data-field="activity_text" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+              <div><label class="text-neutral-700 text-sm font-medium">Status</label><select data-field="activity_status" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
+              <div><label class="text-neutral-700 text-sm font-medium">Date Required</label><input type="text" data-field="date_required" placeholder="dd/mm/yyyy" class="date-picker mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+              <div class="col-span-2"><label class="text-neutral-700 text-sm font-medium">Warranty</label><textarea data-field="warranty" rows="2" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></textarea></div>
+              <div class="col-span-2"><label class="text-neutral-700 text-sm font-medium">Note</label><textarea data-field="note" rows="2" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></textarea></div>
+            </div>
+            <div class="flex justify-end items-center gap-3 border-t border-slate-200 pt-3">
+              <button id="cancel-activities" class="ptpm-btn ptpm-btn-sm text-slate-600 text-sm font-medium px-3 py-2 border border-slate-300 rounded">Cancel</button>
+              <button id="add-activities" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Add</button>
+            </div>
+          </div>
+          <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm"><div id="addActivitiesTable" class="w-full"></div></div>
+        </div>
+
+        <!-- Section 3: Materials -->
+        <div data-section="add-materials" class="hidden w-full flex flex-row gap-4">
+          <div class="w-[440px] bg-white rounded-lg border border-slate-200 p-5 flex flex-col gap-4 shadow-sm shrink-0">
+            <div class="text-neutral-800 text-base font-semibold">Add Materials</div>
+            <div class="flex flex-col gap-4">
+              <div><label class="text-neutral-700 text-sm font-medium">Material Name</label><input type="text" data-field="material_name" placeholder="Enter material name" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+              <div><label class="text-neutral-700 text-sm font-medium">Total</label><input type="text" data-field="total" placeholder="$" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+              <div><label class="text-neutral-700 text-sm font-medium">Description</label><textarea data-field="description" rows="2" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></textarea></div>
+              <div class="grid grid-cols-2 gap-3">
+                <div><label class="text-neutral-700 text-sm font-medium">Transaction Type</label><select data-field="transaction_type" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
+                <div><label class="text-neutral-700 text-sm font-medium">Tax</label><select data-field="tax" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
+              </div>
+              <div><label class="text-neutral-700 text-sm font-medium">Service Provider</label><div class="relative"><input type="text" placeholder="Search..." data-material-sp-search="input" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"><input type="hidden" data-field="service_provider_id"><div data-material-sp-search="results" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded shadow-lg max-h-48 overflow-y-auto z-20"></div></div></div>
+            </div>
+            <div class="flex justify-end items-center gap-3 border-t border-slate-200 pt-3">
+              <button id="cancel-material-btn" class="ptpm-btn ptpm-btn-sm text-slate-600 text-sm font-medium px-3 py-2 border border-slate-300 rounded">Cancel</button>
+              <button id="add-material-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Add</button>
+            </div>
+          </div>
+          <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm"><div id="addMaterialsTable" class="w-full"></div></div>
+        </div>
+
+        <!-- Section 4: Uploads -->
+        <div data-section="uploads" class="hidden w-full flex flex-row gap-4">
+          <div class="w-[440px] bg-white rounded-lg border border-slate-200 p-5 flex flex-col gap-4 shadow-sm shrink-0">
+            <div class="text-neutral-800 text-base font-semibold">Uploads</div>
+            <div data-upload-trigger class="cursor-pointer w-full h-24 border border-dashed border-gray-300 rounded bg-gray-50 flex flex-col items-center justify-center text-sm">
+              <span class="text-sky-900 font-medium">Click to upload</span>
+              <span class="text-neutral-700">or drag and drop</span>
+            </div>
+            <input type="file" data-field="upload-file" class="hidden" multiple>
+            <p class="text-center text-slate-500 text-xs">SVG, PNG, JPG or PDF</p>
+            <div class="flex flex-col gap-2" data-section="images-uploads"></div>
+            <div class="flex justify-end"><button id="add-images-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Save Uploads</button></div>
+          </div>
+          <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm">
+            <div class="text-slate-800 text-base font-semibold mb-3">Existing Uploads</div>
+            <div class="flex flex-col gap-2" data-section="existing-uploads"></div>
+          </div>
+        </div>
+
+        <!-- Section 5: Invoice -->
+        <div data-section="invoice" class="hidden w-full">
+          <div class="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-4">
+            <div class="text-neutral-800 text-base font-semibold">Invoice Details</div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div><label class="block text-sm font-medium text-neutral-700 mb-1">Invoice Number</label><input data-field="invoice_number" type="text" class="w-full px-3 py-2 rounded border border-slate-300 text-sm" readonly></div>
+              <div><label class="block text-sm font-medium text-neutral-700 mb-1">Invoice Date</label><input data-field="invoice_date" type="text" placeholder="dd/mm/yyyy" class="date-picker w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+              <div><label class="block text-sm font-medium text-neutral-700 mb-1">Due Date</label><input data-field="due_date" type="text" placeholder="dd/mm/yyyy" class="date-picker w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+              <div><label class="block text-sm font-medium text-neutral-700 mb-1">Xero Status</label><input data-field="xero_invoice_status" type="text" class="w-full px-3 py-2 rounded border border-slate-300 text-sm" readonly></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add Property Modal -->
+  <div id="jobAddPropertyModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-neutral-800">Add New Property</h3>
+        <button onclick="document.getElementById('jobAddPropertyModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+      </div>
+      <div><label class="block text-sm font-medium text-neutral-700 mb-1">Property Address</label><input data-field="modal-properties" type="text" placeholder="Search address..." class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
+      <div class="flex justify-end gap-3 border-t border-slate-200 pt-4">
+        <button onclick="document.getElementById('jobAddPropertyModal').classList.add('hidden')" class="ptpm-btn ptpm-btn-sm text-slate-600 border border-slate-300 rounded">Cancel</button>
+        <button id="add-property-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Add Property</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google Places (lazy load) -->
+  <script>
+    window.initAutocomplete = function () {};
+    setTimeout(function () {
+      var s = document.createElement('script');
+      s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDAB5BuHgOkYcnAcTJk6jLEkS7hSHtqNwo&libraries=places&callback=initAutocomplete';
+      s.async = true;
+      s.defer = true;
+      document.head.appendChild(s);
+    }, 5000);
+  </script>
+
+  <!-- App scripts -->
+  <script src="../src/js/config.js"></script>
+  <script src="../src/js/utils.js"></script>
+  <script src="../src/js/vitalsync.js"></script>
+  <script src="../src/js/shared/form-modal.js"></script>
+  <script src="../src/js/pages/job-detail.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.PtpmJobDetail) window.PtpmJobDetail.init();
+    });
+  </script>
+</body>
+</html>

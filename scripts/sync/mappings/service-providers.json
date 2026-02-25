@@ -1,0 +1,43 @@
+{
+  "entity": "serviceProviders",
+  "source": {
+    "schema": "dbo",
+    "table": "ref_Service_Personnel",
+    "pk": "serper_ID",
+    "watermark": {
+      "type": "pk",
+      "column": "serper_ID"
+    },
+    "select": [
+      { "expr": "serper_ID", "as": "serper_ID" },
+      { "expr": "serper_Name", "as": "serper_Name" },
+      { "expr": "serper_email", "as": "serper_email" },
+      { "expr": "serper_status", "as": "serper_status" },
+      { "expr": "serper_Job_Percentage", "as": "serper_Job_Percentage" },
+      { "expr": "serper_ABN", "as": "serper_ABN" }
+    ]
+  },
+  "target": {
+    "model": "ServiceProvider",
+    "graphql": {
+      "inputVariable": "payload",
+      "mutation": "mutation CreateLegacyServiceProvider($payload: ServiceProviderCreateInput) { createServiceProvider(payload: $payload) { id } }"
+    }
+  },
+  "idempotency": {
+    "sourceIdField": "serper_ID",
+    "targetLegacyIdField": "legacy_sql_service_provider_id"
+  },
+  "constants": {
+    "legacy_source_system": "legacy_sql",
+    "legacy_source_entity": "ref_Service_Personnel",
+    "type": "Service Provider"
+  },
+  "fieldMap": [
+    { "from": "serper_Name", "to": "business_entity_name", "transforms": ["trim", "emptyToNull"] },
+    { "from": "serper_email", "to": "work_email", "transforms": ["trim", "emptyToNull"] },
+    { "from": "serper_status", "to": "status", "transforms": ["number", "normalizeServiceProviderStatus"] },
+    { "from": "serper_Job_Percentage", "to": "job_rate_percentage", "transforms": ["number", "fractionToPercentInt"] },
+    { "from": "serper_ABN", "to": "abn", "transforms": ["trim", "emptyToNull"] }
+  ]
+}

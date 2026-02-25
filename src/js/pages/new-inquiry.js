@@ -109,6 +109,7 @@
     entityRelatedRequestId: 0,
     plugin: null,
     models: {},
+    urlPrefillApplied: false,
   };
 
   // ─── Model (SDK) ──────────────────────────────────────────────────────────────
@@ -153,7 +154,11 @@
       var q = model.query();
       if (queryFn) q = queryFn(q);
       if (q.getOrInitQueryCalc) q.getOrInitQueryCalc();
-      return q.fetchDirect().toPromise();
+      var stream = q.fetchDirect();
+      if (stream && stream.pipe && typeof window.toMainInstance === 'function') {
+        stream = stream.pipe(window.toMainInstance(true));
+      }
+      return stream && typeof stream.toPromise === 'function' ? stream.toPromise() : Promise.resolve(stream);
     });
   }
 
@@ -172,6 +177,12 @@
     return [];
   }
 
+  function loadMockContacts() {
+    var list = (window.__MOCK_CONTACTS__ || []);
+    state.contacts = list.map(function (r, i) { return formatContact(r, i); });
+    renderContactList('');
+  }
+
   function loadContacts() {
     return fetchAllFromModel('contact', function (q) {
       return q.deSelectAll()
@@ -180,13 +191,15 @@
         .noDestroy();
     }).then(function (result) {
       var records = extractRecordsFromResult(result);
-      state.contacts = records.map(function (r, i) { return formatContact(unwrapRecord(r), i); });
-      renderContactList('');
+      state.contacts = (Array.isArray(records) ? records : []).map(function (r, i) { return formatContact(unwrapRecord(r), i); });
+      if (state.contacts.length === 0 && (config.DEBUG || window.__ONTRAPORT_MOCK__)) loadMockContacts();
+      else renderContactList('');
       return state.contacts;
     }).catch(function (err) {
       console.error('[NewInquiry] Failed to load contacts:', err);
       state.contacts = [];
-      renderContactList('');
+      if (config.DEBUG || window.__ONTRAPORT_MOCK__) loadMockContacts();
+      else renderContactList('');
     });
   }
 
@@ -285,9 +298,42 @@
   }
 
   function fetchContactById(id) {
+    var normalizedId = /^\d+$/.test(String(id)) ? parseInt(String(id), 10) : id;
     return fetchAllFromModel('contact', function (q) {
-      return q.where({ id: id }).limit(1);
-    }).then(function (r) { return { resp: (r && r.data || []).map(unwrapRecord) }; });
+      return q
+        .deSelectAll()
+        .select(['id', 'first_name', 'last_name', 'email', 'sms_number', 'office_phone'])
+        .where({ id: normalizedId })
+        .limit(1)
+        .noDestroy();
+    }).then(function (r) {
+      var raw = (r && (r.data !== undefined ? r.data : r.resp)) || [];
+      var list = (Array.isArray(raw) ? raw : []).map(unwrapRecord);
+      return { resp: list };
+    });
+  }
+
+  function fetchContactByIdGraphQL(id) {
+    var apiKey = (config.API_KEY && String(config.API_KEY).trim()) || (window.__MOCK_API_KEY__ && String(window.__MOCK_API_KEY__).trim()) || '';
+    if (!apiKey) return Promise.resolve(null);
+    var endpoint = (config.API_BASE || 'https://' + (config.SLUG || 'peterpm') + '.vitalstats.app') + '/api/v1/graphql';
+    var query = 'query calcContacts($id: PeterpmContactID!) { calcContacts(query: [{ where: { id: $id } }], limit: 1, offset: 0) { id: field(arg: ["id"]) first_name: field(arg: ["first_name"]) last_name: field(arg: ["last_name"]) email: field(arg: ["email"]) sms_number: field(arg: ["sms_number"]) office_phone: field(arg: ["office_phone"]) } }';
+    var variables = { id: /^\d+$/.test(String(id)) ? parseInt(String(id), 10) : id };
+    return fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Api-Key': apiKey },
+      body: JSON.stringify({ query: query, variables: variables }),
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (json) {
+        if (json.errors && json.errors.length) throw new Error(json.errors[0].message || 'GraphQL error');
+        var rows = (json.data && json.data.calcContacts) || [];
+        return rows && rows[0] ? rows[0] : null;
+      })
+      .catch(function () { return null; });
   }
 
   function fetchCompanyById(id) {
@@ -346,10 +392,121 @@
     });
   }
 
+  // Same property fields as inquiryDetails.js fetchCalcProperties / getPropertyInfoPayload / editBuindingDesc
+  var PROPERTY_SELECT_FIELDS = [
+    'id', 'address_1', 'address_2', 'suburb_town', 'state', 'postal_code', 'property_name',
+    'lot_number', 'unit_number', 'property_type', 'building_type', 'building_type_other',
+    'foundation_type', 'building_features_options_as_text', 'bedrooms', 'stories', 'manhole',
+    'building_age'
+  ];
+
   function fetchPropertyById(id) {
     return fetchAllFromModel('property', function (q) {
-      return q.where({ id: id }).limit(1);
-    }).then(function (r) { return { resp: (r && r.data || []).map(unwrapRecord) }; });
+      return q.where({ id: id }).limit(1).deSelectAll().select(PROPERTY_SELECT_FIELDS);
+    }).then(function (r) {
+      var raw = (r && (r.resp !== undefined ? r.resp : r.data)) || [];
+      var list = (Array.isArray(raw) ? raw : []).map(unwrapRecord);
+      return { resp: list };
+    });
+  }
+
+  /** Normalize string for address matching (trim, lowercase, collapse spaces) */
+  function normalizeForMatch(s) {
+    if (s == null) return '';
+    return String(s).trim().toLowerCase().replace(/\s+/g, ' ');
+  }
+
+  /**
+   * Fetch properties that might match the given address (for "use existing" after Google pick).
+   * Fetches a bounded set then filters client-side by address, suburb, state, postcode.
+   */
+  function fetchMatchingProperties(addr1, suburb, state, postcode) {
+    var normalizedAddr = normalizeForMatch(addr1);
+    var normalizedSuburb = normalizeForMatch(suburb);
+    var normPost = normalizeForMatch(postcode);
+    var normState = state ? String(state).trim().toUpperCase() : '';
+
+    return fetchAllFromModel('property', function (q) {
+      return q.deSelectAll()
+        .select(['id', 'address_1', 'address_2', 'suburb_town', 'state', 'postal_code', 'property_name'])
+        .limit(300);
+    }).then(function (r) {
+      var raw = (r && (r.data !== undefined ? r.data : r.resp)) || [];
+      var list = (Array.isArray(raw) ? raw : []).map(unwrapRecord);
+      return list.filter(function (p) {
+        var pAddr = normalizeForMatch(getPropertyValue(p, 'address_1'));
+        var pSuburb = normalizeForMatch(getPropertyValue(p, 'suburb_town'));
+        var pState = (getPropertyValue(p, 'state') || '').toString().trim().toUpperCase();
+        var pPost = normalizeForMatch(getPropertyValue(p, 'postal_code'));
+        if (normState && pState !== normState) return false;
+        if (normPost && pPost !== normPost) return false;
+        if (normalizedSuburb && pSuburb && pSuburb !== normalizedSuburb && pSuburb.indexOf(normalizedSuburb) === -1 && normalizedSuburb.indexOf(pSuburb) === -1) return false;
+        if (normalizedAddr && pAddr && pAddr !== normalizedAddr && pAddr.indexOf(normalizedAddr) === -1 && normalizedAddr.indexOf(pAddr) === -1) return false;
+        return true;
+      });
+    }).catch(function () { return []; });
+  }
+
+  /**
+   * Normalize API property record the same way as inquiryDetails.js mapPropertyRecord:
+   * snake_case ?? PascalCase so form always gets a consistent shape. Also merges in any
+   * other record keys (normalized to snake_case) so API variants are not missed.
+   */
+  function mapPropertyRecordToForm(record) {
+    if (!record || typeof record !== 'object') return record;
+    var r = record;
+    var out = {
+      address_1: r.address_1 ?? r.Address_1 ?? '',
+      address_2: r.address_2 ?? r.Address_2 ?? '',
+      suburb_town: r.suburb_town ?? r.Suburb_Town ?? '',
+      state: r.state ?? r.State ?? '',
+      postal_code: r.postal_code ?? r.Postal_Code ?? '',
+      property_name: r.property_name ?? r.Property_Name ?? '',
+      lot_number: r.lot_number ?? r.Lot_Number ?? '',
+      unit_number: r.unit_number ?? r.Unit_Number ?? '',
+      property_type: r.property_type ?? r.Property_Type ?? '',
+      building_type: r.building_type ?? r.Building_Type ?? '',
+      building_type_other: r.building_type_other ?? r.Building_Type_Other ?? '',
+      foundation_type: r.foundation_type ?? r.Foundation_Type ?? '',
+      building_features_options_as_text: (r.building_features_options_as_text ?? r.Building_Features_Options_As_Text ?? r.building_features ?? r.Building_Features ?? ''),
+      bedrooms: r.bedrooms ?? r.Bedrooms ?? '',
+      stories: r.stories ?? r.Stories ?? '',
+      manhole: r.manhole ?? r.Manhole ?? '',
+      building_age: r.building_age ?? r.Building_Age ?? '',
+      id: r.id ?? r.ID
+    };
+    for (var k in r) {
+      if (!r.hasOwnProperty(k)) continue;
+      var norm = k.replace(/-/g, '_').toLowerCase();
+      if (out[norm] === undefined || out[norm] === '') {
+        var v = r[k];
+        if (v !== undefined && v !== null) out[norm] = v;
+      }
+    }
+    return out;
+  }
+
+  /** Get a property field value trying common API key variants (snake_case, PascalCase, etc.) */
+  function getPropertyValue(data, normalizedKey) {
+    if (!data || typeof data !== 'object') return undefined;
+    var keys = [normalizedKey];
+    var parts = normalizedKey.split('_');
+    var pascal = parts.map(function (p) { return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase(); }).join('_');
+    keys.push(pascal);
+    if (normalizedKey === 'building_features_options_as_text') {
+      keys.push('building_features', 'Building_Features');
+    }
+    if (normalizedKey === 'property_type') keys.push('Property_Type');
+    if (normalizedKey === 'building_type') keys.push('Building_Type');
+    if (normalizedKey === 'foundation_type') keys.push('Foundation_Type');
+    for (var k in data) {
+      if (data.hasOwnProperty(k) && k.toLowerCase().replace(/-/g, '_') === normalizedKey) keys.push(k);
+    }
+    for (var i = 0; i < keys.length; i++) {
+      var v = data[keys[i]];
+      if (v !== undefined && v !== null && v !== '') return v;
+    }
+    return undefined;
   }
 
   function fetchAffiliationByPropertyId(propertyId, callback) {
@@ -796,13 +953,13 @@
     var input = $('selected-property-id');
     if (input) input.value = propertyId || '';
 
-    // Load property details into form
+    // Load property details into form (same pattern as inquiryDetails: fetch then applyPropertyToForms)
     if (propertyId) {
       fetchPropertyById(propertyId).then(function (result) {
         if (result.resp && result.resp[0]) {
-          populatePropertyFields(result.resp[0]);
+          var normalized = mapPropertyRecordToForm(result.resp[0]);
+          populatePropertyFields(normalized);
         }
-        // Load affiliations
         fetchAffiliationByPropertyId(propertyId, function (rows) {
           renderPropertyContactTable(rows);
         });
@@ -820,21 +977,62 @@
   }
 
   function populatePropertyFields(data) {
-    if (!data) return;
+    if (!data || typeof data !== 'object') return;
+    var normalizedKey, value, strVal;
+    // Use direct key first (data from mapPropertyRecordToForm has snake_case keys), then getPropertyValue fallback
+    function getVal(key) {
+      if (data[key] !== undefined) return data[key];
+      return getPropertyValue(data, key);
+    }
+
     $qa('#property-information [data-property-id]').forEach(function (el) {
       var key = el.dataset.propertyId;
-      if (!key) return;
-      var normalizedKey = key.replace(/-/g, '_');
-      var value = data[normalizedKey];
-      if (value == null) return;
-      if (el.type === 'checkbox') el.checked = Boolean(value);
-      else if (el.tagName === 'SELECT') {
-        var exists = Array.from(el.options).some(function (o) { return o.value == value; });
-        if (exists) el.value = value;
-      } else {
-        el.value = value;
+      if (!key || key === 'search-properties') return;
+      normalizedKey = key.replace(/-/g, '_').toLowerCase();
+      value = getVal(normalizedKey);
+      if (value === undefined || value === null) return;
+
+      strVal = (value === true || value === false || typeof value === 'number') ? String(value) : String(value).trim();
+      if (normalizedKey === 'manhole' && (value === true || value === false || value === 1 || value === 0)) {
+        strVal = value === true || value === 1 ? 'Yes' : 'No';
       }
+      if (el.tagName === 'UL') {
+        var parts = strVal.split(/\*\/\*|\s*,\s*/).map(function (p) { return p.trim(); }).filter(Boolean);
+        el.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+          var match = parts.indexOf(cb.value) !== -1;
+          if (!match && cb.value && parts.some(function (p) { return p.toLowerCase() === (cb.value || '').toLowerCase(); })) match = true;
+          cb.checked = match;
+        });
+        return;
+      }
+      if (el.type === 'checkbox') {
+        el.checked = Boolean(value);
+        return;
+      }
+      if (el.tagName === 'SELECT') {
+        var opts = el.options;
+        var strValLower = strVal.toLowerCase();
+        for (var i = 0; i < opts.length; i++) {
+          if (opts[i].value == value || opts[i].value === strVal) {
+            el.value = opts[i].value;
+            return;
+          }
+          if (opts[i].text && opts[i].text.trim().toLowerCase() === strValLower) {
+            el.value = opts[i].value;
+            return;
+          }
+        }
+        return;
+      }
+      el.value = strVal;
     });
+
+    var searchInput = $('search-properties') || $q('[data-property-id="search-properties"]');
+    if (searchInput) {
+      var display = getVal('property_name') || getVal('address_1') ||
+        [getVal('address_1'), getVal('suburb_town'), getVal('state')].filter(Boolean).join(', ');
+      if (display) searchInput.value = String(display).trim();
+    }
   }
 
   function collectPropertyFields() {
@@ -1019,6 +1217,8 @@
   window.initAutocomplete = function () {
     var input = $('search-properties') || $q('[data-property-id="search-properties"]');
     if (!input || !window.google || !window.google.maps || !window.google.maps.places) return;
+    if (input.getAttribute('data-ptpm-autocomplete-attached') === '1') return;
+    input.setAttribute('data-ptpm-autocomplete-attached', '1');
 
     var autocomplete = new google.maps.places.Autocomplete(input, {
       types: ['address'],
@@ -1041,11 +1241,79 @@
       setPropertyField('suburb_town', mapping.locality);
       setPropertyField('postal_code', mapping.postal_code);
 
-      // State — use short_name for state dropdown
       var stateComp = place.address_components.find(function (c) { return c.types.indexOf('administrative_area_level_1') >= 0; });
-      if (stateComp) setPropertyField('state', stateComp.short_name);
+      var stateVal = stateComp ? stateComp.short_name : '';
+      if (stateComp) setPropertyField('state', stateVal);
+
+      // Check for existing properties matching this address so user can choose "use existing"
+      hidePropertyMatchPanel();
+      fetchMatchingProperties(addr1, mapping.locality, stateVal, mapping.postal_code)
+        .then(function (matches) {
+          showPropertyMatchPanel(matches || []);
+        })
+        .catch(function (err) {
+          console.warn('[NewInquiry] Property match lookup failed:', err);
+          showPropertyMatchPanel([]);
+        });
     });
   };
+
+  function getPropertyMatchPanelRoot() {
+    var root = $q('[data-search-root="property"]');
+    if (!root) root = $('property-information');
+    if (!root) return null;
+    var panel = root.querySelector('[data-property-match-panel]');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.setAttribute('data-property-match-panel', '');
+      panel.className = 'mt-2 p-3 rounded-lg border border-slate-200 bg-slate-50 hidden';
+      panel.innerHTML = '<p class="text-xs font-medium text-slate-600 mb-2">This address may already exist. Select one or create new:</p><div data-property-match-results class="space-y-1 mb-2"></div><button type="button" data-property-match-create-new class="text-xs text-blue-600 hover:underline">Create new property</button>';
+      var createBtn = panel.querySelector('[data-property-match-create-new]');
+      if (createBtn) createBtn.addEventListener('click', function () { hidePropertyMatchPanel(); });
+      root.appendChild(panel);
+    }
+    return panel;
+  }
+
+  function showPropertyMatchPanel(matches) {
+    var panel = getPropertyMatchPanelRoot();
+    if (!panel) {
+      if (config.DEBUG) console.warn('[NewInquiry] Property match panel: no container found');
+      return;
+    }
+    var resultsEl = panel.querySelector('[data-property-match-results]');
+    if (!resultsEl) return;
+    resultsEl.innerHTML = '';
+    if (matches && matches.length > 0) {
+      matches.forEach(function (p) {
+        var addr = [getPropertyValue(p, 'address_1'), getPropertyValue(p, 'suburb_town'), getPropertyValue(p, 'state')].filter(Boolean).join(', ');
+        if (!addr) addr = getPropertyValue(p, 'property_name') || 'Property #' + p.id;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'w-full text-left text-sm text-slate-700 hover:bg-slate-100 px-2 py-1.5 rounded block';
+        btn.textContent = 'Use existing: ' + addr;
+        btn.dataset.propertyId = String(p.id);
+        btn.addEventListener('click', function () {
+          selectPropertyFromRelated(p.id, null);
+          hidePropertyMatchPanel();
+        });
+        resultsEl.appendChild(btn);
+      });
+    } else {
+      var msg = document.createElement('p');
+      msg.className = 'text-xs text-slate-500';
+      msg.textContent = 'No existing property found. Use the form below as a new property.';
+      resultsEl.appendChild(msg);
+    }
+    panel.classList.remove('hidden');
+  }
+
+  function hidePropertyMatchPanel() {
+    var root = $q('[data-search-root="property"]') || $('property-information');
+    if (!root) return;
+    var panel = root.querySelector('[data-property-match-panel]');
+    if (panel) panel.classList.add('hidden');
+  }
 
   function setPropertyField(key, value) {
     var el = $q('[data-property-id="' + key + '"]');
@@ -1183,34 +1451,8 @@
           btn.innerHTML = '<p class="font-medium text-slate-700">' + escapeHtml(p.Name || p.name) + '</p>';
           btn.addEventListener('mousedown', function (e) {
             e.preventDefault();
-            state.companyId = p.ID || p.id;
-            state.entityContactId = p.Primary_Person_Contact_ID;
-            input.value = p.Name || p.name || '';
-            var entityInput = $q('[data-contact-field="entity-id"]');
-            if (entityInput) entityInput.value = state.companyId;
+            applyEntitySelection(p, input);
             panel.classList.add('hidden');
-
-            // Populate entity contact fields
-            var section = $q('[data-contact-section="entity"]');
-            if (section) {
-              var contactIdInput = section.querySelector('[data-contact-field="contact_id"]');
-              if (contactIdInput) contactIdInput.value = p.Primary_Person_Contact_ID || '';
-              setEntityField(section, 'first_name', p.Primary_Person_First_Name);
-              setEntityField(section, 'last_name', p.Primary_Person_Last_Name);
-              setEntityField(section, 'email', p.Primary_Person_Email);
-              setEntityField(section, 'sms_number', p.Primary_Person_SMS_Number);
-            }
-
-            var viewBtn = $('view-contact-detail');
-            if (viewBtn) viewBtn.classList.remove('hidden');
-
-            // Load entity related data
-            var reqId = ++state.entityRelatedRequestId;
-            showRelatedLoading();
-            fetchRelated(p.Primary_Person_Email || '').then(function (data) {
-              if (state.entityRelatedRequestId !== reqId) return;
-              renderRelatedData(data);
-            });
           });
           li.appendChild(btn);
           results.appendChild(li);
@@ -1229,6 +1471,113 @@
   function setEntityField(section, fieldName, value) {
     var el = section.querySelector('[data-contact-field="' + fieldName + '"]');
     if (el) el.value = value || '';
+  }
+
+  function applyEntitySelection(entity, inputEl) {
+    if (!entity) return;
+    state.companyId = entity.ID || entity.id || '';
+    state.entityContactId = entity.Primary_Person_Contact_ID || entity.primary_person_contact_id || '';
+    if (inputEl) inputEl.value = entity.Name || entity.name || '';
+    var entityInput = $q('[data-contact-field="entity-id"]');
+    if (entityInput) entityInput.value = state.companyId;
+
+    var section = $q('[data-contact-section="entity"]');
+    if (section) {
+      var contactIdInput = section.querySelector('[data-contact-field="contact_id"]');
+      if (contactIdInput) contactIdInput.value = state.entityContactId || '';
+      setEntityField(section, 'first_name', entity.Primary_Person_First_Name || entity.primary_person_first_name);
+      setEntityField(section, 'last_name', entity.Primary_Person_Last_Name || entity.primary_person_last_name);
+      setEntityField(section, 'email', entity.Primary_Person_Email || entity.primary_person_email);
+      setEntityField(section, 'sms_number', entity.Primary_Person_SMS_Number || entity.primary_person_sms_number);
+    }
+
+    var viewBtn = $('view-contact-detail');
+    if (viewBtn) viewBtn.classList.remove('hidden');
+
+    var reqId = ++state.entityRelatedRequestId;
+    showRelatedLoading();
+    fetchRelated(entity.Primary_Person_Email || entity.primary_person_email || '').then(function (data) {
+      if (state.entityRelatedRequestId !== reqId) return;
+      renderRelatedData(data);
+    });
+  }
+
+  function prefillFromUrlParams() {
+    if (state.urlPrefillApplied) return;
+    var params = new URLSearchParams(window.location.search || '');
+    function getParamSafe(key) {
+      var value = params.get(key);
+      if (value == null) return '';
+      try {
+        return String(value);
+      } catch (_) {
+        return '';
+      }
+    }
+
+    var requestedTab = getParamSafe('accountType').toLowerCase();
+    var contactId = getParamSafe('contact');
+    var companyId = getParamSafe('company');
+    var contactPrefill = {
+      id: contactId || '',
+      first_name: getParamSafe('first_name'),
+      last_name: getParamSafe('last_name'),
+      email: getParamSafe('email'),
+      sms_number: getParamSafe('sms_number'),
+      office_phone: getParamSafe('office_phone')
+    };
+    var hasDirectContactParams = !!(contactPrefill.first_name || contactPrefill.last_name || contactPrefill.email || contactPrefill.sms_number || contactPrefill.office_phone);
+
+    if (requestedTab === 'entity' || companyId) {
+      switchContactSection('entity');
+    } else {
+      switchContactSection('individual');
+    }
+
+    if (companyId) {
+      state.urlPrefillApplied = true;
+      fetchCompanyById(companyId).then(function (result) {
+        var row = result && result.resp && result.resp[0];
+        if (!row) return;
+        var entityInput = $q('[data-search-root="contact-entity"] [data-search-input]');
+        applyEntitySelection(row, entityInput);
+      }).catch(function (err) {
+        console.warn('[NewInquiry] Company prefill failed:', err);
+      });
+      return;
+    }
+
+    if (!contactId) return;
+    if (hasDirectContactParams) {
+      var direct = formatContact(contactPrefill, 0);
+      if (direct && direct.id) {
+        state.urlPrefillApplied = true;
+        state.contacts.unshift(direct);
+        handleContactSelected(direct);
+        return;
+      }
+    }
+    var match = (state.contacts || []).find(function (c) {
+      return String(c.id || '') === String(contactId);
+    });
+    if (match) {
+      handleContactSelected(match);
+      return;
+    }
+    fetchContactById(contactId).then(function (result) {
+      var row = result && result.resp && result.resp[0];
+      if (row) return row;
+      return fetchContactByIdGraphQL(contactId);
+    }).then(function (row) {
+      if (!row) return;
+      var contact = formatContact(row, 0);
+      if (!contact || !contact.id) return;
+      state.urlPrefillApplied = true;
+      state.contacts.unshift(contact);
+      handleContactSelected(contact);
+    }).catch(function (err) {
+      console.warn('[NewInquiry] Contact prefill failed:', err);
+    });
   }
 
   // ─── View: Flatpickr Init ─────────────────────────────────────────────────────
@@ -1319,7 +1668,10 @@
       return;
     }
 
-    setSaveButtonLoading(true);
+    if (typeof utils.setButtonLoading === 'function') {
+      var contactSaveBtn = $q('[data-contact-save]');
+      if (contactSaveBtn) utils.setButtonLoading(contactSaveBtn, true, { label: contactSaveBtn.dataset.loadingLabel || 'Adding...' });
+    }
     createContact(payload).then(function (result) {
       var managedData = result && result.mutations && result.mutations.PeterpmContact && result.mutations.PeterpmContact.managedData;
       var newId = managedData ? Object.keys(managedData)[0] : null;
@@ -1333,19 +1685,9 @@
       console.error('[NewInquiry] Create contact failed:', err);
       showFeedback('Failed to create contact.');
     }).finally(function () {
-      setSaveButtonLoading(false);
+      var contactSaveBtn = $q('[data-contact-save]');
+      if (contactSaveBtn && typeof utils.setButtonLoading === 'function') utils.setButtonLoading(contactSaveBtn, false);
     });
-  }
-
-  function setSaveButtonLoading(loading) {
-    var btn = $q('[data-contact-save]');
-    var label = $q('[data-contact-save-label]');
-    if (!btn) return;
-    btn.disabled = loading;
-    btn.classList.toggle('opacity-70', loading);
-    if (label) {
-      label.textContent = loading ? (btn.dataset.loadingLabel || 'Adding...') : (btn.dataset.baseLabel || 'Add New Contact');
-    }
   }
 
   // ─── Validation ───────────────────────────────────────────────────────────────
@@ -1560,7 +1902,7 @@
 
     // Submit
     var submitBtn = $q('#submit-btn') || $('submit-btn');
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('opacity-70'); }
+    if (submitBtn && typeof utils.setButtonLoading === 'function') utils.setButtonLoading(submitBtn, true, { label: 'Submitting...' });
     if (typeof utils.showLoader === 'function') utils.showLoader(null, null, null, 'Submitting inquiry...');
 
     var inquiryIdFromUrl = new URLSearchParams(window.location.search).get('inquiry');
@@ -1602,7 +1944,7 @@
       }
     }).finally(function () {
       if (typeof utils.hideLoader === 'function') utils.hideLoader(null, null, true);
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-70'); }
+      if (submitBtn && typeof utils.setButtonLoading === 'function') utils.setButtonLoading(submitBtn, false);
     });
   }
 
@@ -1837,7 +2179,7 @@
       });
     }
 
-    // Set property
+    // Set property and load its details + contacts
     if (data.Property_ID) {
       state.propertyId = data.Property_ID;
       var propInput = $('selected-property-id');
@@ -1845,6 +2187,11 @@
       fetchPropertyById(data.Property_ID).then(function (result) {
         if (result.resp && result.resp[0]) populatePropertyFields(result.resp[0]);
       });
+      fetchAffiliationByPropertyId(data.Property_ID, function (rows) {
+        renderPropertyContactTable(rows);
+      });
+      var addContactBtn = $('add-contact-btn');
+      if (addContactBtn) addContactBtn.classList.remove('hidden');
     }
 
     // Set inquiry detail fields
@@ -1896,16 +2243,25 @@
   // ─── Init ─────────────────────────────────────────────────────────────────────
 
   function init() {
+    prefillFromUrlParams();
+
     // Connect to VitalSync
     if (window.VitalSync) {
       window.VitalSync.connect().then(function (plugin) {
         state.plugin = plugin;
         console.log('[NewInquiry] VitalSync connected');
-        loadContacts();
+        loadContacts().then(function () {
+          prefillFromUrlParams();
+        });
         checkEditMode();
       }).catch(function (err) {
         console.error('[NewInquiry] VitalSync connection failed:', err);
+        if (config.DEBUG || window.__ONTRAPORT_MOCK__) loadMockContacts();
+        prefillFromUrlParams();
       });
+    } else {
+      if (config.DEBUG || window.__ONTRAPORT_MOCK__) loadMockContacts();
+      prefillFromUrlParams();
     }
 
     // Populate dropdowns and checkbox groups
@@ -1936,6 +2292,14 @@
     if (!url.searchParams.get('inquiry')) {
       setTimeout(offerRestoreDraft, 400);
     }
+
+    // Attach Google Places autocomplete when ready (in case callback ran before our script, or script loads late)
+    if (window.google && window.google.maps && window.google.maps.places && typeof window.initAutocomplete === 'function') {
+      window.initAutocomplete();
+    }
+    setTimeout(function () {
+      if (typeof window.initAutocomplete === 'function') window.initAutocomplete();
+    }, 1500);
   }
 
   // ─── Expose ───────────────────────────────────────────────────────────────────

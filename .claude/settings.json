@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for model in \"PeterpmActivity\" \"PeterpmAppointment\" \"PeterpmCompany\" \"PeterpmContact\" \"PeterpmDeal\" \"PeterpmJob\" \"PeterpmMaterial\" \"PeterpmNote\" \"PeterpmProperty\" \"PeterpmService\" \"PeterpmServiceProvider\" \"PeterpmTask\" \"PeterpmUpload\" \"PeterpmOServiceProviderWhoViewedThisDeal\")",
+      "Bash(do)",
+      "Read(//tmp/**)"
+    ],
+    "additionalDirectories": [
+      "/private/tmp"
+    ]
+  }
+}

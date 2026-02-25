@@ -28,6 +28,8 @@
     var defaultHeaderClass = opts.defaultHeaderClass || 'truncate px-6 py-4 text-left';
     var defaultCellClass = opts.defaultCellClass || 'px-6 py-4 text-slate-600';
     var emptyCellClass = opts.emptyCellClass || 'px-6 py-6 text-center text-sm text-slate-500';
+    var onSort = typeof opts.onSort === 'function' ? opts.onSort : null;
+    var sortState = opts.sortState || null; // { field, direction }
 
     var root = typeof container === 'string' ? document.querySelector(container) : container;
     if (!root) return null;
@@ -66,6 +68,23 @@
       if (header.rowSpan != null) th.rowSpan = header.rowSpan;
       if (header.html != null) {
         th.innerHTML = header.html;
+      } else if (header.sortField) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'inline-flex items-center gap-1 text-left';
+        btn.setAttribute('data-sort-field', header.sortField);
+        btn.setAttribute('aria-label', 'Sort by ' + (header.label || header.key || 'column'));
+        var label = document.createElement('span');
+        label.textContent = header.label || '';
+        btn.appendChild(label);
+
+        var arrow = document.createElement('span');
+        var isActive = sortState && sortState.field === header.sortField;
+        var direction = isActive ? (sortState.direction || 'desc') : '';
+        arrow.textContent = direction === 'asc' ? '↑' : (direction === 'desc' ? '↓' : '↕');
+        arrow.className = 'text-[10px] text-slate-500';
+        btn.appendChild(arrow);
+        th.appendChild(btn);
       } else {
         th.textContent = header.label || '';
       }
@@ -74,6 +93,14 @@
     });
 
     thead.appendChild(headRow);
+    if (onSort) {
+      thead.addEventListener('click', function (e) {
+        var sortBtn = e.target.closest('[data-sort-field]');
+        if (!sortBtn) return;
+        var field = sortBtn.getAttribute('data-sort-field');
+        if (field) onSort(field);
+      });
+    }
     table.appendChild(thead);
 
     // TBODY
@@ -93,6 +120,7 @@
       rows.forEach(function (row, rowIndex) {
         var tr = document.createElement('tr');
         if (row.id) tr.setAttribute('data-unique-id', row.id);
+        if (row.recordId) tr.setAttribute('data-record-id', row.recordId);
         var zebraClass = zebra ? (rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#f5f8ff]') : '';
         var extraRowClass = typeof getRowClass === 'function' ? getRowClass(row, rowIndex) : '';
         var rowClass = [zebraClass, extraRowClass].filter(Boolean).join(' ').trim();
@@ -153,15 +181,16 @@
       for (var i = startIndex; i <= endIndex && i <= totalPages; i++) {
         var btn = document.createElement('div');
         btn.dataset.idx = i;
-        btn.className = 'h-8 px-3 py-1 rounded inline-flex justify-center items-center gap-2 cursor-pointer';
+        btn.className = 'h-8 min-w-8 px-2 rounded inline-flex justify-center items-center cursor-pointer text-xs text-slate-500';
 
         var text = document.createElement('div');
         text.textContent = i;
         text.className = 'text-xs text-slate-500';
 
         if (i === currentPage) {
-          btn.classList.add('bg-primary-50', 'border', 'border-primary-200');
-          text.classList.add('text-primary-600', 'font-medium');
+          btn.classList.add('bg-[#003882]', 'text-white');
+          text.classList.remove('text-slate-500');
+          text.classList.add('text-white', 'font-medium');
         }
 
         btn.appendChild(text);
@@ -265,7 +294,19 @@
   function buildClientCell(row) {
     var meta = (row && row.meta) || {};
     var clientName = (row && row.client) || '';
-    return '<div class="font-normal text-slate-700">' + utils.escapeHtml(clientName) + '</div>' +
+    var subtext = (row && row.clientSubtext) || '';
+    var clientUrl = meta.clientUrl || '';
+    var clientSubtextUrl = meta.clientSubtextUrl || '';
+    var clientHtml = clientUrl
+      ? '<a href="' + clientUrl + '" class="font-normal text-slate-700 hover:underline">' + utils.escapeHtml(clientName) + '</a>'
+      : '<div class="font-normal text-slate-700">' + utils.escapeHtml(clientName) + '</div>';
+    var subtextHtml = '';
+    if (subtext) {
+      subtextHtml = clientSubtextUrl
+        ? '<a href="' + clientSubtextUrl + '" class="text-xs text-slate-500 mt-0.5 block hover:underline">' + utils.escapeHtml(subtext) + '</a>'
+        : '<div class="text-xs text-slate-500 mt-0.5">' + utils.escapeHtml(subtext) + '</div>';
+    }
+    return clientHtml + subtextHtml +
       buildClientContactIcons(meta);
   }
 

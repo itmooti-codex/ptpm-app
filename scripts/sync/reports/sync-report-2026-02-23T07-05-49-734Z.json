@@ -1,0 +1,74 @@
+{
+  "generatedAt": "2026-02-23T07:05:49.734Z",
+  "mode": "dry-run",
+  "entities": [
+    {
+      "entity": "jobs",
+      "extracted": 400,
+      "attemptedUpserts": 0,
+      "successfulUpserts": 0,
+      "failedUpserts": 0,
+      "batches": 2,
+      "firstCursor": {
+        "pk": 167250,
+        "watermark": "2026-02-01T00:00:00.000Z"
+      },
+      "lastCursor": {
+        "pk": 167558,
+        "watermark": "2026-02-17T00:00:00.000Z"
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {}
+    },
+    {
+      "entity": "inquiries",
+      "extracted": 37,
+      "attemptedUpserts": 0,
+      "successfulUpserts": 0,
+      "failedUpserts": 0,
+      "batches": 1,
+      "firstCursor": {
+        "pk": 13113,
+        "watermark": "2026-02-04T00:00:00.000Z"
+      },
+      "lastCursor": {
+        "pk": 14021,
+        "watermark": "2026-02-28T00:00:00.000Z"
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {
+        "past_job_id": {
+          "count": 37,
+          "samples": [
+            "162784",
+            "158395",
+            "156883",
+            "158529",
+            "158556",
+            "162782",
+            "158530",
+            "158051"
+          ]
+        }
+      }
+    }
+  ],
+  "totals": {
+    "extracted": 437,
+    "attemptedUpserts": 0,
+    "successfulUpserts": 0,
+    "failedUpserts": 0
+  },
+  "window": {
+    "from": "2026-02-01T00:00:00Z",
+    "to": "2026-03-01T00:00:00Z"
+  }
+}

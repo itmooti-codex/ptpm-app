@@ -1,0 +1,32 @@
+{
+  "generatedAt": "2026-02-23T08:14:23.355Z",
+  "mode": "write",
+  "entities": [
+    {
+      "entity": "serviceProviders",
+      "extracted": 0,
+      "attemptedUpserts": 0,
+      "successfulUpserts": 0,
+      "failedUpserts": 0,
+      "batches": 0,
+      "firstCursor": null,
+      "lastCursor": null,
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {}
+    }
+  ],
+  "totals": {
+    "extracted": 0,
+    "attemptedUpserts": 0,
+    "successfulUpserts": 0,
+    "failedUpserts": 0
+  },
+  "window": {
+    "from": null,
+    "to": null
+  }
+}

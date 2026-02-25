@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PTPM Add New Customer (Dev)</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23003882'/><text x='16' y='22' font-size='18' text-anchor='middle' fill='white' font-family='sans-serif'>P</text></svg>">
+
+  <script src="./mock-data.js"></script>
+  <script src="./mock-data.local.js"></script>
+  <script>
+    window.AppConfig = window.AppConfig || {};
+    if (window.__ONTRAPORT_MOCK__) {
+      Object.assign(window.AppConfig, {
+        SLUG: 'peterpm',
+        DEBUG: true,
+        CUSTOMERS_LIST_URL: './customers-list.html',
+        CUSTOMER_DETAIL_URL_TEMPLATE: './customer-detail.html?contact={id}',
+        NEW_CUSTOMER_URL: './new-customer.html',
+        DASHBOARD_URL: './dashboard.html',
+      });
+    }
+    window.AppConfig.API_KEY = (typeof window.__MOCK_API_KEY__ !== 'undefined' ? window.__MOCK_API_KEY__ : '') || window.AppConfig.API_KEY || '';
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: { 500: '#003882' } },
+          boxShadow: { card: '0 10px 40px rgba(15, 23, 42, 0.05)' },
+        },
+        fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+      },
+    };
+  </script>
+  <link rel="stylesheet" href="../src/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script async data-chunk="client" src="https://static-au03.vitalstats.app/static/sdk/v1/latest.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-slate-100 font-sans text-slate-900">
+  <div class="dev-mode-banner">
+    DEV MODE — Add New Customer &bull; <a href="./index.html">Dev home</a> &bull; <a href="./customers-list.html">Customers List</a>
+  </div>
+
+  <main class="flex flex-col gap-6 mb-4" data-page="new-customer">
+    <header class="w-full px-4 sm:px-5 py-4 bg-[#003882] border-b border-gray-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white shadow-card">
+      <div class="flex items-center gap-3">
+        <a id="new-customer-back" href="./customers-list.html" class="flex items-center gap-2 text-white hover:text-white/90" aria-label="Back">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+          <span class="text-lg font-bold">Add New Customer</span>
+        </a>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <button type="submit" id="new-customer-save" form="new-customer-form" class="ptpm-btn ptpm-btn-primary-on-dark ptpm-btn-sm inline-flex items-center gap-2">Save &amp; Close</button>
+      </div>
+    </header>
+
+    <div id="new-customer-validation" class="hidden mx-4 px-4 py-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-sm" role="alert"></div>
+
+    <form id="new-customer-form" class="flex flex-col gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 px-4 lg:px-6">
+        <section class="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden">
+          <div class="border-b border-slate-200 px-4 py-3 bg-slate-50">
+            <h2 class="text-sm font-semibold text-slate-800">Account Overview</h2>
+          </div>
+          <div class="p-4 space-y-3 text-sm">
+            <div><label class="block text-slate-500 mb-1" for="nc-first-name">Principal First Name <span class="text-rose-500">*</span></label><input id="nc-first-name" name="first_name" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800" required></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-last-name">Last Name</label><input id="nc-last-name" name="last_name" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-email">Email</label><input id="nc-email" name="email" type="email" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-mobile">Mobile #</label><input id="nc-mobile" name="sms_number" type="tel" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-customer-type">Customer Type</label><select id="nc-customer-type" name="customer_type" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"><option value="">Select</option><option value="Domestic">Domestic</option><option value="Commercial">Commercial</option></select></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-customer-source">Customer Source</label><select id="nc-customer-source" name="customer_source" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"><option value="">Select</option><option value="Web Form">Web Form</option><option value="Phone Call">Phone Call</option><option value="Referral">Referral</option><option value="Other">Other</option></select></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-referred-by">Referred By</label><input id="nc-referred-by" name="referred_by" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-notes">Notes</label><textarea id="nc-notes" name="notes" rows="3" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></textarea></div>
+          </div>
+        </section>
+
+        <section class="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden">
+          <div class="border-b border-slate-200 px-4 py-3 bg-slate-50">
+            <h2 class="text-sm font-semibold text-slate-800">Contact Information</h2>
+          </div>
+          <div class="p-4 space-y-3 text-sm">
+            <div><label class="block text-slate-500 mb-1" for="nc-address-search">Search address</label><input id="nc-address-search" type="text" placeholder="Type to search address…" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800" autocomplete="off"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-address1">Address 1</label><input id="nc-address1" name="address1" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-address2">Address 2</label><input id="nc-address2" name="address2" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-suburb">Suburb</label><input id="nc-suburb" name="suburb" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-postcode">Postcode</label><input id="nc-postcode" name="postcode" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-state">State</label><select id="nc-state" name="state" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"><option value="">Select</option><option value="QLD">QLD</option><option value="NSW">NSW</option><option value="VIC">VIC</option><option value="SA">SA</option><option value="WA">WA</option><option value="TAS">TAS</option><option value="NT">NT</option><option value="ACT">ACT</option></select></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-country">Country</label><input id="nc-country" name="country" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800" value="Australia"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-phone">Phone</label><input id="nc-phone" name="office_phone" type="tel" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+          </div>
+        </section>
+
+        <section class="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden lg:col-span-2">
+          <div class="border-b border-slate-200 px-4 py-3 bg-slate-50">
+            <h2 class="text-sm font-semibold text-slate-800">Additional Information</h2>
+          </div>
+          <div class="p-4 space-y-3 text-sm">
+            <div><label class="block text-slate-500 mb-1" for="nc-region">Region</label><input id="nc-region" name="region" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-area">Area</label><input id="nc-area" name="area" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-sub-area">Sub Area</label><input id="nc-sub-area" name="sub_area" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-referral-source">Referral Source</label><input id="nc-referral-source" name="referral_source" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></div>
+            <div><label class="block text-slate-500 mb-1" for="nc-customer-notes">Customer Notes</label><textarea id="nc-customer-notes" name="customer_notes" rows="4" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"></textarea></div>
+          </div>
+        </section>
+      </div>
+    </form>
+  </main>
+
+  <script src="../src/js/config.js?v=2"></script>
+  <script src="../src/js/utils.js?v=2"></script>
+  <script src="../src/js/vitalsync.js?v=2"></script>
+  <script src="../src/js/pages/new-customer.js?v=2"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.PtpmNewCustomer) window.PtpmNewCustomer.init();
+      if (window.google && window.google.maps && window.google.maps.places && typeof window.initNewCustomerAutocomplete === 'function') {
+        window.initNewCustomerAutocomplete();
+      } else {
+        var s = document.createElement('script');
+        s.async = true;
+        s.defer = true;
+        s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDAB5BuHgOkYcnAcTJk6jLEkS7hSHtqNwo&libraries=places&callback=initNewCustomerAutocomplete';
+        document.head.appendChild(s);
+      }
+    });
+  </script>
+</body>
+</html>

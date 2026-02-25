@@ -1,0 +1,70 @@
+{
+  "entity": "jobs",
+  "source": {
+    "schema": "dbo",
+    "table": "tbl_Jobs",
+    "pk": "jobs_id",
+    "watermark": {
+      "type": "datetime",
+      "expression": "COALESCE(CAST(jobs_prestart_createdate AS datetime2), CAST(jobs_accepted_date AS datetime2), CAST(Jobs_invoice_create_date AS datetime2), CAST(jobs_date_requested AS datetime2), CAST(jobs_date_booked AS datetime2))"
+    },
+    "select": [
+      { "expr": "jobs_id", "as": "jobs_id" },
+      { "expr": "jobs_cust_id", "as": "jobs_cust_id" },
+      { "expr": "COALESCE(CAST(jobs_prestart_createdate AS datetime2), CAST(jobs_accepted_date AS datetime2), CAST(Jobs_invoice_create_date AS datetime2), CAST(jobs_date_requested AS datetime2), CAST(jobs_date_booked AS datetime2))", "as": "source_created_at" },
+      { "expr": "jobs_inv_number", "as": "jobs_inv_number" },
+      { "expr": "jobs_quote_date", "as": "jobs_quote_date" },
+      { "expr": "jobs_date_booked", "as": "jobs_date_booked" },
+      { "expr": "jobs_date_requested", "as": "jobs_date_requested" },
+      { "expr": "jobs_date_done", "as": "jobs_date_done" },
+      { "expr": "jobs_status", "as": "jobs_status" },
+      { "expr": "job_svc_userId", "as": "job_svc_userId" },
+      { "expr": "jobs_value", "as": "jobs_value" },
+      { "expr": "jobs_quoted_amount", "as": "jobs_quoted_amount" },
+      { "expr": "jobs_animal", "as": "jobs_animal" },
+      { "expr": "jobs_prestart_activity", "as": "jobs_prestart_activity" },
+      { "expr": "Jobs_prestart_activity_other", "as": "Jobs_prestart_activity_other" },
+      { "expr": "jobs_possum_comment", "as": "jobs_possum_comment" },
+      { "expr": "jobs_turkey_comment", "as": "jobs_turkey_comment" },
+      { "expr": "jobs_comments", "as": "jobs_comments" },
+      { "expr": "jobs_admin_comment", "as": "jobs_admin_comment" }
+    ]
+  },
+  "target": {
+    "model": "Job",
+    "graphql": {
+      "inputVariable": "payload",
+      "mutation": "mutation CreateLegacyJob($payload: JobCreateInput) { createJob(payload: $payload) { id } }"
+    }
+  },
+  "idempotency": {
+    "sourceIdField": "jobs_id",
+    "targetLegacyIdField": "legacy_sql_job_id"
+  },
+  "constants": {
+    "legacy_source_system": "legacy_sql",
+    "legacy_source_entity": "tbl_Jobs",
+    "legacy_mapping_confidence": "medium"
+  },
+  "fieldMap": [
+    { "from": "source_created_at", "to": "created_at", "transforms": ["dateToEpochSeconds"] },
+    { "from": "jobs_inv_number", "to": "invoice_number", "transforms": ["trim", "emptyToNull"] },
+    { "from": "jobs_quote_date", "to": "quote_date", "transforms": ["dateToEpochSeconds"] },
+    { "from": "jobs_date_booked", "to": "date_booked", "transforms": ["dateToEpochSeconds"] },
+    { "from": "jobs_date_requested", "to": "date_scheduled", "transforms": ["dateToEpochSeconds"] },
+    { "from": "jobs_date_done", "to": "date_completed", "transforms": ["dateToEpochSeconds"] },
+    { "from": "jobs_status", "to": "job_status", "transforms": ["number", "normalizeJobStatus"] },
+    { "from": "job_svc_userId", "to": "primary_service_provider_id", "transforms": ["number"], "lookup": "legacyServiceProviderIdToTargetServiceProviderId" },
+    { "from": "jobs_value", "to": "job_total", "transforms": ["number"] },
+    { "from": "jobs_quoted_amount", "to": "quote_total", "transforms": ["number"] },
+    { "from": "jobs_comments", "to": "last_note", "transforms": ["trim", "emptyToNull"] },
+    { "from": "jobs_admin_comment", "to": "admin_recommendation", "transforms": ["trim", "emptyToNull"] },
+    { "from": "jobs_animal", "to": "legacy_service_raw_animal", "transforms": ["trim", "emptyToNull"] },
+    { "from": "jobs_prestart_activity", "to": "legacy_service_raw_prestart_activity", "transforms": ["trim", "emptyToNull"] },
+    { "from": "Jobs_prestart_activity_other", "to": "legacy_service_raw_prestart_activity_other", "transforms": ["trim", "emptyToNull"] },
+    { "from": "jobs_comments", "to": "legacy_service_raw_comments", "transforms": ["trim", "emptyToNull"] },
+    { "from": "jobs_admin_comment", "to": "legacy_service_raw_admin_comment", "transforms": ["trim", "emptyToNull"] },
+    { "from": "jobs_possum_comment", "to": "legacy_service_raw_possum_comment", "transforms": ["trim", "emptyToNull"] },
+    { "from": "jobs_turkey_comment", "to": "legacy_service_raw_turkey_comment", "transforms": ["trim", "emptyToNull"] }
+  ]
+}

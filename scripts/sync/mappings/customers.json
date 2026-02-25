@@ -1,0 +1,49 @@
+{
+  "entity": "customers",
+  "source": {
+    "schema": "dbo",
+    "table": "tbl_Customers",
+    "pk": "cust_id",
+    "watermark": {
+      "type": "pk",
+      "column": "cust_id"
+    },
+    "select": [
+      { "expr": "cust_id", "as": "cust_id" },
+      { "expr": "cust_first_name", "as": "cust_first_name" },
+      { "expr": "cust_contact_name", "as": "cust_contact_name" },
+      { "expr": "cust_clientname", "as": "cust_clientname" },
+      { "expr": "cust_email", "as": "cust_email" },
+      { "expr": "cust_phone1", "as": "cust_phone1" },
+      { "expr": "cust_phone2", "as": "cust_phone2" },
+      { "expr": "cust_suburb", "as": "cust_suburb" },
+      { "expr": "cust_street", "as": "cust_street" },
+      { "expr": "cust_notes", "as": "cust_notes" }
+    ]
+  },
+  "target": {
+    "model": "Contact",
+    "graphql": {
+      "inputVariable": "payload",
+      "mutation": "mutation CreateLegacyContact($payload: ContactCreateInput) { createContact(payload: $payload) { id } }"
+    }
+  },
+  "idempotency": {
+    "sourceIdField": "cust_id",
+    "targetLegacyIdField": "legacy_sql_customer_id"
+  },
+  "constants": {
+    "legacy_source_system": "legacy_sql",
+    "legacy_source_entity": "tbl_Customers"
+  },
+  "fieldMap": [
+    { "from": "cust_first_name", "to": "first_name", "transforms": ["trim", "emptyToNull"] },
+    { "from": "cust_contact_name", "to": "last_name", "transforms": ["trim", "emptyToNull"] },
+    { "from": "cust_email", "to": "email", "transforms": ["trim", "emptyToNull"] },
+    { "from": "cust_phone1", "to": "sms_number", "transforms": ["trim", "emptyToNull", "auSmsNumber"] },
+    { "from": "cust_phone2", "to": "office_phone", "transforms": ["trim", "emptyToNull"] },
+    { "from": "cust_suburb", "to": "city", "transforms": ["trim", "emptyToNull"] },
+    { "from": "cust_street", "to": "address", "transforms": ["trim", "emptyToNull"] },
+    { "from": "cust_notes", "to": "last_note", "transforms": ["trim", "emptyToNull"] }
+  ]
+}

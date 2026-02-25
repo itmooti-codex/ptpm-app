@@ -1,0 +1,74 @@
+{
+  "generatedAt": "2026-02-23T07:08:34.001Z",
+  "mode": "dry-run",
+  "entities": [
+    {
+      "entity": "serviceProviders",
+      "extracted": 44,
+      "attemptedUpserts": 0,
+      "successfulUpserts": 0,
+      "failedUpserts": 0,
+      "batches": 1,
+      "firstCursor": {
+        "pk": "24",
+        "watermark": null
+      },
+      "lastCursor": {
+        "pk": "108",
+        "watermark": null
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {}
+    },
+    {
+      "entity": "jobs",
+      "extracted": 300,
+      "attemptedUpserts": 0,
+      "successfulUpserts": 0,
+      "failedUpserts": 0,
+      "batches": 2,
+      "firstCursor": {
+        "pk": 167250,
+        "watermark": "2026-02-01T00:00:00.000Z"
+      },
+      "lastCursor": {
+        "pk": 167290,
+        "watermark": "2026-02-13T00:00:00.000Z"
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {
+        "primary_service_provider_id": {
+          "count": 298,
+          "samples": [
+            "81",
+            "74",
+            "55",
+            "82",
+            "39",
+            "28",
+            "107",
+            "73"
+          ]
+        }
+      }
+    }
+  ],
+  "totals": {
+    "extracted": 344,
+    "attemptedUpserts": 0,
+    "successfulUpserts": 0,
+    "failedUpserts": 0
+  },
+  "window": {
+    "from": "2026-02-01T00:00:00Z",
+    "to": "2026-03-01T00:00:00Z"
+  }
+}

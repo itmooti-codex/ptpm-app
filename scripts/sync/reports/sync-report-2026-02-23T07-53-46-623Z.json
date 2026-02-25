@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-02-23T07:53:46.623Z",
+  "mode": "write",
+  "entities": [
+    {
+      "entity": "customers",
+      "extracted": 1,
+      "attemptedUpserts": 1,
+      "successfulUpserts": 1,
+      "failedUpserts": 0,
+      "batches": 1,
+      "firstCursor": {
+        "pk": 1,
+        "watermark": null
+      },
+      "lastCursor": {
+        "pk": 1,
+        "watermark": null
+      },
+      "invalidSms": {
+        "count": 1,
+        "samples": [
+          "3274 2711"
+        ]
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {}
+    }
+  ],
+  "totals": {
+    "extracted": 1,
+    "attemptedUpserts": 1,
+    "successfulUpserts": 1,
+    "failedUpserts": 0
+  },
+  "window": {
+    "from": null,
+    "to": null
+  }
+}

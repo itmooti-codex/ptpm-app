@@ -1,0 +1,161 @@
+{
+  "generatedAt": "2026-02-23T07:54:37.192Z",
+  "mode": "write",
+  "entities": [
+    {
+      "entity": "serviceProviders",
+      "extracted": 44,
+      "attemptedUpserts": 44,
+      "successfulUpserts": 0,
+      "failedUpserts": 44,
+      "batches": 1,
+      "firstCursor": {
+        "pk": "24",
+        "watermark": null
+      },
+      "lastCursor": {
+        "pk": "108",
+        "watermark": null
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {}
+    },
+    {
+      "entity": "jobs",
+      "extracted": 50,
+      "attemptedUpserts": 50,
+      "successfulUpserts": 0,
+      "failedUpserts": 50,
+      "batches": 1,
+      "firstCursor": {
+        "pk": 166624,
+        "watermark": "2026-02-20T00:00:00.000Z"
+      },
+      "lastCursor": {
+        "pk": 167625,
+        "watermark": "2026-02-23T00:00:00.000Z"
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {
+        "primary_service_provider_id": {
+          "count": 45,
+          "samples": [
+            "81",
+            "74",
+            "105",
+            "27",
+            "73",
+            "82",
+            "28",
+            "37"
+          ]
+        }
+      }
+    },
+    {
+      "entity": "inquiries",
+      "extracted": 6,
+      "attemptedUpserts": 6,
+      "successfulUpserts": 0,
+      "failedUpserts": 6,
+      "batches": 1,
+      "firstCursor": {
+        "pk": 13172,
+        "watermark": "2026-02-20T00:00:00.000Z"
+      },
+      "lastCursor": {
+        "pk": 13997,
+        "watermark": "2026-02-21T00:00:00.000Z"
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {
+        "past_job_id": {
+          "count": 6,
+          "samples": [
+            "158736",
+            "158639",
+            "158773",
+            "158752",
+            "157853",
+            "158718"
+          ]
+        }
+      }
+    },
+    {
+      "entity": "companies",
+      "extracted": 50,
+      "attemptedUpserts": 50,
+      "successfulUpserts": 0,
+      "failedUpserts": 50,
+      "batches": 1,
+      "firstCursor": {
+        "pk": 1,
+        "watermark": null
+      },
+      "lastCursor": {
+        "pk": 1194,
+        "watermark": null
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {}
+    },
+    {
+      "entity": "customers",
+      "extracted": 50,
+      "attemptedUpserts": 50,
+      "successfulUpserts": 0,
+      "failedUpserts": 50,
+      "batches": 1,
+      "firstCursor": {
+        "pk": 1,
+        "watermark": null
+      },
+      "lastCursor": {
+        "pk": 56,
+        "watermark": null
+      },
+      "invalidSms": {
+        "count": 41,
+        "samples": [
+          "3274 2711",
+          "9",
+          "3378 4772",
+          "3202 8138",
+          "3216 5965",
+          "5497 6529",
+          "3359 8446",
+          "3394 2564"
+        ]
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {}
+    }
+  ],
+  "totals": {
+    "extracted": 200,
+    "attemptedUpserts": 200,
+    "successfulUpserts": 0,
+    "failedUpserts": 200
+  },
+  "window": {
+    "from": "2026-02-20T00:00:00Z",
+    "to": "2026-02-24T00:00:00Z"
+  }
+}

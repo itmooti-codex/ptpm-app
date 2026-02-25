@@ -1,0 +1,429 @@
+<!-- PTPM Inquiry Detail — Ontraport Body HTML Block -->
+<!-- Paste this into: Ontraport Page → HTML Block in Body -->
+
+<div x-data="inquiryDetail" x-cloak class="bg-gray-50 text-gray-900 min-h-screen">
+
+  <!-- Toast -->
+  <template x-if="toastMessage">
+    <div class="fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 bg-gray-900 text-white rounded-lg shadow-xl text-xs font-medium">
+      <span class="text-emerald-400">&#x2713;</span>
+      <span x-text="toastMessage"></span>
+      <button @click="toastMessage = null" class="text-gray-400 hover:text-white ml-2">&times;</button>
+    </div>
+  </template>
+
+  <!-- Loading State -->
+  <template x-if="loading">
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center">
+        <div class="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-3"></div>
+        <p class="text-sm text-gray-500">Loading inquiry...</p>
+      </div>
+    </div>
+  </template>
+
+  <!-- Error State -->
+  <template x-if="!loading && error">
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center max-w-md">
+        <p class="text-lg font-semibold text-red-600 mb-2">Error</p>
+        <p class="text-sm text-gray-600" x-text="error"></p>
+      </div>
+    </div>
+  </template>
+
+  <!-- Main Content -->
+  <template x-if="!loading && !error && inquiry">
+    <div class="min-h-screen flex flex-col">
+
+      <!-- ── TOP BAR ── -->
+      <div class="bg-white border-b border-gray-200 px-6 py-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2.5">
+              <span class="text-lg">&#x1F4CB;</span>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h1 class="text-base font-bold text-gray-900" x-text="inquiry.unique_id || ('INQ-' + inquiryId)"></h1>
+                  <select x-model="inquiryStatus" @change="updateInquiryStatus()" class="text-xs border border-gray-300 rounded-md px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <template x-for="opt in $store.enums?.inquiry_status || ['New Inquiry','Not Allocated','Contact Client','Contact For Site Visit','Site Visit Scheduled','Generate Quote','Quote Created','Completed','Cancelled','Expired']">
+                      <option :value="opt" x-text="opt"></option>
+                    </template>
+                  </select>
+                  <select x-model="salesStage" @change="updateSalesStage()" class="text-xs border border-gray-300 rounded-md px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <template x-for="opt in ['New Lead','Qualified Prospect','Consideration','Committed','Visit Scheduled','Closed - Won','Closed - Lost']">
+                      <option :value="opt" x-text="opt"></option>
+                    </template>
+                  </select>
+                  <template x-if="inquiry.call_back"><span x-html="badge('Call Back')"></span></template>
+                </div>
+                <p class="text-xs text-gray-500 mt-0.5">
+                  <span x-text="inquiry.deal_name"></span> &middot;
+                  Created <span x-text="inquiry.created_at"></span> &middot;
+                  Source: <span x-text="inquiry.inquiry_source || inquiry.how_did_you_hear || '—'"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <!-- Create Quote / View Job -->
+            <template x-if="inquiry.quote_record_id">
+              <button @click="navigateToJob()" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 border border-blue-600">
+                &#x2197; Quote/Job #<span x-text="inquiry.quote_record_id"></span>
+              </button>
+            </template>
+            <template x-if="!inquiry.quote_record_id">
+              <button @click="navigateToCreateQuote()" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-emerald-600 text-white hover:bg-emerald-700 border border-emerald-600">+ Create Quote</button>
+            </template>
+
+            <!-- Email Menu -->
+            <div class="relative">
+              <button @click="showEmailMenu = !showEmailMenu" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50">&#x2709; Send Email &#x25BE;</button>
+              <div x-show="showEmailMenu" @click.away="showEmailMenu = false" x-cloak class="absolute right-0 top-full mt-1 w-52 bg-white border border-gray-200 rounded-lg shadow-xl z-50 py-1">
+                <template x-for="t in ['Email Customer','Email Service Provider','Quote Follow Up','Invoice Follow Up','Email Tenant']">
+                  <button @click="sendEmail(t)" class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 text-gray-700" x-text="t"></button>
+                </template>
+              </div>
+            </div>
+
+            <!-- More Actions -->
+            <div class="relative">
+              <button @click="showMoreActions = !showMoreActions" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50">&vellip;</button>
+              <div x-show="showMoreActions" @click.away="showMoreActions = false" x-cloak class="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-50 py-1">
+                <template x-for="t in ['Return to Admin','Schedule Site Visit','Duplicate Inquiry','Cancel Inquiry','Delete Inquiry']">
+                  <button @click="moreAction(t)" :class="t.includes('Delete') ? 'text-red-600' : 'text-gray-700'" class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50" x-text="t"></button>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── WARNINGS ── -->
+      <div class="px-6 pt-3 space-y-2">
+        <template x-if="inquiry.popup_comment || (contact && contact.popup_comment)">
+          <div class="flex items-start gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+            <span class="text-amber-500 text-sm flex-shrink-0 mt-px">&#x26A0;</span>
+            <div><span class="font-bold">Contact Alert:</span> <span class="font-medium leading-relaxed" x-text="inquiry.popup_comment || (contact && contact.popup_comment)"></span></div>
+          </div>
+        </template>
+        <template x-if="inquiry.return_inquiry_to_admin">
+          <div class="flex items-start gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+            <span class="text-amber-500 text-sm flex-shrink-0 mt-px">&#x26A0;</span>
+            <div><span class="font-bold">SP Return:</span> <span class="font-medium" x-text="inquiry.inquiry_return_reason || 'Returned by service provider'"></span></div>
+          </div>
+        </template>
+        <template x-if="inquiry.inquiry_for_job_id">
+          <div class="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800">
+            <span class="text-blue-500 text-sm">&#x1F517;</span>
+            <span>This inquiry relates to existing <strong x-text="'JOB-' + inquiry.inquiry_for_job_id"></strong></span>
+            <button class="text-blue-600 hover:text-blue-800 font-medium">View Job &rarr;</button>
+          </div>
+        </template>
+        <template x-if="inquiry.last_action_status || inquiry.last_action_message">
+          <div class="flex items-start gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700">
+            <span class="text-slate-500 text-sm flex-shrink-0 mt-px">&#x23F3;</span>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-bold">Latest Action:</span>
+                <span x-html="badge(inquiry.last_action_status || 'processing')"></span>
+                <span class="font-medium" x-text="inquiry.last_action_type || '—'"></span>
+              </div>
+              <p class="text-xs text-slate-600 mt-0.5 break-words" x-text="inquiry.last_action_message || 'Awaiting workflow update.'"></p>
+              <p class="text-[11px] text-slate-400 mt-0.5">
+                Source: <span x-text="inquiry.last_action_source || '—'"></span> &middot;
+                At: <span x-text="inquiry.last_action_at || '—'"></span>
+              </p>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- ── MAIN CONTENT (12-col grid) ── -->
+      <div class="flex-1 bg-gray-50 p-6">
+        <div class="grid grid-cols-12 gap-5">
+
+          <!-- LEFT — 8 cols -->
+          <div class="col-span-8 space-y-5">
+
+            <!-- Inquiry Details Card -->
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm">&#x1F4DD;</span>
+                  <h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Inquiry Details</h3>
+                </div>
+                <button class="ptpm-detail-btn">Edit</button>
+              </div>
+              <div class="p-4">
+                <div class="grid grid-cols-4 gap-4 mb-4">
+                  <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Type</dt><dd class="text-sm text-gray-900" x-text="inquiry.type || '—'"></dd></div>
+                  <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Source</dt><dd class="text-sm text-gray-900" x-text="inquiry.inquiry_source || inquiry.how_did_you_hear || '—'"></dd></div>
+                  <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">How Did You Hear</dt><dd class="text-sm text-gray-900" x-text="inquiry.how_did_you_hear || '—'"></dd></div>
+                  <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Service Type</dt><dd class="text-sm text-gray-900" x-text="inquiry.service_type || '—'"></dd></div>
+                </div>
+                <div class="grid grid-cols-4 gap-4 mb-4">
+                  <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Account Type</dt><dd class="text-sm text-gray-900" x-text="inquiry.account_type || '—'"></dd></div>
+                  <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Date Required By</dt><dd class="text-sm text-gray-900" x-text="inquiry.date_job_required_by || '—'"></dd></div>
+                  <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Deal Size</dt><dd class="text-sm text-gray-900" x-text="inquiry.deal_size || '—'"></dd></div>
+                  <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Close Timeframe</dt><dd class="text-sm text-gray-900" x-text="inquiry.expected_close_timeframe || '—'"></dd></div>
+                </div>
+                <!-- Linked Service -->
+                <template x-if="serviceRecord">
+                  <div class="border-t border-gray-100 pt-3 mb-3">
+                    <div class="flex items-center gap-3 p-2.5 bg-gray-50 rounded-md border border-gray-100">
+                      <span x-html="badge(serviceRecord.service_type || 'Primary')"></span>
+                      <div>
+                        <p class="text-xs font-semibold text-gray-800" x-text="serviceRecord.service_name"></p>
+                        <p class="text-xs text-gray-500">Base price: <span x-text="money(serviceRecord.service_price)"></span> &middot; <span x-text="serviceRecord.standard_warranty || ''"></span></p>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+                <div class="border-t border-gray-100 pt-3">
+                  <dt class="text-xs text-gray-400 font-medium mb-0.5">How Can We Help</dt>
+                  <dd class="text-sm text-gray-900 break-words" x-text="inquiry.how_can_we_help || '—'"></dd>
+                </div>
+              </div>
+            </div>
+
+            <!-- Site Visit Details -->
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200" x-data="{ open: true }">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg cursor-pointer select-none" @click="open = !open">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm">&#x1F50D;</span>
+                  <h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Site Visit Details</h3>
+                  <span class="text-gray-400 text-xs ml-1" x-text="open ? '&#x25BE;' : '&#x25B8;'"></span>
+                </div>
+              </div>
+              <div x-show="open" class="p-4">
+                <div class="grid grid-cols-3 gap-4 mb-3">
+                  <div><dt class="text-xs text-gray-400 font-medium mb-1.5">Noise / Signs</dt><div class="flex flex-wrap gap-1" x-html="tagPills(noiseSigns)"></div></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-1.5">Pest Location</dt><div class="flex flex-wrap gap-1" x-html="tagPills(pestLocation)"></div></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-1.5">Active Times</dt><div class="flex flex-wrap gap-1" x-html="tagPills(pestActiveTimes)"></div></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Renovations</dt><dd class="text-sm text-gray-900" x-text="inquiry.renovations || '—'"></dd></div>
+                  <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Resident Availability</dt><dd class="text-sm text-gray-900" x-text="inquiry.resident_availability || '—'"></dd></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin Notes + Client Notes side by side -->
+            <div class="grid grid-cols-2 gap-5">
+              <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+                <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                  <div class="flex items-center gap-2"><span class="text-sm">&#x1F4CC;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Admin Notes</h3></div>
+                  <button class="ptpm-detail-btn">Edit</button>
+                </div>
+                <div class="p-4">
+                  <pre class="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed bg-gray-50 rounded-md p-3 border border-gray-100 max-h-40 overflow-y-auto thin-scrollbar" x-text="inquiry.admin_notes || 'No admin notes.'"></pre>
+                </div>
+              </div>
+              <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+                <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                  <div class="flex items-center gap-2"><span class="text-sm">&#x1F4AC;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Client Notes</h3></div>
+                  <button class="ptpm-detail-btn">Edit</button>
+                </div>
+                <div class="p-4">
+                  <pre class="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed bg-gray-50 rounded-md p-3 border border-gray-100 max-h-40 overflow-y-auto thin-scrollbar" x-text="inquiry.client_notes || 'No client notes.'"></pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lower Tabs -->
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <!-- Tab Bar -->
+              <div class="flex border-b border-gray-200 bg-white px-1 gap-0.5 overflow-x-auto">
+                <template x-for="tab in tabItems" :key="tab.id">
+                  <button @click="switchTab(tab.id)" :class="activeTab === tab.id ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600 hover:border-gray-300'" class="px-3 py-2.5 text-xs font-semibold whitespace-nowrap border-b-2 transition-colors">
+                    <span x-text="tab.label"></span>
+                    <template x-if="tab.count != null">
+                      <span :class="activeTab === tab.id ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500'" class="ml-1.5 px-1.5 py-0.5 rounded-full text-xs" x-text="tab.count"></span>
+                    </template>
+                  </button>
+                </template>
+              </div>
+              <!-- Tab Content -->
+              <div class="p-4 max-h-96 overflow-y-auto thin-scrollbar" x-html="panelHtml" @click="handlePanelClick($event)"></div>
+            </div>
+          </div>
+
+          <!-- RIGHT — 4 cols -->
+          <div class="col-span-4 space-y-5">
+
+            <!-- Client Card -->
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x1F464;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500" x-text="(inquiry.account_type === 'Company' ? 'Client — Company' : 'Client — Contact')"></h3></div>
+                <button @click="navigateToCustomer()" class="ptpm-detail-btn">View Record</button>
+              </div>
+              <div class="p-4">
+                <template x-if="contact">
+                  <div>
+                    <div class="flex items-center gap-3 mb-3">
+                      <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-500" x-text="contactInitials"></div>
+                      <div>
+                        <p class="text-sm font-semibold text-gray-900" x-text="contactName"></p>
+                        <p class="text-xs text-gray-500"><span x-text="contact.inquiring_as || ''"></span> <template x-if="contact.how_referred">&middot; <span x-text="contact.how_referred"></span></template></p>
+                      </div>
+                    </div>
+                    <div class="space-y-1.5 text-xs">
+                      <template x-if="contact.email"><div class="flex items-center gap-2"><span class="text-gray-400 w-4">&#x2709;</span><a :href="'mailto:' + contact.email" class="text-blue-600 hover:underline truncate" x-text="contact.email"></a></div></template>
+                      <template x-if="contact.sms_number"><div class="flex items-center gap-2"><span class="text-gray-400 w-4">&#x1F4F1;</span><span class="text-gray-700" x-text="contact.sms_number"></span></div></template>
+                      <template x-if="contact.office_phone"><div class="flex items-center gap-2"><span class="text-gray-400 w-4">&#x1F4DE;</span><span class="text-gray-700" x-text="contact.office_phone"></span></div></template>
+                      <template x-if="contactAddress"><div class="flex items-center gap-2"><span class="text-gray-400 w-4">&#x1F4CD;</span><span class="text-gray-700" x-text="contactAddress"></span></div></template>
+                      <template x-if="contact.xero_contact_id"><div class="flex items-center gap-2"><span class="text-gray-400 w-4 text-xs">X</span><span class="text-gray-400 font-mono text-xs" x-text="contact.xero_contact_id"></span></div></template>
+                    </div>
+                  </div>
+                </template>
+                <template x-if="!contact">
+                  <p class="text-xs text-gray-400 italic">No contact linked.</p>
+                </template>
+              </div>
+            </div>
+
+            <!-- Property Card -->
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x1F3E0;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Property</h3></div>
+                <button class="ptpm-detail-btn">View Record</button>
+              </div>
+              <div class="p-4">
+                <template x-if="property">
+                  <div>
+                    <div class="mb-3">
+                      <p class="text-sm font-semibold text-gray-900" x-text="propertyAddress"></p>
+                      <p class="text-xs text-gray-500" x-text="propertySuburb"></p>
+                      <template x-if="property.quadrant"><p class="text-xs text-gray-400 mt-0.5">Quadrant: <span x-text="property.quadrant"></span></p></template>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                      <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Type</dt><dd class="text-sm text-gray-900" x-text="property.property_type || '—'"></dd></div>
+                      <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Building</dt><dd class="text-sm text-gray-900" x-text="property.building_type || '—'"></dd></div>
+                      <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Owner Type</dt><dd class="text-sm text-gray-900" x-text="property.owner_type || '—'"></dd></div>
+                      <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Foundation</dt><dd class="text-sm text-gray-900" x-text="property.foundation_type || '—'"></dd></div>
+                      <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Stories</dt><dd class="text-sm text-gray-900" x-text="property.stories || '—'"></dd></div>
+                      <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Age</dt><dd class="text-sm text-gray-900" x-text="property.building_age || '—'"></dd></div>
+                      <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Manhole</dt><dd class="text-sm text-gray-900" x-text="property.manhole ? '✓ Yes' : '✗ No'"></dd></div>
+                      <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Bedrooms</dt><dd class="text-sm text-gray-900" x-text="property.bedrooms || '—'"></dd></div>
+                    </div>
+                    <template x-if="buildingFeatures.length">
+                      <div class="mt-2"><dt class="text-xs text-gray-400 font-medium mb-1">Features</dt><div class="flex flex-wrap gap-1" x-html="tagPills(buildingFeatures)"></div></div>
+                    </template>
+                    <template x-if="property.last_rodent_job">
+                      <div class="mt-3 pt-3 border-t border-gray-100">
+                        <dt class="text-xs text-gray-400 font-medium mb-1">Last Job at Property</dt>
+                        <div class="flex items-center justify-between text-xs">
+                          <span class="text-gray-600">Rodent — <span x-text="property.last_rodent_job"></span></span>
+                          <span class="font-mono text-gray-700" x-text="money(property.last_rodent_job_rate)"></span>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+                <template x-if="!property">
+                  <p class="text-xs text-gray-400 italic">No property linked.</p>
+                </template>
+              </div>
+            </div>
+
+            <!-- Property Contacts -->
+            <template x-if="property">
+              <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200" x-data="{ open: true }">
+                <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg cursor-pointer select-none" @click="open = !open">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm">&#x1F465;</span>
+                    <h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Property Contacts</h3>
+                    <span class="text-gray-400 text-xs ml-1" x-text="open ? '&#x25BE;' : '&#x25B8;'"></span>
+                  </div>
+                  <button @click.stop class="ptpm-detail-btn">Manage</button>
+                </div>
+                <div x-show="open" class="p-4">
+                  <div class="space-y-2.5">
+                    <template x-for="pc in propertyContacts" :key="pc.id">
+                      <div class="flex items-center justify-between p-2 rounded-md bg-gray-50 border border-gray-100">
+                        <div>
+                          <p class="text-xs font-semibold text-gray-700" x-text="(pc.contact_name || '') + ' ' + (pc.contact_last_name || '')"></p>
+                          <p class="text-xs text-gray-400" x-text="pc.role || ''"></p>
+                        </div>
+                        <div class="text-right text-xs">
+                          <p class="text-gray-600" x-text="pc.contact_phone || ''"></p>
+                          <p class="text-gray-400" x-text="pc.contact_email || ''"></p>
+                        </div>
+                      </div>
+                    </template>
+                    <template x-if="!propertyContacts.length">
+                      <div class="flex items-center justify-between p-2 rounded-md border border-dashed border-gray-300 text-gray-400">
+                        <span class="text-xs">No contacts linked to property</span>
+                        <button class="ptpm-detail-btn">+ Add</button>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Service Provider -->
+            <template x-if="serviceProvider">
+              <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+                <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                  <div class="flex items-center gap-2"><span class="text-sm">&#x1F527;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Service Provider</h3></div>
+                  <button class="ptpm-detail-btn">Change</button>
+                </div>
+                <div class="p-4">
+                  <div class="flex items-center gap-3 mb-2">
+                    <div class="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center text-sm font-bold text-emerald-600" x-text="spInitial"></div>
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2">
+                        <p class="text-sm font-semibold text-gray-900" x-text="spName"></p>
+                        <span x-html="badge(serviceProvider.status || 'Active')"></span>
+                      </div>
+                      <p class="text-xs text-gray-500"><span x-text="serviceProvider.mobile_number || ''"></span> &middot; <span x-text="(serviceProvider.job_rate_percentage || '') + '%'"></span> rate</p>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="flex justify-between p-1.5 bg-gray-50 rounded"><span class="text-gray-400">Capacity</span><span :class="spCapacityColor" class="font-semibold" x-text="serviceProvider.workload_capacity || '—'"></span></div>
+                    <div class="flex justify-between p-1.5 bg-gray-50 rounded"><span class="text-gray-400">In Progress</span><span class="font-semibold text-gray-700" x-text="serviceProvider.jobs_in_progress || '0'"></span></div>
+                    <div class="flex justify-between p-1.5 bg-gray-50 rounded"><span class="text-gray-400">Done (30d)</span><span class="font-semibold text-gray-700" x-text="serviceProvider.completed_jobs_last_30_days || '0'"></span></div>
+                    <div class="flex justify-between p-1.5 bg-gray-50 rounded"><span class="text-gray-400">Callbacks</span><span class="font-semibold text-gray-700" x-text="serviceProvider.call_backs_last_30_days || '0'"></span></div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Linked Quote/Job -->
+            <template x-if="linkedJob">
+              <div class="ptpm-detail-card bg-white rounded-lg border border-amber-300 ring-1 ring-amber-100">
+                <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-amber-200 bg-amber-50 rounded-t-lg">
+                  <div class="flex items-center gap-2"><span class="text-sm">&#x1F4C4;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-amber-800">Linked Quote / Job</h3></div>
+                </div>
+                <div class="p-4">
+                  <button @click="navigateToJob()" class="w-full text-left group">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors" x-text="'JOB-' + (linkedJob.unique_id || linkedJob.id)"></p>
+                        <div class="flex items-center gap-1.5 mt-1">
+                          <span x-html="badge(linkedJob.quote_status || '')"></span>
+                          <span x-html="badge(linkedJob.job_status || '')"></span>
+                          <span x-html="badge(linkedJob.payment_status || '')"></span>
+                        </div>
+                      </div>
+                      <span class="text-gray-300 group-hover:text-blue-400 text-lg">&rarr;</span>
+                    </div>
+                    <div class="mt-2 grid grid-cols-3 gap-2">
+                      <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Quote</dt><dd class="text-sm text-gray-900" x-text="money(linkedJob.quote_total)"></dd></div>
+                      <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Job</dt><dd class="text-sm text-gray-900" x-text="money(linkedJob.job_total)"></dd></div>
+                      <div class="min-w-0"><dt class="text-xs text-gray-400 font-medium mb-0.5">Invoice</dt><dd class="text-sm text-gray-900" x-text="linkedJob.invoice_number ? '#' + linkedJob.invoice_number : '—'"></dd></div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </template>
+
+          </div><!-- /RIGHT -->
+        </div><!-- /grid -->
+      </div><!-- /main content -->
+    </div><!-- /flex col -->
+  </template>
+
+</div>

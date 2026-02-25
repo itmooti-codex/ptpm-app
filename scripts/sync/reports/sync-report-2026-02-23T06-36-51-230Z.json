@@ -1,0 +1,109 @@
+{
+  "generatedAt": "2026-02-23T06:36:51.230Z",
+  "mode": "dry-run",
+  "entities": [
+    {
+      "entity": "companies",
+      "extracted": 150,
+      "attemptedUpserts": 0,
+      "successfulUpserts": 0,
+      "failedUpserts": 0,
+      "batches": 1,
+      "firstCursor": {
+        "pk": 1,
+        "watermark": null
+      },
+      "lastCursor": {
+        "pk": 2775,
+        "watermark": null
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {}
+    },
+    {
+      "entity": "customers",
+      "extracted": 150,
+      "attemptedUpserts": 0,
+      "successfulUpserts": 0,
+      "failedUpserts": 0,
+      "batches": 1,
+      "firstCursor": {
+        "pk": 1,
+        "watermark": null
+      },
+      "lastCursor": {
+        "pk": 161,
+        "watermark": null
+      },
+      "invalidSms": {
+        "count": 75,
+        "samples": [
+          "3274 2711",
+          "9",
+          "3378 4772",
+          "3202 8138",
+          "3216 5965",
+          "5497 6529",
+          "3359 8446",
+          "3394 2564"
+        ]
+      },
+      "enumMismatches": {}
+    },
+    {
+      "entity": "inquiries",
+      "extracted": 150,
+      "attemptedUpserts": 0,
+      "successfulUpserts": 0,
+      "failedUpserts": 0,
+      "batches": 1,
+      "firstCursor": {
+        "pk": 131,
+        "watermark": "2026-03-03T00:00:00.000Z"
+      },
+      "lastCursor": {
+        "pk": 14123,
+        "watermark": "2026-04-11T00:00:00.000Z"
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {}
+    },
+    {
+      "entity": "jobs",
+      "extracted": 1,
+      "attemptedUpserts": 0,
+      "successfulUpserts": 0,
+      "failedUpserts": 0,
+      "batches": 1,
+      "firstCursor": {
+        "pk": 165706,
+        "watermark": "2026-12-30T00:00:00.000Z"
+      },
+      "lastCursor": {
+        "pk": 165706,
+        "watermark": "2026-12-30T00:00:00.000Z"
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {}
+    }
+  ],
+  "totals": {
+    "extracted": 451,
+    "attemptedUpserts": 0,
+    "successfulUpserts": 0,
+    "failedUpserts": 0
+  },
+  "window": {
+    "from": null,
+    "to": null
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "entity": "companies",
+  "source": {
+    "schema": "dbo",
+    "table": "tbl_Customers",
+    "pk": "cust_id",
+    "watermark": {
+      "type": "pk",
+      "column": "cust_id"
+    },
+    "where": "cust_account_type LIKE '%Business%' OR cust_account_type LIKE '%Gov%' OR cust_account_type LIKE '%Body Corp%'",
+    "select": [
+      { "expr": "cust_id", "as": "cust_id" },
+      { "expr": "cust_clientname", "as": "cust_clientname" },
+      { "expr": "cust_account_type", "as": "cust_account_type" },
+      { "expr": "cust_phone1", "as": "cust_phone1" },
+      { "expr": "cust_street", "as": "cust_street" },
+      { "expr": "cust_suburb", "as": "cust_suburb" },
+      { "expr": "cust_notes", "as": "cust_notes" }
+    ]
+  },
+  "target": {
+    "model": "Company",
+    "graphql": {
+      "inputVariable": "payload",
+      "mutation": "mutation CreateLegacyCompany($payload: CompanyCreateInput) { createCompany(payload: $payload) { id } }"
+    }
+  },
+  "idempotency": {
+    "sourceIdField": "cust_id",
+    "targetLegacyIdField": "legacy_sql_company_id"
+  },
+  "constants": {
+    "legacy_source_system": "legacy_sql",
+    "legacy_source_entity": "tbl_Customers"
+  },
+  "fieldMap": [
+    { "from": "cust_clientname", "to": "name", "transforms": ["trim", "emptyToNull"] },
+    { "from": "cust_account_type", "to": "account_type", "transforms": ["trim", "emptyToNull", "normalizeCompanyAccountType"] },
+    { "from": "cust_phone1", "to": "phone", "transforms": ["trim", "emptyToNull"] },
+    { "from": "cust_street", "to": "address", "transforms": ["trim", "emptyToNull"] },
+    { "from": "cust_suburb", "to": "city", "transforms": ["trim", "emptyToNull"] },
+    { "from": "cust_notes", "to": "popup_comment", "transforms": ["trim", "emptyToNull"] }
+  ]
+}

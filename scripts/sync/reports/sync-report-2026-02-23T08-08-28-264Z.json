@@ -1,0 +1,38 @@
+{
+  "generatedAt": "2026-02-23T08:08:28.264Z",
+  "mode": "write",
+  "entities": [
+    {
+      "entity": "serviceProviders",
+      "extracted": 44,
+      "attemptedUpserts": 44,
+      "successfulUpserts": 44,
+      "failedUpserts": 0,
+      "batches": 1,
+      "firstCursor": {
+        "pk": "24",
+        "watermark": null
+      },
+      "lastCursor": {
+        "pk": "108",
+        "watermark": null
+      },
+      "invalidSms": {
+        "count": 0,
+        "samples": []
+      },
+      "enumMismatches": {},
+      "unresolvedRelations": {}
+    }
+  ],
+  "totals": {
+    "extracted": 44,
+    "attemptedUpserts": 44,
+    "successfulUpserts": 44,
+    "failedUpserts": 0
+  },
+  "window": {
+    "from": null,
+    "to": null
+  }
+}

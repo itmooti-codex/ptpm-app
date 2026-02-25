@@ -29,10 +29,14 @@
       theme: {
         extend: {
           colors: {
-            brand: { DEFAULT: '#003882', light: '#e6eef7', dark: '#002a63' },
+            brand: {
+              50: '#e8f0fb', 100: '#cedef5', 200: '#9bbced', 300: '#689be5',
+              400: '#346adc', 500: '#003882', 600: '#002f6b', 700: '#002555',
+              800: '#001c3f', 900: '#00122a',
+            },
           },
-          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-          boxShadow: { card: '0 1px 3px rgba(0,0,0,.08)' },
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          boxShadow: { card: '0 10px 40px rgba(15, 23, 42, 0.05)' },
         },
       },
     };
@@ -59,6 +63,7 @@
   <!-- App Styles -->
   <link rel="stylesheet" href="../src/css/styles.css">
 
+
   <style>
     html, body, .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     html::-webkit-scrollbar, body::-webkit-scrollbar, .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -77,8 +82,8 @@
 </head>
 
 <body class="bg-slate-50 font-sans" data-page="new-inquiry">
-  <div style="background:#fff3cd;padding:6px 12px;font-size:12px;text-align:center;font-family:monospace;">
-    DEV MODE &mdash; New Inquiry &bull; <a href="./index.html" style="color:#003882;text-decoration:underline;">Dev home</a> &bull; <a href="./dashboard.html" style="color:#003882;text-decoration:underline;">Dashboard</a>
+  <div class="dev-mode-banner">
+    DEV MODE &mdash; New Inquiry &bull; <a href="./index.html">Dev home</a> &bull; <a href="./dashboard.html">Dashboard</a>
   </div>
   <!-- === BODY HTML (same as html/admin/body-new-inquiry.html) === -->
 
@@ -89,17 +94,17 @@
         <span class="text-xl font-medium">Inquiry Information</span>
       </div>
       <div class="flex items-center gap-3 text-sm font-medium flex-wrap justify-end">
-        <button id="cancel-btn" type="button" class="px-4 py-3 rounded outline outline-1 outline-white text-white text-sm font-medium">Cancel</button>
-        <button id="reset-btn" type="button" class="px-4 py-3 rounded outline outline-1 outline-white text-white text-sm font-medium inline-flex items-center gap-2">
+        <button id="cancel-btn" type="button" class="ptpm-btn ptpm-btn-secondary">Cancel</button>
+        <button id="reset-btn" type="button" class="ptpm-btn ptpm-btn-secondary inline-flex items-center gap-2">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.6667 0.855V3.772a.486.486 0 01-.486.486H8.264a.486.486 0 010-.972h1.743l-.889-.889A5.556 5.556 0 005.716.973h-.036A5.556 5.556 0 002.284 2.357a.486.486 0 01-.68-.694A6.528 6.528 0 015.716 0a6.528 6.528 0 014.092 1.71l.886.889V.855a.486.486 0 01.972 0zM9.383 9.076a5.556 5.556 0 01-3.426 1.384 5.556 5.556 0 01-3.409-1.424L1.66 8.147h1.743a.486.486 0 000-.972H.486A.486.486 0 000 7.661v2.917a.486.486 0 00.972 0V8.834l.889.889A6.528 6.528 0 005.955 11.432h.032a6.528 6.528 0 004.076-2.06.486.486 0 00-.68-.296z" fill="white"/></svg>
           Reset Form
         </button>
-        <button id="save-btn" type="button" class="px-4 py-3 rounded outline outline-1 outline-white text-white text-sm font-medium inline-flex items-center gap-2" title="Save draft to finish later">
+        <button id="save-btn" type="button" class="ptpm-btn ptpm-btn-secondary inline-flex items-center gap-2" title="Save draft to finish later">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.123 4.064L9.936 1.877a.437.437 0 00-.311-.127H2.625A.875.875 0 001.75 2.625v8.75c0 .483.392.875.875.875h8.75a.875.875 0 00.875-.875V4.375a.437.437 0 00-.127-.311zM5.25 2.625h3.5v1.75h-3.5v-1.75zm3.5 8.75h-3.5v-3.5h3.5v3.5zm.875 0v-3.5a.875.875 0 00-.875-.875h-3.5a.875.875 0 00-.875.875v3.5H2.625v-8.75h1.75v1.75c0 .483.392.875.875.875h3.5a.875.875 0 00.875-.875V2.804l1.75 1.75v6.821h-1.75z" fill="white"/></svg>
           Save draft
         </button>
-        <button id="submit-btn" type="button" class="px-4 py-3 bg-white rounded text-[#003882] text-sm font-medium inline-flex items-center gap-2" title="Submit to create inquiry and notify team">
-          <svg width="11" height="9" viewBox="0 0 11 9" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.75 4.25L3.8125 7.3125L9.9375 0.75" stroke="#003882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button id="submit-btn" type="button" class="ptpm-btn ptpm-btn-primary-on-dark inline-flex items-center gap-2" title="Submit to create inquiry and notify team">
+          <svg width="11" height="9" viewBox="0 0 11 9" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.75 4.25L3.8125 7.3125L9.9375 0.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Submit inquiry
         </button>
       </div>
@@ -178,7 +183,7 @@
               </div>
 
               <div id="contact-add-new-footer" class="hidden border-t border-slate-200 pt-3 flex justify-end">
-                <button type="button" data-contact-save data-base-label="Add New Contact" data-loading-label="Adding..." class="px-4 py-2 bg-[#003882] rounded text-white text-sm font-medium inline-flex items-center gap-2"><span data-contact-save-icon>+</span><span data-contact-save-label>Add New Contact</span></button>
+                <button type="button" data-contact-save data-base-label="Add New Contact" data-loading-label="Adding..." class="ptpm-btn ptpm-btn-primary ptpm-btn-sm inline-flex items-center gap-2"><span data-contact-save-icon>+</span><span data-contact-save-label>Add New Contact</span></button>
               </div>
             </div>
           </div>
@@ -193,7 +198,7 @@
               </div>
             </div>
             <div data-related-banner class="px-4 py-2 text-sm text-slate-500 border-b border-slate-200"><span data-related-banner-text>Select a contact to view related details.</span></div>
-            <div class="flex-1 overflow-auto" style="max-height: 400px;">
+            <div class="flex-1 scrollable-panel">
               <div data-related-panel="properties" class="space-y-2 p-3"></div>
               <div data-related-panel="jobs" class="space-y-2 p-3 hidden"></div>
               <div data-related-panel="inquiries" class="space-y-2 p-3 hidden"></div>
@@ -293,7 +298,7 @@
   <script src="../src/js/utils.js?v=4"></script>
   <script src="../src/js/vitalsync.js"></script>
   <script src="../src/js/domain.js"></script>
-  <script src="../src/js/pages/new-inquiry.js?v=5"></script>
+  <script src="../src/js/pages/new-inquiry.js?v=14"></script>
 
   <script>
   (function () {

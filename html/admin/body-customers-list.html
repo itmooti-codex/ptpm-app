@@ -1,0 +1,137 @@
+<!-- PTPM Customers List — Ontraport Body HTML Block -->
+<!-- Paste this into: Ontraport Page → HTML Block in Body -->
+
+<main class="flex flex-col space-y-6 mb-4" data-page="customers-list">
+  <!-- Header Bar -->
+  <header class="w-full px-4 sm:px-5 py-4 bg-[#003882] border-b border-gray-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white shadow-card">
+    <div class="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+      <div class="flex items-center gap-3">
+        <a id="customers-list-back" href="#" class="flex items-center gap-2 text-white hover:text-white/90" aria-label="Back">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+          <span class="text-lg font-bold">Customers List</span>
+        </a>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <button id="email-customers-btn" type="button" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+          Email Customers On List
+        </button>
+        <button id="export-mailchimp-btn" type="button" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          Export to MailChimp
+        </button>
+        <button id="export-excel-btn" type="button" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          Export to Excel
+        </button>
+        <button id="print-list-btn" type="button" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H5a2 2 0 00-2 2zm8 0H7v3h6V4z" clip-rule="evenodd"/></svg>
+          Print This List
+        </button>
+        <button id="new-customer-btn" type="button" class="ptpm-btn ptpm-btn-primary-on-dark ptpm-btn-sm inline-flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          New Customer
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex flex-col gap-4 px-2 lg:px-4 lg:flex-row">
+    <!-- Mobile filter toggle -->
+    <div class="flex items-center justify-end lg:hidden">
+      <button id="filters-toggle" type="button" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4.5A1.5 1.5 0 014.5 3h11a1.5 1.5 0 011.106 2.5L13 9.117V15.5a1.5 1.5 0 01-2.316 1.236l-2.5-1.667A1.5 1.5 0 017.5 13.75V9.117L3 5.5A1.5 1.5 0 013 4.5z" clip-rule="evenodd"/></svg>
+        Filters
+      </button>
+    </div>
+
+    <!-- Filters Sidebar -->
+    <aside id="filters-panel" class="hidden w-full lg:block lg:w-[340px] lg:shrink-0 lg:grow-0 lg:basis-[360px]">
+      <div class="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
+          <span class="font-semibold text-neutral-700">All Filters</span>
+          <div class="inline-flex items-center gap-2">
+            <button id="apply-filters-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Apply Filters</button>
+            <button id="filters-close" type="button" class="lg:hidden rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600">Close</button>
+          </div>
+        </div>
+        <div class="flex-1 space-y-0 overflow-y-auto">
+          <div class="space-y-3 border-b border-slate-200 px-3 py-4">
+            <div class="w-full"><div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg><input id="filter-account-name" type="text" placeholder="Account Name" class="flex-1 outline-none text-slate-700 placeholder:text-slate-500 text-sm bg-transparent"></div></div>
+            <div class="w-full"><div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2"><input id="filter-first-name" type="text" placeholder="First Name" class="flex-1 outline-none text-slate-700 placeholder:text-slate-500 text-sm bg-transparent"></div></div>
+            <div class="w-full"><div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2"><input id="filter-email" type="text" placeholder="Email" class="flex-1 outline-none text-slate-700 placeholder:text-slate-500 text-sm bg-transparent"></div></div>
+            <div class="w-full"><div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2"><input id="filter-account-contact" type="text" placeholder="Account Contact" class="flex-1 outline-none text-slate-700 placeholder:text-slate-500 text-sm bg-transparent"></div></div>
+            <div class="w-full"><div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg><input id="filter-address" type="text" placeholder="Address" class="flex-1 outline-none text-slate-700 placeholder:text-slate-500 text-sm bg-transparent"></div></div>
+            <button id="account-type-filter-btn" type="button" class="flex w-full items-center justify-between rounded border border-slate-200 px-4 py-2 text-left text-sm font-medium text-slate-500"><span>Account Type</span><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.21l3.71-3.98a.75.75 0 111.08 1.04l-4.25 4.56a.75.75 0 01-1.1 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg></button>
+            <div id="account-type-filter-card" class="hidden mt-2 w-full rounded border border-slate-200 bg-white shadow-xl p-2"><ul class="max-h-64 overflow-auto text-sm text-slate-700 space-y-1"></ul></div>
+            <button id="suburb-filter-btn" type="button" class="flex w-full items-center justify-between rounded border border-slate-200 px-4 py-2 text-left text-sm font-medium text-slate-500"><span>Suburb</span><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.21l3.71-3.98a.75.75 0 111.08 1.04l-4.25 4.56a.75.75 0 01-1.1 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg></button>
+            <div id="suburb-filter-card" class="hidden mt-2 w-full rounded border border-slate-200 bg-white shadow-xl p-2"><ul class="max-h-64 overflow-auto text-sm text-slate-700 space-y-1"></ul></div>
+            <button id="street-filter-btn" type="button" class="flex w-full items-center justify-between rounded border border-slate-200 px-4 py-2 text-left text-sm font-medium text-slate-500"><span>Street</span><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.21l3.71-3.98a.75.75 0 111.08 1.04l-4.25 4.56a.75.75 0 01-1.1 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg></button>
+            <div id="street-filter-card" class="hidden mt-2 w-full rounded border border-slate-200 bg-white shadow-xl p-2"><ul class="max-h-64 overflow-auto text-sm text-slate-700 space-y-1"></ul></div>
+            <button id="source-filter-btn" type="button" class="flex w-full items-center justify-between rounded border border-slate-200 px-4 py-2 text-left text-sm font-medium text-slate-500"><span>Source (How Ref)</span><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.21l3.71-3.98a.75.75 0 111.08 1.04l-4.25 4.56a.75.75 0 01-1.1 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg></button>
+            <div id="source-filter-card" class="hidden mt-2 w-full rounded border border-slate-200 bg-white shadow-xl p-2"><ul class="max-h-64 overflow-auto text-sm text-slate-700 space-y-1"></ul></div>
+          </div>
+          <div class="space-y-3 border-b border-slate-200 px-3 py-4">
+            <div class="text-sm font-medium text-slate-600">Jobs Booked Date Range</div>
+            <div class="flex gap-3">
+              <label class="min-w-0 flex-1 rounded border border-slate-200 px-4 py-2 text-sm text-slate-500 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2v2m12-2v2M4 7h16M5 5h14a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg><input id="filter-date-from" type="text" class="min-w-0 flex-1 outline-none text-slate-700 text-sm bg-transparent" placeholder="Start date"></label>
+              <label class="min-w-0 flex-1 rounded border border-slate-200 px-4 py-2 text-sm text-slate-500 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2v2m12-2v2M4 7h16M5 5h14a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg><input id="filter-date-to" type="text" class="min-w-0 flex-1 outline-none text-slate-700 text-sm bg-transparent" placeholder="End date"></label>
+            </div>
+          </div>
+          <div class="space-y-3 px-3 py-4">
+            <div class="text-sm font-medium text-slate-600">Has Email?</div>
+            <div class="flex gap-3 flex-wrap">
+              <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="has-email" value="yes" class="accent-[#003882]"><span class="text-sm text-slate-700">Yes</span></label>
+              <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="has-email" value="no" class="accent-[#003882]"><span class="text-sm text-slate-700">No</span></label>
+              <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="has-email" value="all" checked class="accent-[#003882]"><span class="text-sm text-slate-700">All</span></label>
+            </div>
+            <div class="text-sm font-medium text-slate-600 mt-3">Wants Newsletter Emailed?</div>
+            <div class="flex gap-3 flex-wrap">
+              <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="wants-newsletter" value="yes" class="accent-[#003882]"><span class="text-sm text-slate-700">Yes</span></label>
+              <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="wants-newsletter" value="no" class="accent-[#003882]"><span class="text-sm text-slate-700">No</span></label>
+              <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="wants-newsletter" value="all" checked class="accent-[#003882]"><span class="text-sm text-slate-700">All</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <aside class="flex flex-col w-full gap-4 min-w-0">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-wrap">
+<div class="relative flex-1 min-w-0 max-w-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+            <input id="search-customers" type="text" placeholder="Search by name, account # or email address..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#003882] focus:border-transparent">
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <a id="add-new-customer-link" href="#" class="ptpm-btn ptpm-btn-sm inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-0 px-4 py-2 rounded-lg font-semibold">Add New</a>
+            <button id="export-csv-btn" type="button" class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm">Export to CSV</button>
+          </div>
+          <div class="flex items-center gap-3 flex-wrap">
+          <span id="jobs-booked-badge" class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-800">Jobs Booked: <span id="jobs-booked-count">0</span></span>
+          <span id="jobs-invoiced-badge" class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-800">Jobs Invoiced: <span id="jobs-invoiced-count">0</span></span>
+          <button id="edit-columns-btn" type="button" class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm">Edit Columns</button>
+          <button id="save-view-btn" type="button" class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm">Save View As</button>
+        </div>
+      </div>
+      <div id="filter-chips-row" class="flex flex-wrap items-center gap-2">
+        <div id="filter-chips" class="flex flex-wrap items-center gap-2"></div>
+        <button id="clear-all-filters" type="button" class="text-sm font-medium text-slate-600 hover:text-[#003882] hidden">Clear All</button>
+      </div>
+      <section class="w-full flex flex-col bg-white rounded-lg border border-slate-200 shadow-card overflow-hidden">
+        <div class="flex-1 overflow-hidden border-t border-slate-200">
+          <div id="customers-table-container" class="w-full overflow-x-auto"></div>
+        </div>
+        <div class="p-3 border-t border-slate-200 flex flex-col sm:flex-row justify-center items-center gap-2 flex-wrap text-sm text-slate-600">
+          <span id="pagination-summary" class="order-2 sm:order-1">0 - 0 of 0 items</span>
+          <div class="order-1 sm:order-2 flex items-center gap-2">
+            <button id="prev-page-btn" type="button" class="ptpm-btn ptpm-btn-sm h-8 px-3 py-1 rounded border border-slate-200 text-slate-500 hover:bg-slate-50">&lt; Previous</button>
+            <div id="pagination-pages" class="flex gap-2 items-center"></div>
+            <button id="next-page-btn" type="button" class="ptpm-btn ptpm-btn-sm h-8 px-3 py-1 rounded border border-slate-200 text-slate-500 hover:bg-slate-50">Next &gt;</button>
+          </div>
+          <span id="pagination-page-of" class="order-3">Page 1 of 1</span>
+        </div>
+      </section>
+    </aside>
+  </div>
+</main>
