@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PTPM — Test Contacts API</title>
+  <script src="./mock-data.js"></script>
+  <script src="./mock-data.local.js"></script>
+  <script>
+    window.AppConfig = window.AppConfig || {};
+    Object.assign(window.AppConfig, {
+      SLUG: 'peterpm',
+      API_KEY: window.__MOCK_API_KEY__ || '',
+      DEBUG: true,
+    });
+  </script>
+  <script async data-chunk="client" src="https://static-au03.vitalstats.app/static/sdk/v1/latest.js" crossorigin="anonymous"></script>
+  <script src="../src/js/config.js"></script>
+  <script src="../src/js/vitalsync.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 1.25rem; color: #003882; }
+    .row { margin-bottom: 12px; }
+    label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
+    input[type="text"] { width: 100%; max-width: 400px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: monospace; }
+    button { padding: 10px 16px; background: #003882; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    #status { margin-top: 12px; font-size: 14px; min-height: 1.5em; }
+    #output { margin-top: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 12px; font-family: monospace; white-space: pre-wrap; word-break: break-all; max-height: 60vh; overflow: auto; }
+    .err { color: #b91c1c; }
+    .ok { color: #15803d; }
+    a { color: #003882; }
+  </style>
+</head>
+<body>
+  <h1>Test Contacts API (VitalSync)</h1>
+  <p style="color:#64748b;font-size:14px;">Call the same API the Customers List uses. Set your API key in <code>dev/mock-data.local.js</code> as <code>window.__MOCK_API_KEY__ = "your-key";</code> or paste below.</p>
+
+  <div class="row">
+    <label for="api-key">API key (optional override)</label>
+    <input type="text" id="api-key" placeholder="Leave empty to use mock-data.local.js value">
+  </div>
+  <div class="row">
+    <button type="button" id="run-test">Test Contacts API</button>
+    <a href="./customers-list.html" style="margin-left:12px;">← Customers List</a>
+  </div>
+  <div id="status"></div>
+  <pre id="output"></pre>
+
+  <script>
+    (function () {
+      var config = window.AppConfig || {};
+      var statusEl = document.getElementById('status');
+      var outputEl = document.getElementById('output');
+      var apiKeyInput = document.getElementById('api-key');
+      var runBtn = document.getElementById('run-test');
+
+      apiKeyInput.placeholder = config.API_KEY ? '(using config; override if needed)' : 'Paste API key or set in dev/mock-data.local.js';
+
+      function setStatus(msg, isErr) {
+        statusEl.textContent = msg;
+        statusEl.className = isErr ? 'err' : 'ok';
+      }
+
+      function setOutput(obj) {
+        try {
+          outputEl.textContent = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
+        } catch (e) {
+          outputEl.textContent = String(obj);
+        }
+      }
+
+      runBtn.addEventListener('click', function () {
+        var key = (apiKeyInput.value || '').trim() || (config.API_KEY && String(config.API_KEY).trim());
+        if (!key) {
+          setStatus('No API key. Set in dev/mock-data.local.js (window.__MOCK_API_KEY__) or paste above.', true);
+          setOutput({ error: 'No API key' });
+          return;
+        }
+        config.API_KEY = key;
+        setStatus('Connecting and fetching contacts…');
+        runBtn.disabled = true;
+        outputEl.textContent = '';
+
+        window.VitalSync.connect()
+          .then(function () {
+            var plugin = window.VitalSync.getPlugin();
+            if (!plugin) throw new Error('Plugin not available');
+            var model = plugin.switchTo('PeterpmContact');
+            var modelPromise = model && typeof model.then === 'function' ? model : Promise.resolve(model);
+            return modelPromise.then(function (m) {
+              if (!m || !m.query) throw new Error('Contact model not available');
+              return m.query().limit(100).noDestroy().fetchDirect().toPromise();
+            });
+          })
+          .then(function (result) {
+            console.log('Contacts API result', result);
+            var count = (result && result.resp && result.resp.length) || 0;
+            setStatus('Done. resp.length = ' + count + '. Check console for full object.');
+            setOutput(result);
+            runBtn.disabled = false;
+          })
+          .catch(function (err) {
+            console.error('Contacts API error', err);
+            setStatus('Error: ' + (err && err.message ? err.message : String(err)), true);
+            setOutput({ error: String(err), message: err && err.message });
+            runBtn.disabled = false;
+          });
+      });
+    })();
+  </script>
+</body>
+</html>

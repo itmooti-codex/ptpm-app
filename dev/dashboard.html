@@ -28,6 +28,11 @@
         QUOTE_DETAIL_URL_TEMPLATE: './job-detail.html?job={id}',
         PAYMENT_DETAIL_URL_TEMPLATE: './job-detail.html?job={id}',
         NEW_INQUIRY_URL: './new-inquiry.html',
+        CUSTOMERS_LIST_URL: './customers-list.html',
+        CUSTOMER_DETAIL_URL_TEMPLATE: './customer-detail.html?contact={id}',
+        COMPANY_DETAIL_URL_TEMPLATE: './company-detail.html?company={id}',
+        NEW_CUSTOMER_URL: './new-customer.html',
+        DASHBOARD_URL: './dashboard.html',
       });
     }
   </script>
@@ -66,9 +71,11 @@
   <!-- Flatpickr -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="../src/css/styles.css">
+  <link rel="stylesheet" href="../src/css/styles.css?v=5">
+
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,43 +84,61 @@
 </head>
 <body class="bg-slate-100 font-sans text-slate-900" data-page="dashboard">
   <!-- ========== DEV BANNER ========== -->
-  <div style="background:#fff3cd;padding:8px 16px;font-size:12px;text-align:center;font-family:monospace;">
-    DEV MODE &mdash; Dashboard &bull; <a href="./index.html" style="color:#003882;text-decoration:underline;">&larr; Back to dev home</a>
+  <div class="dev-mode-banner">
+    DEV MODE &mdash; Dashboard &bull; <a href="./index.html">&larr; Back to dev home</a>
   </div>
 
   <!-- ========== MAIN CONTENT ========== -->
-  <main class="flex flex-col space-y-6 mb-4">
+  <main class="flex flex-col space-y-4 mb-4">
 
     <!-- ─── Header Bar ─── -->
-    <header class="w-full px-4 sm:px-5 py-4 bg-[#003882] border-b border-gray-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white shadow-card">
+    <header class="dashboard-header w-full px-4 sm:px-5 py-4 bg-[#003882] border-b border-gray-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white shadow-card">
       <div class="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
         <!-- Logo / Title -->
-        <div class="flex items-center gap-3">
-          <span class="text-lg font-bold">PTPM Dashboard</span>
+        <div class="flex items-center gap-3 min-w-[208px]">
+          <div class="w-10 h-10 rounded bg-white/10 border border-white/20 flex items-center justify-center text-[12px] font-semibold">PT</div>
+          <span class="text-sm font-medium leading-[14px]">Peter the Possum &amp; Bird Man</span>
         </div>
 
         <!-- Header Actions -->
         <div class="w-full sm:w-auto flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-12">
           <!-- Global search -->
-          <div class="px-4 py-2 bg-white/10 rounded flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white/60" viewBox="0 0 20 20" fill="currentColor">
+          <div class="dashboard-search px-4 py-2 bg-white rounded border border-[#d3d7e2] flex items-center gap-2 flex-1 min-w-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white/60 shrink-0" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
             </svg>
-            <input id="global-search" type="text" placeholder="Search all records..." class="bg-transparent outline-none text-white placeholder:text-white/60 text-sm flex-1 w-48">
+            <input id="global-search" type="text" placeholder="Search all records by ID, name, email, contact or address..." class="bg-transparent outline-none text-slate-600 placeholder:text-slate-500 text-xs flex-1 min-w-0 w-full">
           </div>
 
           <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4">
+            <a id="dashboard-customers-link" href="./customers-list.html" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+              Customers
+            </a>
             <!-- Create button -->
-            <button id="create-btn" class="px-4 py-2 bg-white rounded text-[#003882] text-sm font-medium inline-flex items-center gap-2">
+            <button id="create-btn" class="ptpm-btn ptpm-btn-primary-on-dark ptpm-btn-sm inline-flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
               </svg>
               Create
             </button>
             <!-- Print -->
-            <button id="print-btn" class="px-4 py-2 rounded outline outline-1 outline-white text-white text-sm font-medium">Print</button>
+            <button id="print-btn" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm">Print</button>
             <!-- Batch Actions -->
-            <button id="batch-actions-btn" class="px-4 py-2 rounded outline outline-1 outline-white text-white text-sm font-medium">Batch Actions</button>
+            <div class="relative">
+              <button id="batch-actions-btn" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-2">
+                Batch Actions
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.21l3.71-3.98a.75.75 0 111.08 1.04l-4.25 4.56a.75.75 0 01-1.1 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
+                </svg>
+              </button>
+              <div id="batch-actions-menu" class="hidden absolute right-0 mt-2 w-64 rounded-lg border border-slate-200 bg-white shadow-xl z-50">
+                <button type="button" data-batch-action="jobs-to-check" class="w-full px-4 py-3 text-left text-slate-700 hover:bg-slate-50">Jobs To Check</button>
+                <button type="button" data-batch-action="email-list-to-serviceman" class="w-full px-4 py-3 text-left text-slate-700 hover:bg-slate-50">Email List to Serviceman</button>
+                <button type="button" data-batch-action="list-unpaid-invoices" class="w-full px-4 py-3 text-left text-slate-700 hover:bg-slate-50">List Unpaid Invoices</button>
+                <button type="button" data-batch-action="list-part-payments" class="w-full px-4 py-3 text-left text-slate-700 hover:bg-slate-50">List Part Payments</button>
+              </div>
+            </div>
           </div>
 
           <!-- Notification Bell + User -->
@@ -128,8 +153,9 @@
             <div id="notificationPopover" class="hidden absolute right-4 top-16 w-80 bg-white rounded-lg shadow-xl border border-slate-200 z-50">
             </div>
             <div class="flex items-center gap-2">
-              <div class="w-6 h-6 bg-white/20 rounded-full"></div>
-              <span class="text-sm font-medium text-white">Admin</span>
+              <div class="w-8 h-8 bg-white/20 rounded-full shrink-0"></div>
+              <span id="dashboard-user-name" class="text-sm font-medium text-white hidden sm:inline">Rita Ora</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white/90 hidden sm:inline" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4.25A2.25 2.25 0 015.25 2h5.5A2.25 2.25 0 0113 4.25v1a.75.75 0 01-1.5 0v-1a.75.75 0 00-.75-.75h-5.5a.75.75 0 00-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 00.75-.75v-1a.75.75 0 011.5 0v1A2.25 2.25 0 0110.75 18h-5.5A2.25 2.25 0 013 15.75V4.25z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M12.97 6.97a.75.75 0 011.06 0l2.5 2.5a.75.75 0 010 1.06l-2.5 2.5a.75.75 0 11-1.06-1.06l1.22-1.22H8a.75.75 0 010-1.5h6.19l-1.22-1.22a.75.75 0 010-1.06z" clip-rule="evenodd"/></svg>
             </div>
           </div>
         </div>
@@ -137,30 +163,21 @@
     </header>
 
     <!-- ─── Content Area (Sidebar + Main) ─── -->
-    <div class="flex flex-col gap-4 px-2 lg:px-4 lg:flex-row">
+    <div class="px-2 sm:px-4">
 
-      <!-- Mobile filter toggle -->
-      <div class="flex items-center justify-end lg:hidden">
-        <button id="filters-toggle" type="button" aria-controls="filters-panel" aria-expanded="false"
-          class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-600" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M3 4.5A1.5 1.5 0 014.5 3h11a1.5 1.5 0 011.106 2.5L13 9.117V15.5a1.5 1.5 0 01-2.316 1.236l-2.5-1.667A1.5 1.5 0 017.5 13.75V9.117L3 5.5A1.5 1.5 0 013 4.5z" clip-rule="evenodd"/>
-          </svg>
-          Filters
-        </button>
-      </div>
+      <div id="dashboard-content-layout" class="flex flex-col gap-4 lg:flex-row lg:items-start">
 
-      <!-- ═══ Filters Sidebar ═══ -->
-      <aside id="filters-panel" class="hidden w-full lg:block lg:w-[340px] lg:shrink-0 lg:grow-0 lg:basis-[360px]">
-        <div class="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <!-- ═══ Filters Panel (Docked Left) ═══ -->
+      <aside id="filters-panel" class="hidden w-full lg:w-[320px] lg:shrink-0">
+        <div class="dashboard-filter-panel flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <!-- Filter header -->
           <div class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
             <div class="flex items-center gap-3">
               <span class="font-semibold text-neutral-700">All Filters</span>
-              <button id="filters-close" type="button" class="lg:hidden rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600">Close</button>
+              <button id="filters-close" type="button" class="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600">Close</button>
             </div>
             <div class="inline-flex items-center gap-2">
-              <button id="apply-filters-btn" class="px-2 py-2 bg-brand-600 rounded outline outline-1 outline-[#003882] text-white text-sm font-medium">Apply Filters</button>
+              <button id="apply-filters-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Apply Filters</button>
               <button id="reset-filters-btn" class="px-2 py-2 bg-brand-600 rounded outline outline-1 outline-[#003882] text-white text-sm font-medium hidden">Reset Filters</button>
             </div>
           </div>
@@ -185,9 +202,9 @@
                 </ul>
               </div>
 
-              <!-- Service Provider filter -->
+              <!-- Taken By (Service Provider) filter -->
               <button id="service-provider-filter-btn" type="button" class="flex w-full items-center justify-between rounded border border-slate-200 px-4 py-2 text-left text-sm font-medium text-slate-500">
-                <span>Service Provider</span>
+                <span>Taken By</span>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.21l3.71-3.98a.75.75 0 111.08 1.04l-4.25 4.56a.75.75 0 01-1.1 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
               </button>
               <div id="service-provider-filter-card" class="hidden mt-2 w-full rounded border border-slate-200 bg-white shadow-xl p-2">
@@ -206,21 +223,24 @@
               <!-- Account Name text input -->
               <div class="w-full">
                 <div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2">
-                  <input id="filter-account-name" type="text" placeholder="Account Name" class="flex-1 outline-none text-slate-500 placeholder:text-slate-500 text-sm bg-transparent">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+                  <input id="filter-account-name" type="text" placeholder="Account Name" class="flex-1 outline-none text-slate-700 placeholder:text-slate-500 text-sm bg-transparent">
                 </div>
               </div>
 
               <!-- Resident Search -->
               <div class="w-full">
                 <div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2">
-                  <input id="filter-resident" type="text" placeholder="Resident Search" class="flex-1 outline-none text-slate-500 placeholder:text-slate-500 text-sm bg-transparent">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+                  <input id="filter-resident" type="text" placeholder="Resident Search" class="flex-1 outline-none text-slate-700 placeholder:text-slate-500 text-sm bg-transparent">
                 </div>
               </div>
 
               <!-- Address -->
               <div class="w-full">
                 <div class="w-full px-4 py-2 rounded outline outline-1 outline-gray-300 flex items-center gap-2">
-                  <input id="filter-address" type="text" placeholder="Address" class="flex-1 outline-none text-slate-500 placeholder:text-slate-500 text-sm bg-transparent">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+                  <input id="filter-address" type="text" placeholder="Address" class="flex-1 outline-none text-slate-700 placeholder:text-slate-500 text-sm bg-transparent">
                 </div>
               </div>
 
@@ -276,6 +296,16 @@
                   </div>
                 </label>
               </div>
+              <button id="date-filter-mode-btn" type="button" class="flex w-full items-center justify-between rounded border border-slate-200 px-4 py-2 text-left text-sm font-medium text-slate-500">
+                <span id="date-filter-mode-label">Filter by: All Dates</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.21l3.71-3.98a.75.75 0 111.08 1.04l-4.25 4.56a.75.75 0 01-1.1 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+              </button>
+              <select id="filter-all-dates" class="w-full rounded border border-slate-200 px-3 py-2 text-sm text-slate-600 bg-white">
+                <option value="">All Dates</option>
+                <option value="created">Created Date</option>
+                <option value="followup">Follow Up Date</option>
+                <option value="invoice">Invoice Date</option>
+              </select>
             </div>
 
             <!-- Payment-related filters -->
@@ -300,7 +330,15 @@
             <!-- Price range -->
             <div class="space-y-3 px-3 py-4" id="price-range-filter">
               <span class="text-sm font-medium text-slate-500">Price Range</span>
-              <div class="flex gap-3">
+              <div class="ptpm-range-wrap">
+                <input id="price-range-min-slider" type="range" min="0" max="10000" step="50" value="0" class="ptpm-range-slider">
+                <input id="price-range-max-slider" type="range" min="0" max="10000" step="50" value="10000" class="ptpm-range-slider">
+              </div>
+              <div class="flex items-center justify-between text-xs text-slate-500">
+                <span id="price-range-min-label">$0</span>
+                <span id="price-range-max-label">$10,000</span>
+              </div>
+              <div class="flex gap-3 hidden">
                 <div class="flex-1">
                   <input id="price-min" type="number" placeholder="Min" class="w-full px-3 py-2 rounded border border-slate-200 text-sm outline-none" value="">
                 </div>
@@ -318,18 +356,37 @@
 
         <!-- Calendar summary -->
         <section class="rounded-xl">
-          <div id="calendar-grid" class="flex w-full flex-wrap gap-3 overflow-x-auto rounded-lg bg-slate-100 sm:flex-nowrap sm:overflow-visible"></div>
+          <div id="calendar-grid" class="w-full overflow-x-auto rounded-lg"></div>
         </section>
 
         <!-- Tabs + Table Card -->
         <section class="w-full flex flex-col bg-white rounded-lg outline outline-1 outline-gray-300 shadow-card overflow-hidden">
           <div class="flex flex-col w-full">
             <!-- Tab navigation -->
-            <div class="px-6 py-4 border-b border-gray-300 flex justify-between items-center gap-4">
-              <div id="top-tabs" class="flex flex-wrap items-center gap-1 text-base font-medium text-neutral-700">
-                <!-- Tabs rendered by dashboard.js -->
+            <div class="px-6 py-4 border-b border-gray-300 flex flex-wrap justify-between items-center gap-3">
+              <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div id="top-tabs" class="flex flex-wrap items-center gap-1 text-base font-medium text-neutral-700">
+                  <!-- Tabs rendered by dashboard.js -->
+                </div>
+                <button id="filters-toggle" type="button" aria-controls="filters-panel" aria-expanded="false"
+                  class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-600" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 4.5A1.5 1.5 0 014.5 3h11a1.5 1.5 0 011.106 2.5L13 9.117V15.5a1.5 1.5 0 01-2.316 1.236l-2.5-1.667A1.5 1.5 0 017.5 13.75V9.117L3 5.5A1.5 1.5 0 013 4.5z" clip-rule="evenodd"/>
+                  </svg>
+                  <span id="filters-toggle-label">Show Filters</span>
+                </button>
+                <select id="dashboard-view-select" class="h-[38px] rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 shrink-0 min-w-[170px]">
+                  <option value="default">Default</option>
+                </select>
+                <button id="dashboard-edit-columns-btn" type="button" class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm shrink-0">Edit Columns</button>
+                <button id="dashboard-save-view-btn" type="button" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm shrink-0">Save View As</button>
               </div>
               <div class="flex flex-wrap items-center gap-3">
+                <div id="jobs-tab-actions" class="hidden flex flex-wrap items-center gap-2">
+                  <button id="jobs-show-active-btn" type="button" class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm">Show Active Jobs</button>
+                  <button id="jobs-print-list-btn" type="button" class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm">Print Jobs List</button>
+                  <button id="jobs-export-excel-btn" type="button" class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm">Export Excel</button>
+                </div>
                 <span id="record-count" class="text-sm text-slate-500"></span>
               </div>
             </div>
@@ -358,16 +415,48 @@
         </section>
 
       </aside>
+      </div>
     </div>
   </main>
 
+  <div id="inquiry-column-editor-overlay" class="hidden fixed inset-0 bg-black/40 z-[90] p-4 md:p-8">
+    <div class="mx-auto max-w-4xl h-full flex items-center justify-center">
+      <div class="w-full max-h-[92vh] overflow-hidden rounded-xl bg-white shadow-2xl border border-slate-200">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+          <div>
+            <h2 class="text-2xl font-semibold text-[#1c7ed6]">Column Editor</h2>
+            <p class="text-sm text-slate-600 mt-1">These fields will display left to right</p>
+          </div>
+          <button id="inquiry-column-editor-close" type="button" class="text-3xl leading-none text-slate-500 hover:text-slate-700">×</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+          <div class="border border-slate-200 rounded-lg overflow-hidden">
+            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 text-sm font-semibold text-slate-700">Selected columns</div>
+            <div id="inquiry-column-editor-list" class="max-h-[430px] overflow-y-auto"></div>
+          </div>
+          <div class="border border-slate-200 rounded-lg overflow-hidden">
+            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <span class="text-sm font-semibold text-slate-700">Add field</span>
+              <button id="inquiry-column-editor-add" type="button" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">+ Add</button>
+            </div>
+            <div id="inquiry-column-add-menu" class="max-h-[430px] overflow-y-auto"></div>
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
+          <button id="inquiry-column-editor-cancel" type="button" class="ptpm-btn ptpm-btn-light-secondary ptpm-btn-sm">Cancel</button>
+          <button id="inquiry-column-editor-save" type="button" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ========== SIMULATED ONTRAPORT FOOTER (Script loading order) ========== -->
-  <script src="../src/js/config.js?v=2"></script>
-  <script src="../src/js/utils.js?v=2"></script>
-  <script src="../src/js/vitalsync.js?v=2"></script>
-  <script src="../src/js/domain.js?v=2"></script>
-  <script src="../src/js/table.js?v=2"></script>
-  <script src="../src/js/pages/dashboard.js?v=2"></script>
+  <script src="../src/js/config.js?v=5"></script>
+  <script src="../src/js/utils.js?v=5"></script>
+  <script src="../src/js/vitalsync.js?v=5"></script>
+  <script src="../src/js/domain.js?v=5"></script>
+  <script src="../src/js/table.js?v=5"></script>
+  <script src="../src/js/pages/dashboard.js?v=5"></script>
 
   <!-- Initialize dashboard -->
   <script>
@@ -386,21 +475,6 @@
           btn.addEventListener('click', function () { card.classList.toggle('hidden'); });
         }
       });
-
-      // Mobile filter toggle
-      var filtersToggle = document.getElementById('filters-toggle');
-      var filtersPanel = document.getElementById('filters-panel');
-      var filtersClose = document.getElementById('filters-close');
-      if (filtersToggle && filtersPanel) {
-        filtersToggle.addEventListener('click', function () {
-          filtersPanel.classList.toggle('hidden');
-        });
-      }
-      if (filtersClose && filtersPanel) {
-        filtersClose.addEventListener('click', function () {
-          filtersPanel.classList.add('hidden');
-        });
-      }
 
       // Init dashboard
       if (window.PtpmDashboard) {

@@ -1,59 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PTPM | Inquiry Detail (Dev)</title>
+<!-- PTPM Inquiry Detail — Ontraport Body HTML Block -->
+<!-- Paste this into: Ontraport Page → HTML Block in Body -->
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Alpine.js -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    [x-cloak] { display: none !important; }
-    .thin-scrollbar { scrollbar-width: thin; scrollbar-color: #94a3b8 transparent; }
-    .thin-scrollbar::-webkit-scrollbar { width: 6px; }
-    .thin-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
-  </style>
-
-  <!-- App styles -->
-  <link rel="stylesheet" href="../src/css/styles.css?v=3">
-</head>
-<body class="ptpm-detail-page bg-gray-50 text-gray-900" x-data="inquiryDetail" x-cloak>
-
-  <!-- Dev mode mock data + config -->
-  <script src="mock-data.js"></script>
-  <script src="./mock-data.local.js"></script>
-  <script>
-    (function () {
-      var m = window.__ONTRAPORT_MOCK__ ? window : {};
-      window.AppConfig = {
-        SLUG: 'peterpm',
-        API_KEY: m.__MOCK_API_KEY__ || '',
-        API_BASE: 'https://peterpm.vitalstats.app',
-        CONTACT_ID: m.__MOCK_CONTACT_ID__ || '',
-        LOGGED_IN_USER_ID: m.__MOCK_LOGGED_IN_USER_ID__ || '',
-        DEBUG: true,
-        TIMEZONE: 'Australia/Brisbane',
-        JOB_DETAIL_URL_TEMPLATE: 'job-detail.html?job={id}',
-        CUSTOMER_DETAIL_URL_TEMPLATE: 'customer-detail.html?contact={id}',
-        INQUIRY_DETAIL_URL_TEMPLATE: 'inquiry-detail.html?deal={id}',
-        NEW_JOB_URL: 'job-detail.html?new=1',
-        DASHBOARD_URL: 'dashboard.html',
-        N8N_ACTION_WEBHOOK_URL: 'https://peterpm.awesomate.io/webhook/ptpm/action-dispatch/v1',
-        N8N_ACTION_CONTRACT_VERSION: 'ptpm.action.v1',
-        N8N_ACTION_WEBHOOK_TOKEN: '',
-        N8N_ACTION_WEBHOOK_TIMEOUT_MS: 20000,
-      };
-    })();
-  </script>
+<div x-data="inquiryDetail" x-cloak class="ptpm-detail-page bg-gray-50 text-gray-900 min-h-screen">
 
   <!-- Toast -->
   <template x-if="toastMessage">
@@ -80,7 +28,6 @@
       <div class="text-center max-w-md">
         <p class="text-lg font-semibold text-red-600 mb-2">Error</p>
         <p class="text-sm text-gray-600" x-text="error"></p>
-        <a href="dashboard.html" class="inline-block mt-4 px-4 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-gray-800">&larr; Back to Dashboard</a>
       </div>
     </div>
   </template>
@@ -479,13 +426,4 @@
     </div><!-- /flex col -->
   </template>
 
-  <!-- Scripts -->
-  <script src="../src/js/config.js"></script>
-  <script src="../src/js/utils.js"></script>
-  <script src="../src/js/shared/ui.js"></script>
-  <script src="../src/js/shared/panels.js"></script>
-  <script src="../src/js/shared/queries.js"></script>
-  <script src="../src/js/shared/form-modal.js"></script>
-  <script src="../src/js/inquiry-detail.js"></script>
-</body>
-</html>
+</div>

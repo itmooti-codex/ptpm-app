@@ -38,6 +38,27 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
+  <!-- App styles (buttons, etc.) -->
+  <link rel="stylesheet" href="../src/css/styles.css">
+
+  <!-- Header buttons: force real button look -->
+  <script>
+  (function(){
+    var css = [
+      'header .ptpm-btn,header button.ptpm-btn{min-height:2.5rem!important;padding:.5rem 1rem!important;border-radius:.5rem!important;font-weight:600!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:.5rem!important;border:1px solid transparent!important;box-sizing:border-box!important}',
+      'header .ptpm-btn-primary-on-dark,header button.ptpm-btn-primary-on-dark{background:#fff!important;color:#003882!important;border:1px solid rgba(0,56,130,.25)!important;box-shadow:0 1px 3px rgba(0,0,0,.12)!important}',
+      'header .ptpm-btn-primary-on-dark:hover:not(:disabled){background:#f0f5fc!important;color:#002a63!important;box-shadow:0 2px 6px rgba(0,56,130,.2)!important}',
+      'header .ptpm-btn-secondary,header button.ptpm-btn-secondary{background:transparent!important;color:#fff!important;border:2px solid rgba(255,255,255,.85)!important}',
+      'header .ptpm-btn-secondary:hover:not(:disabled){background:rgba(255,255,255,.15)!important;border-color:#fff!important}',
+      'button.ptpm-btn:active:not(:disabled){transform:scale(.98)}'
+    ].join('');
+    var el = document.createElement('style');
+    el.id = 'ptpm-button-hovers';
+    el.textContent = css;
+    document.head.appendChild(el);
+  })();
+  </script>
+
   <!-- VitalSync SDK -->
   <script src="https://static-au03.vitalstats.app/static/sdk/v1/latest.js"></script>
 </head>
@@ -59,6 +80,7 @@
   <script src="./mock-data.local.js"></script>
 
   <!-- Ontraport AppConfig bridge (dev) -->
+  <script src="./mock-data.local.js"></script>
   <script>
     (function () {
       var m = window.__ONTRAPORT_MOCK__ || false;
@@ -73,6 +95,10 @@
         CDN_BASE: '../src',
         API_BASE: 'https://peterpm.vitalstats.app',
         BRAND_COLOR: '#003882',
+        N8N_ACTION_WEBHOOK_URL: 'https://peterpm.awesomate.io/webhook/ptpm/action-dispatch/v1',
+        N8N_ACTION_CONTRACT_VERSION: 'ptpm.action.v1',
+        N8N_ACTION_WEBHOOK_TOKEN: '',
+        N8N_ACTION_WEBHOOK_TIMEOUT_MS: 20000,
       };
     })();
   </script>
@@ -86,8 +112,8 @@
         <span data-current-section-label class="ml-3 text-sm text-gray-200"></span>
       </div>
       <div class="flex items-center gap-3">
-        <button data-nav-action="cancel" class="px-4 py-2 rounded outline outline-1 outline-white text-white text-sm font-medium">Cancel</button>
-        <button data-nav-action="reset" class="px-4 py-2 rounded outline outline-1 outline-white text-white text-sm font-medium inline-flex items-center gap-2">
+        <button data-nav-action="cancel" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm">Cancel</button>
+        <button data-nav-action="reset" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-2">
           <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
           Reset
         </button>
@@ -101,6 +127,19 @@
         </button>
       </div>
     </header>
+
+    <div id="job-latest-action-banner" class="hidden px-6 py-2 bg-slate-50 border-b border-slate-200 text-xs text-slate-700">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="font-semibold">Latest Action:</span>
+        <span id="job-latest-action-status" class="inline-flex items-center px-2 py-0.5 rounded border bg-gray-100 text-gray-700 border-gray-200">processing</span>
+        <span id="job-latest-action-type" class="font-medium">—</span>
+      </div>
+      <p id="job-latest-action-message" class="text-slate-600 mt-0.5">Awaiting action updates.</p>
+      <p class="text-[11px] text-slate-400 mt-0.5">
+        Source: <span id="job-latest-action-source">—</span> &middot;
+        At: <span id="job-latest-action-at">—</span>
+      </p>
+    </div>
 
     <div class="flex flex-1">
       <!-- Sidebar -->
@@ -163,8 +202,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div class="relative" data-search-root="contact-individual">
                     <label class="block text-sm font-medium text-neutral-700 mb-1">Client</label>
-                    <input data-field="client" type="text" placeholder="Search contact..." class="w-full px-3 py-2 rounded border border-slate-300 text-sm">
+                    <input data-field="client" type="text" placeholder="Search contact..." autocomplete="off" class="w-full px-3 py-2 rounded border border-slate-300 text-sm">
                     <input data-field="client_id" type="hidden">
+                    <div class="mt-1 flex justify-end">
+                      <button id="edit-contact-btn" type="button" class="text-xs text-[#003882] hover:underline">Edit selected contact</button>
+                    </div>
                     <div data-search-results class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded shadow-lg max-h-48 overflow-y-auto z-20"></div>
                   </div>
                   <div class="relative" data-search-root="service-provider">
@@ -189,8 +231,11 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="relative" data-search-root="property">
                   <label class="block text-sm font-medium text-neutral-700 mb-1">Property</label>
-                  <input data-field="properties" type="text" placeholder="Search property..." class="w-full px-3 py-2 rounded border border-slate-300 text-sm">
+                  <input data-field="properties" type="text" placeholder="Search property..." autocomplete="off" class="w-full px-3 py-2 rounded border border-slate-300 text-sm">
                   <input data-field="property_id" type="hidden">
+                  <div class="mt-1 flex justify-end">
+                    <button id="edit-property-btn" type="button" class="text-xs text-[#003882] hover:underline">Edit selected property</button>
+                  </div>
                   <div data-search-results class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded shadow-lg max-h-48 overflow-y-auto z-20"></div>
                 </div>
                 <div>
@@ -221,7 +266,7 @@
                   <div class="relative"><label class="block text-xs text-slate-500 mb-1">Building Features</label><button id="property-building-btn" class="w-full px-3 py-2 rounded border border-slate-300 text-sm text-left text-slate-500">Select</button><div id="property-building-card" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded shadow-lg z-20 max-h-64 overflow-y-auto"><ul id="property-building-list" class="p-2 space-y-1"></ul></div></div>
                 </div>
               </div>
-              <div class="flex justify-end"><button id="submit-information-btn" class="px-6 py-2 bg-[#003882] text-white text-sm font-medium rounded">Save Job Information</button></div>
+              <div class="flex justify-end"><button id="submit-information-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Save Job Information</button></div>
             </div>
             <div data-job-section="job-section-appointment" class="hidden p-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -237,7 +282,7 @@
                 <div><label class="block text-sm font-medium text-neutral-700 mb-1">Job</label><select data-field="job_id" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></select></div>
                 <div class="md:col-span-2"><label class="block text-sm font-medium text-neutral-700 mb-1">Description</label><textarea data-field="description" rows="3" class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></textarea></div>
               </div>
-              <div class="flex justify-end mt-4"><button id="create-appointment" class="px-6 py-2 bg-[#003882] text-white text-sm font-medium rounded">Create Appointment</button></div>
+              <div class="flex justify-end mt-4"><button id="create-appointment" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Create Appointment</button></div>
             </div>
           </div>
         </div>
@@ -262,8 +307,8 @@
               <div class="col-span-2"><label class="text-neutral-700 text-sm font-medium">Note</label><textarea data-field="note" rows="2" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></textarea></div>
             </div>
             <div class="flex justify-end items-center gap-3 border-t border-slate-200 pt-3">
-              <button id="cancel-activities" class="text-slate-600 text-sm font-medium px-3 py-2">Cancel</button>
-              <button id="add-activities" class="bg-[#003882] text-white text-sm font-medium px-4 py-2 rounded">Add</button>
+              <button id="cancel-activities" class="ptpm-btn ptpm-btn-sm text-slate-600 text-sm font-medium px-3 py-2 border border-slate-300 rounded">Cancel</button>
+              <button id="add-activities" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Add</button>
             </div>
           </div>
           <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm"><div id="addActivitiesTable" class="w-full"></div></div>
@@ -284,8 +329,8 @@
               <div><label class="text-neutral-700 text-sm font-medium">Service Provider</label><div class="relative"><input type="text" placeholder="Search..." data-material-sp-search="input" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"><input type="hidden" data-field="service_provider_id"><div data-material-sp-search="results" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded shadow-lg max-h-48 overflow-y-auto z-20"></div></div></div>
             </div>
             <div class="flex justify-end items-center gap-3 border-t border-slate-200 pt-3">
-              <button id="cancel-material-btn" class="text-slate-600 text-sm font-medium px-3 py-2">Cancel</button>
-              <button id="add-material-btn" class="bg-[#003882] text-white text-sm font-medium px-4 py-2 rounded">Add</button>
+              <button id="cancel-material-btn" class="ptpm-btn ptpm-btn-sm text-slate-600 text-sm font-medium px-3 py-2 border border-slate-300 rounded">Cancel</button>
+              <button id="add-material-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Add</button>
             </div>
           </div>
           <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm"><div id="addMaterialsTable" class="w-full"></div></div>
@@ -302,7 +347,7 @@
             <input type="file" data-field="upload-file" class="hidden" multiple>
             <p class="text-center text-slate-500 text-xs">SVG, PNG, JPG or PDF</p>
             <div class="flex flex-col gap-2" data-section="images-uploads"></div>
-            <div class="flex justify-end"><button id="add-images-btn" class="bg-[#003882] text-white text-sm font-medium px-4 py-2 rounded">Save Uploads</button></div>
+            <div class="flex justify-end"><button id="add-images-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Save Uploads</button></div>
           </div>
           <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm">
             <div class="text-slate-800 text-base font-semibold mb-3">Existing Uploads</div>
@@ -335,8 +380,8 @@
       </div>
       <div><label class="block text-sm font-medium text-neutral-700 mb-1">Property Address</label><input data-field="modal-properties" type="text" placeholder="Search address..." class="w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
       <div class="flex justify-end gap-3 border-t border-slate-200 pt-4">
-        <button onclick="document.getElementById('jobAddPropertyModal').classList.add('hidden')" class="text-slate-600 text-sm font-medium px-4 py-2">Cancel</button>
-        <button id="add-property-btn" class="bg-[#003882] text-white text-sm font-medium px-4 py-2 rounded">Add Property</button>
+        <button onclick="document.getElementById('jobAddPropertyModal').classList.add('hidden')" class="ptpm-btn ptpm-btn-sm text-slate-600 border border-slate-300 rounded">Cancel</button>
+        <button id="add-property-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Add Property</button>
       </div>
     </div>
   </div>
@@ -357,6 +402,7 @@
   <script src="../src/js/config.js"></script>
   <script src="../src/js/utils.js"></script>
   <script src="../src/js/vitalsync.js"></script>
+  <script src="../src/js/shared/form-modal.js"></script>
   <script src="../src/js/pages/job-detail.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {

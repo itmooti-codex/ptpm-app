@@ -36,6 +36,7 @@
     loaderCount: { count: 0 },
     statusModal: null,
     previewModal: null,
+    latestAction: null,
   };
 
   // ── Option Data ────────────────────────────────────────────
@@ -120,12 +121,133 @@
     U.hideLoader(state.loaderEl, state.loaderCount, true);
   }
 
-  function showSuccess(msg) {
-    U.showToast(msg || 'Success', 'success');
+  function actionBadgeClass(status) {
+    var s = String(status || '').toLowerCase();
+    if (s === 'completed' || s === 'success' || s === 'ok') return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+    if (s === 'failed' || s === 'error') return 'bg-red-100 text-red-700 border-red-200';
+    if (s === 'queued' || s === 'processing' || s === 'running') return 'bg-amber-100 text-amber-800 border-amber-200';
+    return 'bg-gray-100 text-gray-700 border-gray-200';
   }
 
-  function showError(msg) {
+  function renderLatestActionBanner() {
+    var action = state.latestAction || null;
+    var banner = byId('job-latest-action-banner');
+    if (!banner) return;
+    if (!action || (!action.status && !action.message && !action.type)) {
+      banner.classList.add('hidden');
+      return;
+    }
+    banner.classList.remove('hidden');
+    var statusEl = byId('job-latest-action-status');
+    var typeEl = byId('job-latest-action-type');
+    var msgEl = byId('job-latest-action-message');
+    var srcEl = byId('job-latest-action-source');
+    var atEl = byId('job-latest-action-at');
+    if (statusEl) {
+      statusEl.className = 'inline-flex items-center px-2 py-0.5 rounded border ' + actionBadgeClass(action.status);
+      statusEl.textContent = action.status || 'processing';
+    }
+    if (typeEl) typeEl.textContent = action.type || '—';
+    if (msgEl) msgEl.textContent = action.message || 'Awaiting action updates.';
+    if (srcEl) srcEl.textContent = action.source || 'job-detail';
+    if (atEl) atEl.textContent = action.at || '—';
+  }
+
+  function setLatestAction(status, type, message, source, at) {
+    state.latestAction = {
+      status: status || 'processing',
+      type: type || 'job.action',
+      message: message || '',
+      source: source || 'job-detail',
+      at: at || (window.dayjs ? window.dayjs().format('YYYY-MM-DD HH:mm') : new Date().toISOString()),
+    };
+    renderLatestActionBanner();
+  }
+
+  function hydrateLatestActionFromRecord(record) {
+    if (!record) return;
+    var status = record.last_action_status || record.PTPM_Last_Action_Status;
+    var message = record.last_action_message || record.PTPM_Last_Action_Message;
+    var type = record.last_action_type || record.PTPM_Last_Action_Type;
+    var source = record.last_action_source || record.PTPM_Last_Action_Source;
+    var at = record.last_action_at || record.PTPM_Last_Action_At;
+    if (status || message || type || source || at) {
+      setLatestAction(status || 'processing', type || 'job.action', message || '', source || 'job-detail', at || null);
+    }
+  }
+
+  function showSuccess(msg, type) {
+    U.showToast(msg || 'Success', 'success');
+    setLatestAction('completed', type || 'job.action', msg || 'Success', 'job-detail');
+  }
+
+  function showError(msg, type) {
     U.showToast(msg || 'An error occurred.', 'error');
+    setLatestAction('failed', type || 'job.action', msg || 'An error occurred.', 'job-detail');
+  }
+
+  function newActionRequestId() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID();
+    }
+    return 'ptpm-' + Date.now() + '-' + Math.floor(Math.random() * 1000000);
+  }
+
+  function dispatchWorkflowAction(actionType, payload) {
+    var webhook = config.N8N_ACTION_WEBHOOK_URL || '';
+    var timeoutMs = Number(config.N8N_ACTION_WEBHOOK_TIMEOUT_MS || 20000);
+    var contractVersion = config.N8N_ACTION_CONTRACT_VERSION || 'ptpm.action.v1';
+    var requestId = newActionRequestId();
+    if (!webhook) return Promise.resolve({ ok: true, status: 'queued', requestId: requestId, message: 'Webhook not configured yet' });
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timer = setTimeout(function () { if (controller) controller.abort(); }, timeoutMs);
+    var headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-PTPM-Request-Id': requestId,
+      'X-PTPM-Contract-Version': contractVersion,
+    };
+    if (config.N8N_ACTION_WEBHOOK_TOKEN) headers.Authorization = 'Bearer ' + config.N8N_ACTION_WEBHOOK_TOKEN;
+    return fetch(webhook, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        requestId: requestId,
+        contractVersion: contractVersion,
+        source: 'job-detail',
+        actionType: actionType,
+        jobId: state.jobId ? Number(state.jobId) : null,
+        payload: payload || {},
+        sentAt: new Date().toISOString(),
+      }),
+      signal: controller ? controller.signal : undefined,
+    }).then(function (res) {
+      return res.json().catch(function () { return null; }).then(function (json) {
+        if (!res.ok) throw new Error((json && json.message) || ('Webhook HTTP ' + res.status));
+        return json || { ok: true, status: 'dispatched', requestId: requestId };
+      });
+    }).finally(function () { clearTimeout(timer); });
+  }
+
+  function syncWorkflowStatus(actionType, payload, queuedMessage) {
+    setLatestAction('queued', actionType, queuedMessage || 'Syncing workflow status...', 'job-detail');
+    dispatchWorkflowAction(actionType, payload || {})
+      .then(function (resp) {
+        setLatestAction(
+          (resp && resp.status) || 'completed',
+          actionType,
+          (resp && resp.message) || 'Workflow action dispatched',
+          'job-detail'
+        );
+      })
+      .catch(function (err) {
+        setLatestAction(
+          'failed',
+          actionType,
+          err && err.message ? err.message : 'Workflow action failed',
+          'job-detail'
+        );
+      });
   }
 
   function dateToUnix(val) {
@@ -348,7 +470,12 @@
     if (!jobId) return Promise.resolve(null);
     return getModel('PeterpmJob').then(function (model) {
       var q = model.query().where('id', jobId).deSelectAll()
-        .select(['id', 'unique_id', 'job_status', 'date_started', 'date_booked', 'date_job_required_by', 'payment_status', 'job_total', 'account_type', 'priority', 'invoice_total', 'invoice_number', 'xero_invoice_status', 'invoice_date', 'due_date'])
+        .select([
+          'id', 'unique_id', 'job_status', 'date_started', 'date_booked', 'date_job_required_by',
+          'payment_status', 'job_total', 'account_type', 'priority', 'invoice_total', 'invoice_number',
+          'xero_invoice_status', 'invoice_date', 'due_date',
+          'PTPM_Last_Action_Status', 'PTPM_Last_Action_Message', 'PTPM_Last_Action_Type', 'PTPM_Last_Action_At', 'PTPM_Last_Action_Source',
+        ])
         .include('Property', function (pq) { pq.deSelectAll().select(['id', 'property_name', 'address_1']); })
         .include('Client_Individual', function (cq) { cq.deSelectAll().select(['id', 'first_name', 'last_name', 'email']); })
         .include('Client_Entity', function (eq) { eq.select(['name', 'id']); })
@@ -359,6 +486,9 @@
         }).noDestroy();
       q.getOrInitQueryCalc && q.getOrInitQueryCalc();
       return q.fetchDirect().toPromise().then(unwrapOne);
+    }).then(function (job) {
+      hydrateLatestActionFromRecord(job);
+      return job;
     });
   }
 
@@ -699,7 +829,10 @@
         deleteRecord(modelName, id).then(function () {
           if (type === 'activity') return fetchActivities(state.jobId).then(renderActivitiesTable);
           else return fetchMaterials(state.jobId).then(renderMaterialsTable);
-        }).then(function () { showSuccess('Deleted successfully.'); })
+        }).then(function () {
+          showSuccess('Deleted successfully.');
+          syncWorkflowStatus('job.action', { operation: type + '-delete', recordId: id }, 'Delete completed. Syncing workflow status...');
+        })
           .catch(function (err) { console.error(err); showError('Delete failed.'); })
           .finally(stopLoading);
       });
@@ -748,14 +881,22 @@
     data.job_id = state.jobId;
     if (data.date_required) data.date_required = dateToUnix(data.date_required);
     if (data.invoice_to_client === true) data.invoice_to_client = '1';
-    startLoading(state.editingActivityId ? 'Updating activity...' : 'Adding activity...');
-    var promise = state.editingActivityId
+    var wasEditing = !!state.editingActivityId;
+    startLoading(wasEditing ? 'Updating activity...' : 'Adding activity...');
+    var promise = wasEditing
       ? updateRecord('PeterpmActivity', state.editingActivityId, data)
       : createActivity(data);
     return promise.then(function () {
       resetActivityForm();
       return fetchActivities(state.jobId).then(renderActivitiesTable);
-    }).then(function () { showSuccess(state.editingActivityId ? 'Activity updated.' : 'Activity added.'); })
+    }).then(function () {
+      showSuccess(wasEditing ? 'Activity updated.' : 'Activity added.');
+      syncWorkflowStatus(
+        'job.action',
+        { operation: wasEditing ? 'activity-update' : 'activity-add', jobId: state.jobId },
+        (wasEditing ? 'Activity updated.' : 'Activity added.') + ' Syncing workflow status...'
+      );
+    })
       .catch(function (err) { console.error(err); showError('Failed to save activity.'); })
       .finally(stopLoading);
   }
@@ -882,7 +1023,10 @@
     if (section) clearFields(section, '[data-field]');
     state.editingMaterialId = null;
     var addBtn = byId('add-material-btn');
-    if (addBtn) addBtn.textContent = 'Add';
+    if (addBtn) {
+      addBtn.textContent = 'Add';
+      addBtn.dataset.ptpmOriginalContent = 'Add';
+    }
   }
 
   function handleAddMaterial() {
@@ -890,17 +1034,30 @@
     if (!section) return Promise.resolve();
     var data = getFieldValues(section);
     if (!data.material_name) { showError('Please enter a material name.'); return Promise.resolve(); }
+    var addBtn = byId('add-material-btn');
+    if (addBtn && U.setButtonLoading) U.setButtonLoading(addBtn, true, { label: state.editingMaterialId ? 'Updating...' : 'Adding...' });
     data.job_id = state.jobId;
-    startLoading(state.editingMaterialId ? 'Updating material...' : 'Adding material...');
-    var promise = state.editingMaterialId
+    var wasEditing = !!state.editingMaterialId;
+    startLoading(wasEditing ? 'Updating material...' : 'Adding material...');
+    var promise = wasEditing
       ? updateRecord('PeterpmMaterial', state.editingMaterialId, data)
       : createRecord('PeterpmMaterial', data);
     return promise.then(function () {
       resetMaterialForm();
       return fetchMaterials(state.jobId).then(renderMaterialsTable);
-    }).then(function () { showSuccess(state.editingMaterialId ? 'Material updated.' : 'Material added.'); })
+    }).then(function () {
+      showSuccess(wasEditing ? 'Material updated.' : 'Material added.');
+      syncWorkflowStatus(
+        'job.action',
+        { operation: wasEditing ? 'material-update' : 'material-add', jobId: state.jobId },
+        (wasEditing ? 'Material updated.' : 'Material added.') + ' Syncing workflow status...'
+      );
+    })
       .catch(function (err) { console.error(err); showError('Failed to save material.'); })
-      .finally(stopLoading);
+      .finally(function () {
+        stopLoading();
+        if (addBtn && U.setButtonLoading) U.setButtonLoading(addBtn, false);
+      });
   }
 
   // ── View: Uploads Section ──────────────────────────────────
@@ -925,7 +1082,10 @@
           startLoading('Deleting...');
           deleteRecord('PeterpmUpload', id).then(function () {
             return fetchUploads(state.jobId).then(renderExistingUploads);
-          }).then(function () { showSuccess('Upload deleted.'); })
+          }).then(function () {
+            showSuccess('Upload deleted.');
+            syncWorkflowStatus('job.action', { operation: 'upload-delete', recordId: id, jobId: state.jobId }, 'Upload deleted. Syncing workflow status...');
+          })
             .catch(function () { showError('Delete failed.'); })
             .finally(stopLoading);
         },
@@ -938,6 +1098,8 @@
     var newCards = $$('[data-section="images-uploads"] [data-upload-url]');
     if (!newCards.length) { showError('Please upload at least one file.'); return; }
     if (!state.jobId) { showError('Missing job ID.'); return; }
+    var uploadBtn = byId('add-images-btn');
+    if (uploadBtn && U.setButtonLoading) U.setButtonLoading(uploadBtn, true, { label: 'Saving...' });
     startLoading('Saving uploads...');
     var promises = [];
     newCards.forEach(function (card) {
@@ -955,9 +1117,15 @@
       var listEl = $('[data-section="images-uploads"]');
       if (listEl) listEl.innerHTML = '';
       return fetchUploads(state.jobId).then(renderExistingUploads);
-    }).then(function () { showSuccess('Uploads saved.'); })
+    }).then(function () {
+      showSuccess('Uploads saved.');
+      syncWorkflowStatus('job.action', { operation: 'uploads-save', uploadedCount: promises.length, jobId: state.jobId }, 'Uploads saved. Syncing workflow status...');
+    })
       .catch(function (err) { console.error(err); showError('Upload save failed.'); })
-      .finally(stopLoading);
+      .finally(function () {
+        stopLoading();
+        if (uploadBtn && U.setButtonLoading) U.setButtonLoading(uploadBtn, false);
+      });
   }
 
   // ── View: Invoice Section ──────────────────────────────────
@@ -1010,7 +1178,10 @@
     if (data.end_time) data.end_time = dateToUnix(data.end_time);
     startLoading('Creating appointment...');
     return createRecord('PeterpmAppointment', data)
-      .then(function () { showSuccess('Appointment created.'); })
+      .then(function () {
+        showSuccess('Appointment created.');
+        syncWorkflowStatus('job.updateFutureBooking', { operation: 'appointment-create', jobId: state.jobId }, 'Appointment created. Syncing workflow status...');
+      })
       .catch(function (err) { console.error(err); showError('Appointment creation failed.'); })
       .finally(stopLoading);
   }
@@ -1112,7 +1283,7 @@
 
   function populateJobFromRecord(data) {
     if (!data) return;
-    var accountType = (data.Account_Type || '').toLowerCase();
+    var accountType = (data.account_type || data.Account_Type || '').toLowerCase();
     var initialType = accountType === 'contact' ? 'individual' : 'entity';
     var toggle = $('[data-contact-toggle="' + initialType + '"]');
     if (toggle) toggle.click();
@@ -1121,20 +1292,29 @@
       var el = $('[data-field="' + field + '"]');
       if (el) el.value = val || '';
     };
-    setProp('priority', data.Priority || data.priority);
-    setProp('job_required_by', formatDateInput(data.Date_Job_Required_By || data.date_job_required_by));
-    setProp('properties', data.Property_Property_Name || '');
-    setProp('property_id', data.Property_ID || '');
-    var spName = [data.Contact_First_Name, data.Contact_Last_Name].filter(Boolean).join(' ');
+    setProp('priority', data.priority || data.Priority);
+    setProp('job_status', data.job_status || data.Job_Status);
+    setProp('payment_status', data.payment_status || data.Payment_Status);
+    setProp('job_required_by', formatDateInput(data.date_job_required_by || data.Date_Job_Required_By));
+    setProp('properties', data.property_name || data.Property_Property_Name || '');
+    setProp('property_id', data.property_id || data.Property_ID || '');
+    setProp('serviceman_id', data.serviceman_id || data.Primary_Service_Provider_ID || '');
+    var spName = [data.serviceman_first_name || data.Contact_First_Name, data.serviceman_last_name || data.Contact_Last_Name].filter(Boolean).join(' ');
     setProp('serviceman', spName);
 
     if (accountType === 'contact') {
-      setProp('client', [data.Client_Individual_First_Name, data.Client_Individual_Last_Name].filter(Boolean).join(' '));
-      setProp('client_id', data.Client_Individual_Contact_ID || '');
+      setProp('client', [data.client_individual_first_name || data.Client_Individual_First_Name, data.client_individual_last_name || data.Client_Individual_Last_Name].filter(Boolean).join(' '));
+      setProp('client_id', data.client_individual_id || data.Client_Individual_Contact_ID || '');
     } else {
-      setProp('entity_name', data.Client_Entity_Name || '');
-      setProp('company_id', data.Client_Entity_ID || '');
+      setProp('entity_name', data.client_entity_name || data.Client_Entity_Name || '');
+      setProp('company_id', data.client_entity_id || data.Client_Entity_ID || '');
     }
+
+    // Prefill invoice fields on load for edit consistency.
+    setProp('invoice_number', data.invoice_number || data.Invoice_Number || '');
+    setProp('invoice_date', formatDateInput(data.invoice_date || data.Invoice_Date));
+    setProp('due_date', formatDateInput(data.due_date || data.Due_Date));
+    setProp('xero_invoice_status', data.xero_invoice_status || data.Xero_Invoice_Status || '');
   }
 
   // ── View: Job Information Submit ───────────────────────────
@@ -1169,9 +1349,13 @@
         var body = document.body;
         if (body && state.jobId) body.setAttribute('data-job-id', state.jobId);
       }
-      showSuccess('Job information saved.');
+      syncWorkflowStatus('job.action', { operation: 'save-job-information' }, 'Job information saved. Syncing workflow status...');
+      showSuccess('Job information saved.', 'job.action');
     }).catch(function (err) { console.error(err); showError('Failed to save job information.'); })
-      .finally(stopLoading);
+      .finally(function () {
+        stopLoading();
+        if (submitBtn && U.setButtonLoading) U.setButtonLoading(submitBtn, false);
+      });
   }
 
   // ── View: Google Places Autocomplete ───────────────────────
@@ -1355,13 +1539,16 @@
           if (key) raw[key] = (el.value || '').trim();
         });
         raw.property_name = modalSearch ? modalSearch.value : '';
+        if (!raw.property_name) {
+          showError('Please enter a property name.');
+          return;
+        }
         startLoading('Creating property...');
         createRecord('PeterpmProperty', raw).then(function (result) {
           var newId = extractId(result, 'PeterpmProperty');
           var propInput = $('[data-field="properties"]');
           var propHidden = $('[data-field="property_id"]');
-          if (propInput) propInput.value = raw.property_name;
-          if (propHidden) propHidden.value = newId;
+          setLookupValue(propInput, propHidden, newId, raw.property_name);
           return fetchProperties();
         }).then(function () { showSuccess('Property created.'); toggleModal('jobAddPropertyModal'); })
           .catch(function (err) { console.error(err); showError('Property creation failed.'); })
