@@ -41,6 +41,7 @@
     previewModal: null,
     latestAction: null,
     pluginPromise: null,
+    devReadinessWarned: false,
   };
 
   // ── Option Data ────────────────────────────────────────────
@@ -224,6 +225,16 @@
   function showError(msg, type) {
     U.showToast(msg || 'An error occurred.', 'error');
     setLatestAction('failed', type || 'job.action', msg || 'An error occurred.', 'job-detail');
+  }
+
+  function checkDevReadiness() {
+    if (config.API_KEY) return;
+    var msg = 'Dev API key missing. Set window.__MOCK_API_KEY__ in dev/mock-data.local.js before end-to-end QA.';
+    setLatestAction('failed', 'job.dev-readiness', msg, 'job-detail');
+    if (!state.devReadinessWarned) {
+      U.showToast(msg, 'error', 7000);
+      state.devReadinessWarned = true;
+    }
   }
 
   function newActionRequestId() {
@@ -1913,6 +1924,9 @@
 
     // Setup file upload for uploads section
     setupFileUpload();
+
+    // Warn early when environment setup is incomplete.
+    checkDevReadiness();
 
     // Load data in parallel
     startLoading('Loading...');
