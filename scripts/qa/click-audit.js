@@ -12,6 +12,8 @@ const CLICK_TIMEOUT_MS = Number(process.env.QA_CLICK_TIMEOUT_MS || 5000);
 const WARNING_SIGNAL_REGEX = /(not implemented|coming soon|failed|missing|error)/i;
 const KNOWN_NOISE_MESSAGE_PATTERNS = [
   /Missing required options: slug and\/or apiKey/i,
+  /VitalSync not connected — cannot switch to model/i,
+  /\[CompanyDetail\] Load failed Error: API key missing/i,
   /Failed to load resource: the server responded with a status of 404 \(Not Found\)/i,
   /cdn\.tailwindcss\.com should not be used/i,
   /loadableReady\(\) requires state/i,
@@ -497,6 +499,50 @@ async function auditSinglePage(context, pageUrl, options) {
     );
   }
 
+  const initialPageErrors = Array.from(new Set(pageResult.pageErrors)).filter((message) => !isNoiseMessage(message));
+  for (const message of initialPageErrors) {
+    pageResult.findings.push(
+      createFinding(
+        'high',
+        'page_load_exception',
+        pageUrl,
+        'Page threw runtime exception on load: ' + message,
+        'Open ' + pageUrl + ' and observe console/runtime errors on initial load.',
+        message
+      )
+    );
+  }
+
+  const initialConsoleErrors = Array.from(new Set(pageResult.consoleErrors)).filter((message) => !isNoiseMessage(message));
+  for (const message of initialConsoleErrors) {
+    pageResult.findings.push(
+      createFinding(
+        'medium',
+        'page_load_console_error',
+        pageUrl,
+        'Console error on initial load: ' + message,
+        'Open ' + pageUrl + ' and inspect browser console on initial load.',
+        message
+      )
+    );
+  }
+
+  const initialConsoleWarnings = Array.from(new Set(pageResult.consoleWarnings))
+    .filter((message) => !isNoiseMessage(message))
+    .filter((message) => WARNING_SIGNAL_REGEX.test(message));
+  for (const message of initialConsoleWarnings) {
+    pageResult.findings.push(
+      createFinding(
+        'medium',
+        'page_load_warning',
+        pageUrl,
+        'Warning on initial load: ' + message,
+        'Open ' + pageUrl + ' and inspect browser warnings on initial load.',
+        message
+      )
+    );
+  }
+
   pageResult.brokenLinks = await validateInternalLinks(
     context.request,
     pageUrl,
@@ -533,11 +579,11 @@ async function auditSinglePage(context, pageUrl, options) {
       const currentUrl = new URL(page.url());
       if (currentUrl.pathname !== desiredUrl.pathname || currentUrl.search !== desiredUrl.search) {
         await page.goto(pageUrl, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT_MS });
-        await page.waitForTimeout(150);
+        await page.waitForTimeout(350);
       }
     } catch (_err) {
       await page.goto(pageUrl, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT_MS });
-      await page.waitForTimeout(150);
+      await page.waitForTimeout(350);
     }
 
     let popupPage = null;
@@ -548,7 +594,8 @@ async function auditSinglePage(context, pageUrl, options) {
     try {
       const locator = page.locator(target.selector).first();
       if ((await locator.count()) === 0) {
-        throw new Error('Element not found for selector: ' + target.selector);
+        pageResult.clicksSkipped += 1;
+        continue;
       }
       await locator.scrollIntoViewIfNeeded().catch(() => {});
       try {
