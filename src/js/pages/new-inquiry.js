@@ -183,12 +183,13 @@
     activeContactTab: 'individual',
     selectedPropertyCard: null,
     relatedRequestId: 0,
-    entityRelatedRequestId: 0,
     plugin: null,
     models: {},
     urlPrefillApplied: false,
     contactSearchReqId: 0,
     entitySearchReqId: 0,
+    contactSearchCache: null,
+    entitySearchCache: null,
   };
 
   // ─── Model (SDK) ──────────────────────────────────────────────────────────────
@@ -237,8 +238,21 @@
       if (stream && stream.pipe && typeof window.toMainInstance === 'function') {
         stream = stream.pipe(window.toMainInstance(true));
       }
-      return stream && typeof stream.toPromise === 'function' ? stream.toPromise() : Promise.resolve(stream);
+      var queryPromise = stream && typeof stream.toPromise === 'function' ? stream.toPromise() : Promise.resolve(stream);
+      return withTimeout(queryPromise, 20000, 'Query timeout (' + modelName + ')');
     });
+  }
+
+  function withTimeout(promise, timeoutMs, label) {
+    var ms = typeof timeoutMs === 'number' && timeoutMs > 0 ? timeoutMs : 20000;
+    return Promise.race([
+      Promise.resolve(promise),
+      new Promise(function (_, reject) {
+        setTimeout(function () {
+          reject(new Error(label || ('Timed out after ' + ms + 'ms')));
+        }, ms);
+      }),
+    ]);
   }
 
   function extractRecordsFromResult(result) {
@@ -416,7 +430,10 @@
   }
 
   function getApiKeyForSearch() {
-    return (config.API_KEY && String(config.API_KEY).trim()) || (window.__MOCK_API_KEY__ && String(window.__MOCK_API_KEY__).trim()) || '';
+    return (config.API_KEY && String(config.API_KEY).trim())
+      || (window.__MOCK_API_KEY__ && String(window.__MOCK_API_KEY__).trim())
+      || (window.GRAPHQL_API_KEY && String(window.GRAPHQL_API_KEY).trim())
+      || '';
   }
 
   function gqlSearch(query, variables) {
@@ -436,13 +453,69 @@
     });
   }
 
+  function isRelatedDiagnosticsEnabled() {
+    return !!(config.DEBUG || window.__ONTRAPORT_MOCK__ || window.__NEW_INQUIRY_RELATED_DEBUG__);
+  }
+
+  function logRelatedQuery(stage, name, meta) {
+    if (!isRelatedDiagnosticsEnabled()) return;
+    var details = meta && typeof meta === 'object' ? meta : {};
+    if (stage === 'error') console.warn('[NewInquiry][RelatedQuery]', name, stage, details);
+    else console.info('[NewInquiry][RelatedQuery]', name, stage, details);
+  }
+
+  function runRelatedQuery(name, query, variables, dataKey, timeoutMs) {
+    var started = Date.now();
+    logRelatedQuery('start', name, { variables: variables || {} });
+    return withTimeout(gqlSearch(query, variables || {}), timeoutMs || 12000, 'Related query timeout (' + name + ')')
+      .then(function (data) {
+        var rows = Array.isArray(data && data[dataKey]) ? data[dataKey] : [];
+        logRelatedQuery('done', name, { durationMs: Date.now() - started, count: rows.length });
+        return rows;
+      }).catch(function (err) {
+        logRelatedQuery('error', name, { durationMs: Date.now() - started, reason: (err && err.message) || String(err || '') });
+        return [];
+      });
+  }
+
+  function buildSearchExpression(term) {
+    var normalized = String(term || '').trim();
+    if (!normalized) return '';
+    var escaped = normalized.replace(/[%_]/g, function (ch) { return '\\' + ch; });
+    return '%' + escaped + '%';
+  }
+
+  function firstNonEmptyResult(candidates) {
+    var index = 0;
+    var firstError = null;
+    var lastRows = [];
+    function runNext() {
+      if (index >= candidates.length) {
+        if (firstError) throw firstError;
+        return Promise.resolve(lastRows || []);
+      }
+      var step = candidates[index++];
+      return step().then(function (rows) {
+        lastRows = Array.isArray(rows) ? rows : [];
+        if (lastRows.length || index >= candidates.length) return lastRows;
+        return runNext();
+      }).catch(function (err) {
+        if (!firstError) firstError = err;
+        return runNext();
+      });
+    }
+    return runNext();
+  }
+
   function searchContactsRemote(term) {
-    var searchExpression = '%' + String(term || '').trim() + '%';
+    var searchExpression = buildSearchExpression(term);
     if (!searchExpression || searchExpression === '%%') return Promise.resolve([]);
-    var query = 'query calcContacts($limit: IntScalar, $offset: IntScalar, $searchExpression: String!) { calcContacts(query: [{ where: { first_name: null, _OPERATOR_: like, _VALUE_EXPRESSION_: $searchExpression } }, { orWhere: { last_name: null, _OPERATOR_: like, _VALUE_EXPRESSION_: $searchExpression } }, { orWhere: { email: null, _OPERATOR_: like, _VALUE_EXPRESSION_: $searchExpression } }], limit: $limit, offset: $offset, orderBy: [{ path: ["first_name"], type: asc }]) { Contact_ID: field(arg: ["id"]) First_Name: field(arg: ["first_name"]) Last_Name: field(arg: ["last_name"]) Email: field(arg: ["email"]) SMS_Number: field(arg: ["sms_number"]) Office_Phone: field(arg: ["office_phone"]) } }';
-    return gqlSearch(query, { limit: 25, offset: 0, searchExpression: searchExpression }).then(function (data) {
-      var rows = (data && data.calcContacts) || [];
-      return rows.map(function (row, i) {
+    var queryExpression = 'query calcContacts($limit: IntScalar, $offset: IntScalar, $searchExpression: String!) { calcContacts(query: [{ where: { first_name: null, _OPERATOR_: like, _VALUE_EXPRESSION_: $searchExpression } }, { orWhere: { last_name: null, _OPERATOR_: like, _VALUE_EXPRESSION_: $searchExpression } }, { orWhere: { email: null, _OPERATOR_: like, _VALUE_EXPRESSION_: $searchExpression } }], limit: $limit, offset: $offset, orderBy: [{ path: ["first_name"], type: asc }]) { Contact_ID: field(arg: ["id"]) First_Name: field(arg: ["first_name"]) Last_Name: field(arg: ["last_name"]) Email: field(arg: ["email"]) SMS_Number: field(arg: ["sms_number"]) Office_Phone: field(arg: ["office_phone"]) } }';
+    var queryValue = 'query calcContacts($limit: IntScalar, $offset: IntScalar, $searchExpression: String!) { calcContacts(query: [{ where: { first_name: $searchExpression, _OPERATOR_: like } }, { orWhere: { last_name: $searchExpression, _OPERATOR_: like } }, { orWhere: { email: $searchExpression, _OPERATOR_: like } }], limit: $limit, offset: $offset, orderBy: [{ path: ["first_name"], type: asc }]) { Contact_ID: field(arg: ["id"]) First_Name: field(arg: ["first_name"]) Last_Name: field(arg: ["last_name"]) Email: field(arg: ["email"]) SMS_Number: field(arg: ["sms_number"]) Office_Phone: field(arg: ["office_phone"]) } }';
+    var queryBroad = 'query calcContacts($limit: IntScalar, $offset: IntScalar) { calcContacts(limit: $limit, offset: $offset, orderBy: [{ path: ["first_name"], type: asc }]) { Contact_ID: field(arg: ["id"]) First_Name: field(arg: ["first_name"]) Last_Name: field(arg: ["last_name"]) Email: field(arg: ["email"]) SMS_Number: field(arg: ["sms_number"]) Office_Phone: field(arg: ["office_phone"]) } }';
+
+    function normalizeRows(rows) {
+      return (rows || []).map(function (row, i) {
         return formatContact({
           id: row.Contact_ID,
           first_name: row.First_Name,
@@ -452,29 +525,146 @@
           office_phone: row.Office_Phone,
         }, i);
       });
+    }
+
+    function localFilter(rows) {
+      var normalized = String(term || '').trim().toLowerCase();
+      return normalizeRows(rows).filter(function (c) {
+        return [c.label, c.meta].filter(Boolean).some(function (v) {
+          return String(v).toLowerCase().indexOf(normalized) >= 0;
+        });
+      }).slice(0, 25);
+    }
+
+    return firstNonEmptyResult([
+      function () {
+        return gqlSearch(queryExpression, { limit: 25, offset: 0, searchExpression: searchExpression }).then(function (data) {
+          return normalizeRows((data && data.calcContacts) || []);
+        });
+      },
+      function () {
+        return gqlSearch(queryValue, { limit: 25, offset: 0, searchExpression: searchExpression }).then(function (data) {
+          return normalizeRows((data && data.calcContacts) || []);
+        });
+      },
+      function () {
+        return gqlSearch(queryBroad, { limit: 1000, offset: 0 }).then(function (data) {
+          var allRows = (data && data.calcContacts) || [];
+          state.contactSearchCache = allRows;
+          return localFilter(allRows);
+        });
+      },
+    ]);
+  }
+
+  function searchContactsViaSdk(term) {
+    var normalized = String(term || '').trim().toLowerCase();
+    if (!normalized) return Promise.resolve([]);
+    if (Array.isArray(state.contactSearchCache) && state.contactSearchCache.length) {
+      return Promise.resolve(state.contactSearchCache.map(function (r, i) {
+        return formatContact({
+          id: r.Contact_ID || r.id || r.ID,
+          first_name: r.First_Name || r.first_name,
+          last_name: r.Last_Name || r.last_name,
+          email: r.Email || r.email,
+          sms_number: r.SMS_Number || r.sms_number,
+          office_phone: r.Office_Phone || r.office_phone,
+        }, i);
+      }).filter(function (c) {
+        return [c.label, c.meta].filter(Boolean).some(function (v) {
+          return String(v).toLowerCase().indexOf(normalized) >= 0;
+        });
+      }).slice(0, 25));
+    }
+    return fetchAllFromModel('contact', function (q) {
+      return q.deSelectAll()
+        .select(['id', 'first_name', 'last_name', 'email', 'sms_number', 'office_phone'])
+        .limit(1000)
+        .noDestroy();
+    }).then(function (result) {
+      var records = extractRecordsFromResult(result);
+      var rows = (Array.isArray(records) ? records : []).map(unwrapRecord).map(function (r, i) {
+        return formatContact(r, i);
+      });
+      state.contactSearchCache = (Array.isArray(records) ? records : []).map(unwrapRecord);
+      return rows.filter(function (c) {
+        return [c.label, c.meta].filter(Boolean).some(function (v) {
+          return String(v).toLowerCase().indexOf(normalized) >= 0;
+        });
+      }).slice(0, 25);
     });
   }
 
   function searchCompaniesRemote(term) {
-    var searchExpression = '%' + String(term || '').trim() + '%';
+    var searchExpression = buildSearchExpression(term);
     if (!searchExpression || searchExpression === '%%') return Promise.resolve([]);
-    var query = 'query calcCompanies($limit: IntScalar, $offset: IntScalar, $searchExpression: String!) { calcCompanies(query: [{ where: { name: null, _OPERATOR_: like, _VALUE_EXPRESSION_: $searchExpression } }], limit: $limit, offset: $offset, orderBy: [{ path: ["name"], type: asc }]) { ID: field(arg: ["id"]) Name: field(arg: ["name"]) Primary_Person_Contact_ID: field(arg: ["Primary_Person", "id"]) Primary_Person_First_Name: field(arg: ["Primary_Person", "first_name"]) Primary_Person_Last_Name: field(arg: ["Primary_Person", "last_name"]) Primary_Person_Email: field(arg: ["Primary_Person", "email"]) Primary_Person_SMS_Number: field(arg: ["Primary_Person", "sms_number"]) } }';
-    return gqlSearch(query, { limit: 25, offset: 0, searchExpression: searchExpression }).then(function (data) {
-      return ((data && data.calcCompanies) || []).map(normalizeEntityRow);
+    var queryExpression = 'query calcCompanies($limit: IntScalar, $offset: IntScalar, $searchExpression: String!) { calcCompanies(query: [{ where: { name: null, _OPERATOR_: like, _VALUE_EXPRESSION_: $searchExpression } }], limit: $limit, offset: $offset, orderBy: [{ path: ["name"], type: asc }]) { ID: field(arg: ["id"]) Name: field(arg: ["name"]) Primary_Person_Contact_ID: field(arg: ["Primary_Person", "id"]) Primary_Person_First_Name: field(arg: ["Primary_Person", "first_name"]) Primary_Person_Last_Name: field(arg: ["Primary_Person", "last_name"]) Primary_Person_Email: field(arg: ["Primary_Person", "email"]) Primary_Person_SMS_Number: field(arg: ["Primary_Person", "sms_number"]) } }';
+    var queryValue = 'query calcCompanies($limit: IntScalar, $offset: IntScalar, $searchExpression: String!) { calcCompanies(query: [{ where: { name: $searchExpression, _OPERATOR_: like } }], limit: $limit, offset: $offset, orderBy: [{ path: ["name"], type: asc }]) { ID: field(arg: ["id"]) Name: field(arg: ["name"]) Primary_Person_Contact_ID: field(arg: ["Primary_Person", "id"]) Primary_Person_First_Name: field(arg: ["Primary_Person", "first_name"]) Primary_Person_Last_Name: field(arg: ["Primary_Person", "last_name"]) Primary_Person_Email: field(arg: ["Primary_Person", "email"]) Primary_Person_SMS_Number: field(arg: ["Primary_Person", "sms_number"]) } }';
+    var queryBroad = 'query calcCompanies($limit: IntScalar, $offset: IntScalar) { calcCompanies(limit: $limit, offset: $offset, orderBy: [{ path: ["name"], type: asc }]) { ID: field(arg: ["id"]) Name: field(arg: ["name"]) Primary_Person_Contact_ID: field(arg: ["Primary_Person", "id"]) Primary_Person_First_Name: field(arg: ["Primary_Person", "first_name"]) Primary_Person_Last_Name: field(arg: ["Primary_Person", "last_name"]) Primary_Person_Email: field(arg: ["Primary_Person", "email"]) Primary_Person_SMS_Number: field(arg: ["Primary_Person", "sms_number"]) } }';
+    return firstNonEmptyResult([
+      function () {
+        return gqlSearch(queryExpression, { limit: 25, offset: 0, searchExpression: searchExpression }).then(function (data) {
+          return ((data && data.calcCompanies) || []).map(normalizeEntityRow);
+        });
+      },
+      function () {
+        return gqlSearch(queryValue, { limit: 25, offset: 0, searchExpression: searchExpression }).then(function (data) {
+          return ((data && data.calcCompanies) || []).map(normalizeEntityRow);
+        });
+      },
+      function () {
+        return gqlSearch(queryBroad, { limit: 1000, offset: 0 }).then(function (data) {
+          var rows = ((data && data.calcCompanies) || []).map(normalizeEntityRow);
+          state.entitySearchCache = rows;
+          var normalized = String(term || '').trim().toLowerCase();
+          return rows.filter(function (row) {
+            return String(row.Name || '').toLowerCase().indexOf(normalized) >= 0;
+          }).slice(0, 25);
+        });
+      },
+    ]);
+  }
+
+  function searchCompaniesViaSdk(term) {
+    var normalized = String(term || '').trim().toLowerCase();
+    if (!normalized) return Promise.resolve([]);
+    if (Array.isArray(state.entitySearchCache) && state.entitySearchCache.length) {
+      return Promise.resolve(state.entitySearchCache.filter(function (row) {
+        return String(row.Name || '').toLowerCase().indexOf(normalized) >= 0;
+      }).slice(0, 25));
+    }
+    return fetchAllFromModel('company', function (q) {
+      return q.deSelectAll()
+        .select(['id', 'name'])
+        .include('Primary_Person', function (cq) {
+          cq.deSelectAll().select(['id', 'first_name', 'last_name', 'email', 'sms_number']);
+        })
+        .limit(1000)
+        .noDestroy();
+    }).then(function (result) {
+      var records = extractRecordsFromResult(result);
+      var rows = (Array.isArray(records) ? records : []).map(unwrapRecord).map(normalizeEntityRow);
+      state.entitySearchCache = rows.slice();
+      return rows.filter(function (row) {
+        return String(row.Name || '').toLowerCase().indexOf(normalized) >= 0;
+      }).slice(0, 25);
     });
   }
 
   function normalizeEntityRow(row) {
     var source = row || {};
     var primary = source.Primary_Person || source.primary_person || {};
+    var primaryFirst = source.Primary_Person_First_Name || source.primary_person_first_name || primary.first_name || primary.First_Name || '';
+    var primaryLast = source.Primary_Person_Last_Name || source.primary_person_last_name || primary.last_name || primary.Last_Name || '';
     return {
       ID: source.ID || source.id || '',
       Name: source.Name || source.name || '',
       Primary_Person_Contact_ID: source.Primary_Person_Contact_ID || source.primary_person_contact_id || primary.id || primary.ID || '',
-      Primary_Person_First_Name: source.Primary_Person_First_Name || source.primary_person_first_name || primary.first_name || primary.First_Name || '',
-      Primary_Person_Last_Name: source.Primary_Person_Last_Name || source.primary_person_last_name || primary.last_name || primary.Last_Name || '',
+      Primary_Person_First_Name: primaryFirst,
+      Primary_Person_Last_Name: primaryLast,
       Primary_Person_Email: source.Primary_Person_Email || source.primary_person_email || primary.email || primary.Email || '',
       Primary_Person_SMS_Number: source.Primary_Person_SMS_Number || source.primary_person_sms_number || primary.sms_number || primary.SMS_Number || '',
+      Primary_Person_Label: [primaryFirst, primaryLast].filter(Boolean).join(' ').trim(),
     };
   }
 
@@ -500,128 +690,221 @@
 
   function fetchPropertiesByContactId(contactId) {
     if (!contactId) return Promise.resolve([]);
-    return fetchAllFromModel('affiliation', function (q) {
-      return q.deSelectAll()
-        .select(['id', 'contact_id', 'property_id'])
-        .where({ Contact_ID: contactId })
-        .include('Property', function (pq) {
-          pq.deSelectAll().select(['id', 'property_name', 'address_1', 'address_2', 'suburb_town', 'state', 'postal_code']);
-        })
-        .limit(200)
-        .noDestroy();
-    }).then(function (r) {
-      var rows = extractRecordsFromResult(r).map(unwrapRecord);
-      var props = rows.map(function (row) { return row.Property || row.property || null; }).filter(Boolean).map(unwrapRecord);
-      return uniqueById(props);
-    }).catch(function () { return []; });
+    var query = [
+      'query calcAffiliations($contact_id: PeterpmContactID!, $limit: IntScalar, $offset: IntScalar) {',
+      '  calcAffiliations(query: [{ where: { contact_id: $contact_id } }], limit: $limit, offset: $offset) {',
+      '    affiliation_id: field(arg: ["id"])',
+      '    id: field(arg: ["Property", "id"])',
+      '    property_name: field(arg: ["Property", "property_name"])',
+      '    address_1: field(arg: ["Property", "address_1"])',
+      '    address_2: field(arg: ["Property", "address_2"])',
+      '    suburb_town: field(arg: ["Property", "suburb_town"])',
+      '    state: field(arg: ["Property", "state"])',
+      '    postal_code: field(arg: ["Property", "postal_code"])',
+      '  }',
+      '}',
+    ].join('\n');
+    return runRelatedQuery('propertiesByContact', query, { contact_id: /^\d+$/.test(String(contactId)) ? parseInt(String(contactId), 10) : contactId, limit: 300, offset: 0 }, 'calcAffiliations')
+      .then(function (rows) {
+        return uniqueById((rows || []).filter(function (row) { return row && row.id; }));
+      });
+  }
+
+  function resolveCompanyPrimaryContactId(companyId) {
+    if (!companyId) return Promise.resolve('');
+    var query = [
+      'query calcCompanies($id: PeterpmCompanyID!) {',
+      '  calcCompanies(query: [{ where: { id: $id } }], limit: 1, offset: 0) {',
+      '    id: field(arg: ["id"])',
+      '    primary_contact_id: field(arg: ["Primary_Person", "id"])',
+      '  }',
+      '}',
+    ].join('\n');
+    return runRelatedQuery('resolveCompanyPrimaryContact', query, { id: /^\d+$/.test(String(companyId)) ? parseInt(String(companyId), 10) : companyId }, 'calcCompanies')
+      .then(function (rows) {
+        var row = rows && rows[0] ? rows[0] : null;
+        return (row && row.primary_contact_id) || '';
+      });
+  }
+
+  function fetchPropertiesByCompanyId(companyId) {
+    if (!companyId) return Promise.resolve([]);
+    return resolveCompanyPrimaryContactId(companyId).then(function (primaryContactId) {
+      if (!primaryContactId) return [];
+      return fetchPropertiesByContactId(primaryContactId);
+    }).catch(function () {
+      return [];
+    });
+  }
+
+  function mapJobRelatedRow(row) {
+    return {
+      id: row.id,
+      unique_id: row.unique_id || row.id || '',
+      created_at: row.created_at || '',
+      status: row.job_status || row.status || '',
+      provider_name: [row.provider_first_name, row.provider_last_name].filter(Boolean).join(' ').trim(),
+      property_name: row.property_name || '',
+      property_id: row.property_id || '',
+    };
   }
 
   function fetchJobsByContactId(contactId) {
     if (!contactId) return Promise.resolve([]);
-    return fetchAllFromModel('job', function (q) {
-      return q.deSelectAll()
-        .select(['id', 'unique_id', 'status', 'created_at', 'date_completed'])
-        .where({ client_individual_id: contactId })
-        .include('Primary_Service_Provider', function (spq) {
-          spq.deSelectAll().select(['id']).include('Contact_Information', function (cq) {
-            cq.deSelectAll().select(['first_name', 'last_name']);
-          });
-        })
-        .include('Property', function (pq) {
-          pq.deSelectAll().select(['property_name']);
-        })
-        .limit(200)
-        .noDestroy();
-    }).then(function (r) {
-      return extractRecordsFromResult(r).map(unwrapRecord).map(function (row) {
-        var provider = row.Primary_Service_Provider || row.primary_service_provider || {};
-        var contact = provider.Contact_Information || provider.contact_information || {};
-        var providerName = [contact.first_name || contact.First_Name, contact.last_name || contact.Last_Name].filter(Boolean).join(' ').trim();
-        var property = row.Property || row.property || {};
-        return Object.assign({}, row, {
-          provider_name: providerName,
-          property_name: row.property_name || row.Property_Property_Name || property.property_name || property.Property_Name || '',
-        });
-      });
-    }).catch(function () { return []; });
+    var query = [
+      'query calcJobs($contact_id: PeterpmContactID!, $limit: IntScalar, $offset: IntScalar) {',
+      '  calcJobs(query: [{ where: { client_individual_id: $contact_id } }], limit: $limit, offset: $offset, orderBy: [{ path: ["created_at"], type: desc }]) {',
+      '    id: field(arg: ["id"])',
+      '    unique_id: field(arg: ["unique_id"])',
+      '    created_at: field(arg: ["created_at"])',
+      '    job_status: field(arg: ["job_status"])',
+      '    property_id: field(arg: ["property_id"])',
+      '    provider_first_name: field(arg: ["Primary_Service_Provider", "Contact_Information", "first_name"])',
+      '    provider_last_name: field(arg: ["Primary_Service_Provider", "Contact_Information", "last_name"])',
+      '    property_name: field(arg: ["Property", "property_name"])',
+      '  }',
+      '}',
+    ].join('\n');
+    return runRelatedQuery('jobsByContact', query, { contact_id: /^\d+$/.test(String(contactId)) ? parseInt(String(contactId), 10) : contactId, limit: 300, offset: 0 }, 'calcJobs')
+      .then(function (rows) { return uniqueById((rows || []).map(mapJobRelatedRow)); });
   }
 
   function fetchJobsByCompanyId(companyId) {
     if (!companyId) return Promise.resolve([]);
-    return fetchAllFromModel('job', function (q) {
-      return q.deSelectAll()
-        .select(['id', 'unique_id', 'status', 'created_at', 'date_completed'])
-        .where({ client_entity_id: companyId })
-        .include('Primary_Service_Provider', function (spq) {
-          spq.deSelectAll().select(['id']).include('Contact_Information', function (cq) {
-            cq.deSelectAll().select(['first_name', 'last_name']);
-          });
-        })
-        .include('Property', function (pq) {
-          pq.deSelectAll().select(['property_name']);
-        })
-        .limit(200)
-        .noDestroy();
-    }).then(function (r) {
-      return extractRecordsFromResult(r).map(unwrapRecord).map(function (row) {
-        var provider = row.Primary_Service_Provider || row.primary_service_provider || {};
-        var contact = provider.Contact_Information || provider.contact_information || {};
-        var providerName = [contact.first_name || contact.First_Name, contact.last_name || contact.Last_Name].filter(Boolean).join(' ').trim();
-        var property = row.Property || row.property || {};
-        return Object.assign({}, row, {
-          provider_name: providerName,
-          property_name: row.property_name || row.Property_Property_Name || property.property_name || property.Property_Name || '',
-        });
-      });
-    }).catch(function () { return []; });
+    var query = [
+      'query calcJobs($company_id: PeterpmCompanyID!, $limit: IntScalar, $offset: IntScalar) {',
+      '  calcJobs(query: [{ where: { client_entity_id: $company_id } }], limit: $limit, offset: $offset, orderBy: [{ path: ["created_at"], type: desc }]) {',
+      '    id: field(arg: ["id"])',
+      '    unique_id: field(arg: ["unique_id"])',
+      '    created_at: field(arg: ["created_at"])',
+      '    job_status: field(arg: ["job_status"])',
+      '    property_id: field(arg: ["property_id"])',
+      '    provider_first_name: field(arg: ["Primary_Service_Provider", "Contact_Information", "first_name"])',
+      '    provider_last_name: field(arg: ["Primary_Service_Provider", "Contact_Information", "last_name"])',
+      '    property_name: field(arg: ["Property", "property_name"])',
+      '  }',
+      '}',
+    ].join('\n');
+    return runRelatedQuery('jobsByCompany', query, { company_id: /^\d+$/.test(String(companyId)) ? parseInt(String(companyId), 10) : companyId, limit: 300, offset: 0 }, 'calcJobs')
+      .then(function (rows) { return uniqueById((rows || []).map(mapJobRelatedRow)); });
+  }
+
+  function mapInquiryRelatedRow(row) {
+    return {
+      id: row.id,
+      unique_id: row.unique_id || row.id || '',
+      created_at: row.created_at || '',
+      status: row.inquiry_status || row.status || '',
+      service_name: row.service_name || row.service_type || '',
+      property_id: row.property_id || '',
+    };
   }
 
   function fetchInquiriesByContactId(contactId) {
     if (!contactId) return Promise.resolve([]);
-    return fetchAllFromModel('deal', function (q) {
-      return q.deSelectAll()
-        .select(['id', 'unique_id', 'inquiry_status', 'service_type', 'created_at'])
-        .where({ primary_contact_id: contactId })
-        .limit(200)
-        .noDestroy();
-    }).then(function (r) {
-      return extractRecordsFromResult(r).map(unwrapRecord).map(function (row) {
-        return Object.assign({}, row, {
-          status: row.status || row.inquiry_status || row.Inquiry_Status || '',
-          service_name: row.service_name || row.service_type || row.Service_Type || '',
-        });
-      });
-    }).catch(function () { return []; });
+    var query = [
+      'query calcDeals($contact_id: PeterpmContactID!, $limit: IntScalar, $offset: IntScalar) {',
+      '  calcDeals(query: [{ where: { primary_contact_id: $contact_id } }], limit: $limit, offset: $offset, orderBy: [{ path: ["created_at"], type: desc }]) {',
+      '    id: field(arg: ["id"])',
+      '    unique_id: field(arg: ["unique_id"])',
+      '    created_at: field(arg: ["created_at"])',
+      '    inquiry_status: field(arg: ["inquiry_status"])',
+      '    property_id: field(arg: ["property_id"])',
+      '    service_type: field(arg: ["service_type"])',
+      '    service_name: field(arg: ["Service_Inquiry", "service_name"])',
+      '  }',
+      '}',
+    ].join('\n');
+    return runRelatedQuery('inquiriesByContact', query, { contact_id: /^\d+$/.test(String(contactId)) ? parseInt(String(contactId), 10) : contactId, limit: 300, offset: 0 }, 'calcDeals')
+      .then(function (rows) { return uniqueById((rows || []).map(mapInquiryRelatedRow)); });
   }
 
   function fetchInquiriesByCompanyId(companyId) {
     if (!companyId) return Promise.resolve([]);
-    return fetchAllFromModel('deal', function (q) {
-      return q.deSelectAll()
-        .select(['id', 'unique_id', 'inquiry_status', 'service_type', 'created_at'])
-        .where({ company_id: companyId })
-        .limit(200)
-        .noDestroy();
-    }).then(function (r) {
-      return extractRecordsFromResult(r).map(unwrapRecord).map(function (row) {
-        return Object.assign({}, row, {
-          status: row.status || row.inquiry_status || row.Inquiry_Status || '',
-          service_name: row.service_name || row.service_type || row.Service_Type || '',
-        });
+    var query = [
+      'query calcDeals($company_id: PeterpmCompanyID!, $limit: IntScalar, $offset: IntScalar) {',
+      '  calcDeals(query: [{ where: { company_id: $company_id } }], limit: $limit, offset: $offset, orderBy: [{ path: ["created_at"], type: desc }]) {',
+      '    id: field(arg: ["id"])',
+      '    unique_id: field(arg: ["unique_id"])',
+      '    created_at: field(arg: ["created_at"])',
+      '    inquiry_status: field(arg: ["inquiry_status"])',
+      '    property_id: field(arg: ["property_id"])',
+      '    service_type: field(arg: ["service_type"])',
+      '    service_name: field(arg: ["Service_Inquiry", "service_name"])',
+      '  }',
+      '}',
+    ].join('\n');
+    return runRelatedQuery('inquiriesByCompany', query, { company_id: /^\d+$/.test(String(companyId)) ? parseInt(String(companyId), 10) : companyId, limit: 300, offset: 0 }, 'calcDeals')
+      .then(function (rows) { return uniqueById((rows || []).map(mapInquiryRelatedRow)); });
+  }
+
+  function fetchPropertiesByIds(propertyIds) {
+    var ids = uniqueById((propertyIds || []).map(function (id) { return { id: id }; })).map(function (row) { return row.id; });
+    if (!ids.length) return Promise.resolve([]);
+    return Promise.all(ids.map(function (id) {
+      return fetchPropertyById(id).then(function (result) {
+        var list = result && result.resp ? result.resp : [];
+        return Array.isArray(list) ? list : [];
+      }).catch(function () { return []; });
+    })).then(function (chunks) {
+      var merged = [];
+      (chunks || []).forEach(function (rows) {
+        (rows || []).forEach(function (row) { merged.push(row); });
       });
-    }).catch(function () { return []; });
+      return uniqueById(merged);
+    }).catch(function () {
+      return [];
+    });
   }
 
   function fetchRelated(context) {
     var contactId = context && context.contactId;
     var companyId = context && context.companyId;
     if (!contactId && !companyId) return Promise.resolve({ properties: [], jobs: [], inquiries: [] });
-    return Promise.all([
-      fetchPropertiesByContactId(contactId),
-      Promise.all([fetchJobsByContactId(contactId), fetchJobsByCompanyId(companyId)]).then(function (r) { return uniqueById((r[0] || []).concat(r[1] || [])); }),
-      Promise.all([fetchInquiriesByContactId(contactId), fetchInquiriesByCompanyId(companyId)]).then(function (r) { return uniqueById((r[0] || []).concat(r[1] || [])); }),
-    ]).then(function (results) {
-      return { properties: results[0], jobs: results[1], inquiries: results[2] };
+    function safeArray(promise) {
+      return Promise.resolve(promise).then(function (rows) {
+        return Array.isArray(rows) ? rows : [];
+      }).catch(function () {
+        return [];
+      });
+    }
+    return withTimeout(Promise.all([
+      Promise.all([
+        safeArray(fetchPropertiesByContactId(contactId)),
+        safeArray(fetchPropertiesByCompanyId(companyId)),
+      ]).then(function (r) { return uniqueById((r[0] || []).concat(r[1] || [])); }),
+      Promise.all([
+        safeArray(fetchJobsByContactId(contactId)),
+        safeArray(fetchJobsByCompanyId(companyId)),
+      ]).then(function (r) { return uniqueById((r[0] || []).concat(r[1] || [])); }),
+      Promise.all([
+        safeArray(fetchInquiriesByContactId(contactId)),
+        safeArray(fetchInquiriesByCompanyId(companyId)),
+      ]).then(function (r) { return uniqueById((r[0] || []).concat(r[1] || [])); }),
+    ]), 16000, 'Related data timeout').then(function (results) {
+      var properties = results[0] || [];
+      var jobs = results[1] || [];
+      var inquiries = results[2] || [];
+      if (properties.length) {
+        return { properties: properties, jobs: jobs, inquiries: inquiries };
+      }
+      var fallbackPropertyIds = uniqueById((jobs || []).concat(inquiries || []).map(function (row) {
+        return { id: row && row.property_id };
+      }).filter(function (row) { return row && row.id; })).map(function (row) { return row.id; });
+      if (!fallbackPropertyIds.length) {
+        return { properties: properties, jobs: jobs, inquiries: inquiries };
+      }
+      return fetchPropertiesByIds(fallbackPropertyIds).then(function (fallbackProperties) {
+        return {
+          properties: uniqueById((properties || []).concat(fallbackProperties || [])),
+          jobs: jobs,
+          inquiries: inquiries,
+        };
+      }).catch(function () {
+        return { properties: properties, jobs: jobs, inquiries: inquiries };
+      });
+    }).catch(function () {
+      return { properties: [], jobs: [], inquiries: [] };
     });
   }
 
@@ -873,8 +1156,17 @@
       var reqId = ++state.contactSearchReqId;
       renderContactList(term, [], { message: 'Searching contacts...' });
       searchContactsRemote(term).then(function (rows) {
+        return { rows: rows || [], usedFallback: false, sourceUnavailable: false };
+      }).catch(function () {
+        return searchContactsViaSdk(term).then(function (rows) {
+          return { rows: rows || [], usedFallback: true, sourceUnavailable: false };
+        }).catch(function () {
+          return { rows: [], usedFallback: true, sourceUnavailable: true };
+        });
+      }).then(function (result) {
         if (state.contactSearchReqId !== reqId) return;
-        state.filteredContacts = rows || [];
+        var rows = result.rows || [];
+        state.filteredContacts = rows;
         if (!state.filteredContacts.length) {
           var fallback = state.contacts.filter(function (c) {
             return [c.label, c.meta].filter(Boolean).some(function (v) {
@@ -882,21 +1174,15 @@
             });
           });
           renderContactList(term, fallback, {
-            message: fallback.length ? '' : 'No contacts found. Try a different name or email.',
+            message: fallback.length
+              ? ''
+              : (result.sourceUnavailable
+                ? 'Contact lookup unavailable right now. Please verify API key/permissions.'
+                : (result.usedFallback ? 'No contacts found in available data source.' : 'No contacts found. Try a different name or email.')),
           });
           return;
         }
         renderContactList(term, state.filteredContacts);
-      }).catch(function () {
-        if (state.contactSearchReqId !== reqId) return;
-        var fallback = state.contacts.filter(function (c) {
-          return [c.label, c.meta].filter(Boolean).some(function (v) {
-            return String(v).toLowerCase().indexOf(term.toLowerCase()) >= 0;
-          });
-        });
-        renderContactList(term, fallback, {
-          message: fallback.length ? '' : 'Search unavailable right now. You can keep typing or add manually.',
-        });
       });
     }
 
@@ -1221,6 +1507,14 @@
             selectPropertyFromRelated(article.id, article);
           });
         });
+      } else {
+        panel.querySelectorAll('article[data-related-open-url]').forEach(function (article) {
+          article.addEventListener('click', function (e) {
+            if (e.target && e.target.closest && e.target.closest('[data-related-open-link]')) return;
+            var url = article.getAttribute('data-related-open-url');
+            if (url) window.location.href = url;
+          });
+        });
       }
     });
 
@@ -1253,7 +1547,13 @@
   function loadRelatedData(context) {
     var contactId = context && context.contactId;
     var companyId = context && context.companyId;
-    if (!contactId && !companyId) { state.relatedData = { properties: [], jobs: [], inquiries: [] }; updateRelatedUI(); return; }
+    if (!contactId && !companyId) {
+      state.relatedHasContact = false;
+      state.relatedLoading = false;
+      state.relatedData = { properties: [], jobs: [], inquiries: [] };
+      updateRelatedUI();
+      return;
+    }
     var reqId = ++state.relatedRequestId;
     showRelatedLoading();
     fetchRelated({ contactId: contactId, companyId: companyId }).then(function (data) {
@@ -1262,6 +1562,12 @@
     }).catch(function () {
       if (state.relatedRequestId !== reqId) return;
       renderRelatedData({ properties: [], jobs: [], inquiries: [] });
+    }).finally(function () {
+      if (state.relatedRequestId !== reqId) return;
+      if (state.relatedLoading) {
+        state.relatedLoading = false;
+        updateRelatedUI();
+      }
     });
   }
 
@@ -1285,25 +1591,45 @@
     '</article>';
   }
 
+  function appendReturnTo(url) {
+    if (!url) return '';
+    var current = encodeURIComponent(window.location.pathname + window.location.search);
+    return url + (url.indexOf('?') >= 0 ? '&' : '?') + 'returnTo=' + current;
+  }
+
+  function buildDetailUrl(template, id) {
+    if (!template || !id) return '';
+    var base = String(template).replace(/\{id\}/g, String(id));
+    return appendReturnTo(base);
+  }
+
   function renderJobCard(item) {
-    return '<article class="rounded border border-slate-200 p-3">' +
+    var href = buildDetailUrl(config.JOB_DETAIL_URL_TEMPLATE, item.id);
+    return '<article class="rounded border border-slate-200 p-3 ' + (href ? 'cursor-pointer hover:bg-blue-50 transition' : '') + '"' + (href ? ' data-related-open-url="' + escapeHtml(href) + '"' : '') + '>' +
       '<div class="flex items-start justify-between gap-3"><div class="space-y-1">' +
         '<p class="text-sm font-semibold text-sky-900">#' + escapeHtml(item.unique_id || item.id) + '</p>' +
         '<p class="text-xs text-slate-500">Created: ' + formatDate(item.created_at) + '</p>' +
         '<p class="text-xs text-slate-500">' + escapeHtml(item.provider_name || '') + '</p>' +
       '</div>' +
+      '<div class="flex items-center gap-2">' +
+      (href ? '<a href="' + escapeHtml(href) + '" class="text-xs text-blue-700 font-medium" data-related-open-link>Open</a>' : '') +
       '<span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">' + escapeHtml(item.status || '') + '</span>' +
+      '</div>' +
       '</div></article>';
   }
 
   function renderInquiryCard(item) {
-    return '<article class="rounded border border-slate-200 p-3">' +
+    var href = buildDetailUrl(config.INQUIRY_DETAIL_URL_TEMPLATE, item.id);
+    return '<article class="rounded border border-slate-200 p-3 ' + (href ? 'cursor-pointer hover:bg-blue-50 transition' : '') + '"' + (href ? ' data-related-open-url="' + escapeHtml(href) + '"' : '') + '>' +
       '<div class="flex items-start justify-between gap-3"><div class="space-y-1">' +
         '<p class="text-sm font-semibold text-sky-900">#' + escapeHtml(item.unique_id || item.id) + '</p>' +
         '<p class="text-xs text-slate-500">' + escapeHtml(item.service_name || '') + '</p>' +
         '<p class="text-xs text-slate-500">Created: ' + formatDate(item.created_at) + '</p>' +
       '</div>' +
+      '<div class="flex items-center gap-2">' +
+      (href ? '<a href="' + escapeHtml(href) + '" class="text-xs text-blue-700 font-medium" data-related-open-link>Open</a>' : '') +
       '<span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">' + escapeHtml(item.status || '') + '</span>' +
+      '</div>' +
       '</div></article>';
   }
 
@@ -1812,7 +2138,10 @@
           var btn = document.createElement('button');
           btn.type = 'button';
           btn.className = 'w-full px-4 py-3 text-left text-sm hover:bg-slate-50';
-          btn.innerHTML = '<p class="font-medium text-slate-700">' + escapeHtml(p.Name || p.name) + '</p>';
+          var companyName = p.Name || p.name || 'Unnamed Company';
+          var primaryContact = [p.Primary_Person_First_Name, p.Primary_Person_Last_Name].filter(Boolean).join(' ').trim();
+          btn.innerHTML = '<p class="font-medium text-slate-700">' + escapeHtml(companyName) + '</p>'
+            + (primaryContact ? ('<p class="text-xs text-slate-500 mt-0.5">Primary: ' + escapeHtml(primaryContact) + '</p>') : '');
           btn.addEventListener('mousedown', function (e) {
             e.preventDefault();
             applyEntitySelection(p, input);
@@ -1847,17 +2176,26 @@
       var reqId = ++state.entitySearchReqId;
       render([], 'Searching entities...');
       searchCompaniesRemote(term).then(function (rows) {
+        return { rows: rows || [], usedFallback: false, sourceUnavailable: false };
+      }).catch(function () {
+        return searchCompaniesViaSdk(term).then(function (rows) {
+          return { rows: rows || [], usedFallback: true, sourceUnavailable: false };
+        }).catch(function () {
+          return { rows: [], usedFallback: true, sourceUnavailable: true };
+        });
+      }).then(function (result) {
         if (state.entitySearchReqId !== reqId) return;
+        var rows = result.rows || [];
         if (!rows.length) {
           var fallback = fallbackSearch(term);
-          render(fallback, fallback.length ? '' : 'No entities found. Try another company name.');
+          render(fallback, fallback.length
+            ? ''
+            : (result.sourceUnavailable
+              ? 'Entity lookup unavailable right now. Please verify API key/permissions.'
+              : (result.usedFallback ? 'No entities found in available data source.' : 'No entities found. Try another company name.')));
           return;
         }
         render(rows);
-      }).catch(function () {
-        if (state.entitySearchReqId !== reqId) return;
-        var fallback = fallbackSearch(term);
-        render(fallback, fallback.length ? '' : 'Search unavailable right now. Try again in a moment.');
       });
     }
 
@@ -1888,10 +2226,11 @@
   function applyEntitySelection(entity, inputEl) {
     if (!entity) return;
     var normalizedEntity = normalizeEntityRow(entity);
+    var primaryContactName = normalizedEntity.Primary_Person_Label || [normalizedEntity.Primary_Person_First_Name, normalizedEntity.Primary_Person_Last_Name].filter(Boolean).join(' ').trim();
     state.companyId = normalizedEntity.ID || '';
     state.entityContactId = normalizedEntity.Primary_Person_Contact_ID || '';
     state.contactId = state.entityContactId || null;
-    if (inputEl) inputEl.value = normalizedEntity.Name || '';
+    if (inputEl) inputEl.value = primaryContactName || normalizedEntity.Name || '';
     var entityInput = $q('[data-contact-field="entity-id"]');
     if (entityInput) entityInput.value = state.companyId;
 
@@ -1899,6 +2238,7 @@
     if (section) {
       var contactIdInput = section.querySelector('[data-contact-field="contact_id"]');
       if (contactIdInput) contactIdInput.value = state.entityContactId || '';
+      setEntityField(section, 'company_name', normalizedEntity.Name || '');
       setEntityField(section, 'first_name', normalizedEntity.Primary_Person_First_Name);
       setEntityField(section, 'last_name', normalizedEntity.Primary_Person_Last_Name);
       setEntityField(section, 'email', normalizedEntity.Primary_Person_Email);
@@ -1908,12 +2248,8 @@
     var viewBtn = $('view-contact-detail');
     if (viewBtn) viewBtn.classList.remove('hidden');
 
-    var reqId = ++state.entityRelatedRequestId;
     showRelatedLoading();
-    fetchRelated({ contactId: state.entityContactId, companyId: state.companyId }).then(function (data) {
-      if (state.entityRelatedRequestId !== reqId) return;
-      renderRelatedData(data);
-    });
+    loadRelatedData({ contactId: state.entityContactId, companyId: state.companyId });
   }
 
   function prefillFromUrlParams() {

@@ -1905,6 +1905,23 @@
       state.jobId = (params.get('job') || params.get('quote') || params.get('payment') || '').toString().trim();
     }
 
+    // Existing jobs should open in the redesigned detail experience.
+    // Keep this wizard route for explicit new-flow create journeys only (?new=1&inquiry=<id>).
+    if (state.jobId && !state.isNewFlow) {
+      var target = 'inquiry-detail.html?job=' + encodeURIComponent(state.jobId);
+      var inquiryTpl = String(config.INQUIRY_DETAIL_URL_TEMPLATE || '').trim();
+      if (inquiryTpl) {
+        target = inquiryTpl.replace(/\{id\}/g, encodeURIComponent(state.jobId));
+        target = target
+          .replace(/[?&](?:deal|inquiry|id)=\{id\}/g, '')
+          .replace(/[?&](?:deal|inquiry|id)=[^&]*/g, '')
+          .replace(/[?&]$/, '');
+        target += (target.indexOf('?') >= 0 ? '&' : '?') + 'job=' + encodeURIComponent(state.jobId);
+      }
+      window.location.replace(target);
+      return;
+    }
+
     // Init loader and modal
     state.loaderEl = U.initOperationLoader();
     state.loaderMsgEl = state.loaderEl && state.loaderEl.querySelector('[data-loader-message]');

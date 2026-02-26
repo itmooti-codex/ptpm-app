@@ -4754,7 +4754,10 @@ document.addEventListener("alpine:init", () => {
         if (!task.id) throw new Error("Missing task ID for update.");
         await graphqlRequest(UPDATE_TASK_MUTATION, {
           id: task.id,
-          payload: { status: "completed" },
+          payload: {
+            status: "Completed",
+            date_complete: Math.floor(Date.now() / 1000),
+          },
         });
         task.status = "completed";
         this.toast("success", "Task marked as complete.");
@@ -4778,7 +4781,10 @@ document.addEventListener("alpine:init", () => {
         if (!task.id) throw new Error("Missing task ID for update.");
         await graphqlRequest(UPDATE_TASK_MUTATION, {
           id: task.id,
-          payload: { status: "open" },
+          payload: {
+            status: "Open",
+            date_complete: null,
+          },
         });
         task.status = "open";
         this.toast("success", "Task reopened.");

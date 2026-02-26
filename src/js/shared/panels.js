@@ -15,6 +15,16 @@
   var field = function (l, v, o) { return UI().field(l, v, o); };
   var tagPill = function (l) { return UI().tagPill(l); };
 
+  function fmtMemoDate(v) {
+    if (v == null || v === '') return '';
+    if (typeof v === 'string') {
+      var s = v.trim();
+      // Backend occasionally returns literal minute token ":mm".
+      if (s) return s.replace(/:mm\b/i, ':00');
+    }
+    return fmtDate(v);
+  }
+
   // ── Memos (ForumPost + ForumComment) ─────────────────────────────────────
 
   function memos(posts, opts) {
@@ -45,7 +55,7 @@
     var bgCls = isAdmin ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600';
     var roleBadge = isAdmin ? badge('Admin') : badge('SP');
     var content = m.post_copy || m.comment || '';
-    var date = fmtDate(m.created_at || m.Date_Added);
+    var date = fmtMemoDate(m.created_at || m.Date_Added);
 
     return '<div class="flex gap-3' + (isReply ? ' pl-6' : '') + '">' +
       '<div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ' + bgCls + '">' + esc(initial) + '</div>' +
@@ -92,11 +102,16 @@
       var due = t.date_due || t.Date_Due || '';
       var completed = t.date_complete || '';
 
+      var taskId = esc(t.id || t.ID);
+      var actionHtml = isDone
+        ? '<button data-panel-action="task-reopen" data-task-id="' + taskId + '" class="inline-flex items-center px-2 py-1 text-xs font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md">Reopen</button>'
+        : '<button data-panel-action="task-complete" data-task-id="' + taskId + '" class="inline-flex items-center px-2 py-1 text-xs font-medium bg-emerald-600 border border-emerald-600 text-white hover:bg-emerald-700 rounded-md">Complete</button>';
+
       html += '<div class="flex items-start gap-3 p-3 rounded-lg border ' +
         (isDone ? 'border-gray-100 bg-white' : 'border-blue-200 bg-blue-50/50') + '">' +
-        '<div class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 cursor-pointer ' +
-        (isDone ? 'border-emerald-400 bg-emerald-100 text-emerald-600' : 'border-gray-300') + '" data-panel-action="task-toggle" data-task-id="' + esc(t.id || t.ID) + '">' +
-        (isDone ? '<span class="text-xs">&check;</span>' : '') +
+        '<div class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ' +
+        (isDone ? 'border-emerald-400 bg-emerald-100 text-emerald-600' : 'border-gray-300 bg-white text-transparent') + '">' +
+        '<span class="text-xs">&check;</span>' +
         '</div>' +
         '<div class="flex-1 min-w-0">' +
           '<p class="text-xs font-semibold ' + (isDone ? 'text-gray-400 line-through' : 'text-gray-800') + '">' + esc(subject) + '</p>' +
@@ -107,7 +122,10 @@
             (completed ? '<span class="text-emerald-600">Done: ' + esc(fmtDate(completed)) + '</span>' : '') +
           '</div>' +
         '</div>' +
-        badge(s) +
+        '<div class="flex flex-col items-end gap-2">' +
+          badge(s) +
+          actionHtml +
+        '</div>' +
         '</div>';
     });
 

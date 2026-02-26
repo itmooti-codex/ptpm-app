@@ -14,6 +14,17 @@ Full task management system with hub view, contact-scoped tasks, DataGrid Pro wi
 - **Outcomes:** Logged to local MySQL `task_outcomes_log` table
 - **Two views:** TaskHub (mobile-friendly grouped list) + ContactTasksContent (desktop DataGrid + Kanban)
 
+### Completion UX Contract (Web Apps)
+
+- **No single-click completion:** clicking complete must open a modal/sheet.
+- **Completion payload must include:**
+  - `taskId` (required)
+  - `notes` (completion notes sent as part of complete action)
+  - `outcomeId` (saved TaskOutcome option when available)
+- **Transport in this app:** client sends `task.complete` to existing action webhook (`N8N_ACTION_WEBHOOK_URL`), and webhook handler executes Ontraport task-complete semantics.
+- **Source-of-truth refresh:** after complete/reopen, reload tasks from GraphQL (`calcTasks`) instead of relying only on optimistic local mutation.
+- **Outcome fallback:** if TaskOutcome options fail to load, allow notes-only completion and show a non-blocking warning.
+
 ```
 VitalSync Task model ──── calcTasks query ──→ useTaskData hook
                                                 ├─ TaskHub (mobile: time-bucketed groups)
@@ -250,6 +261,7 @@ localStorage.setItem(`taskGrid_${contactId}_sort`, JSON.stringify(sortModel));
 
 - **`calcTasks` with `field()` syntax is required** — `getTasks` causes "Request abandoned" errors when selecting FK fields like `Contact_id`.
 - **Ontraport outcome prefix:** Outcome values require `:=` prefix (e.g., `data: { outcome: ':=Connected' }`).
+- **Completion notes belong to the completion action** — do not treat them as unrelated field edits if your API supports notes on complete.
 - **Action APIs trigger automations** — completing a task in Ontraport may fire sequences, campaigns, emails.
 - **Two query types:** Actions (complete/cancel/reopen) go through Ontraport API. Field updates (subject, details) go through VitalSync SDK mutation.
 - **Optimistic updates** — update local state immediately, revert on API failure.

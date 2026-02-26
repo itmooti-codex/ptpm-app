@@ -30,6 +30,10 @@
       { name: 'details', label: 'Details', type: 'textarea' },
       { name: 'date_due', label: 'Due Date', type: 'date' },
     ],
+    taskComplete: [
+      { name: 'outcome_id', label: 'Task Outcome', type: 'select', options: [] },
+      { name: 'completion_notes', label: 'Completion Notes', type: 'textarea' },
+    ],
     note: [
       { name: 'note', label: 'Note', type: 'textarea', required: true },
     ],
@@ -300,6 +304,29 @@
 
   // ── Value Collection ──────────────────────────────────────────────────────
 
+  function toEpochFallback(value) {
+    if (value == null) return null;
+    var raw = String(value).trim();
+    if (!raw) return null;
+    if (/^\d{10}$/.test(raw)) return Number(raw);
+    if (/^\d{13}$/.test(raw)) return Math.floor(Number(raw) / 1000);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+      var d1 = new Date(raw + 'T00:00:00');
+      return isNaN(d1.getTime()) ? null : Math.floor(d1.getTime() / 1000);
+    }
+    var d2 = new Date(raw);
+    return isNaN(d2.getTime()) ? null : Math.floor(d2.getTime() / 1000);
+  }
+
+  function toEpochSafe(value) {
+    if (!value) return null;
+    if (Utils && typeof Utils.toEpoch === 'function') {
+      var ts = Utils.toEpoch(value);
+      if (ts != null && ts !== '' && !isNaN(Number(ts))) return Number(ts);
+    }
+    return toEpochFallback(value);
+  }
+
   function collectData() {
     var data = {};
     for (var i = 0; i < _fields.length; i++) {
@@ -320,7 +347,7 @@
           data[f.name] = el.value !== '' ? parseFloat(el.value) : null;
           break;
         case 'date':
-          data[f.name] = el.value ? (Utils.toEpoch ? Utils.toEpoch(el.value) : el.value) : null;
+          data[f.name] = el.value ? toEpochSafe(el.value) : null;
           break;
         default:
           data[f.name] = el.value.trim() || null;

@@ -19,6 +19,10 @@
       ACCOUNT_TYPE: window.__MOCK_ACCOUNT_TYPE__ || '',
       DEBUG: true,
       DASHBOARD_URL: './dashboard.html',
+      INQUIRY_DETAIL_URL_TEMPLATE: './inquiry-detail.html?inquiry={id}',
+      JOB_DETAIL_URL_TEMPLATE: './job-detail.html?job={id}',
+      QUOTE_DETAIL_URL_TEMPLATE: './job-detail.html?job={id}',
+      PAYMENT_DETAIL_URL_TEMPLATE: './job-detail.html?job={id}',
     };
   </script>
 
@@ -157,9 +161,9 @@
 
               <!-- Entity Section -->
               <div class="space-y-4 hidden" data-contact-section="entity">
-                <div><label class="block text-neutral-700 text-sm font-medium">Entity</label>
+                <div><label class="block text-neutral-700 text-sm font-medium">Primary Contact</label>
                   <div class="relative" data-search-root="contact-entity">
-                    <input type="text" placeholder="Search entity" class="mt-2 w-full px-2.5 py-2 bg-white rounded outline outline-1 outline-gray-300 text-slate-700 text-sm placeholder:text-slate-500" data-search-input autocomplete="off">
+                    <input type="text" placeholder="Search entity/company" class="mt-2 w-full px-2.5 py-2 bg-white rounded outline outline-1 outline-gray-300 text-slate-700 text-sm placeholder:text-slate-500" data-search-input autocomplete="off">
                     <div data-search-panel class="hidden absolute z-10 mt-1 left-0 right-0 bg-white rounded-lg border border-slate-200 shadow-lg max-h-72 overflow-hidden">
                       <ul data-search-results class="max-h-52 overflow-auto"></ul>
                       <div data-search-footer class="border-t border-slate-200"></div>
@@ -206,8 +210,8 @@
           </div>
         </div>
 
-        <!-- MIDDLE COLUMN: Property Information -->
-        <div id="property-information" data-field-group="property_section" class="min-w-[460px] flex flex-col flex-1 gap-4">
+        <!-- RIGHT COLUMN (Desktop): Property Information -->
+        <div id="property-information" data-field-group="property_section" class="min-w-[460px] flex flex-col flex-1 gap-4 lg:order-3">
           <div class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm p-4 gap-4">
             <div class="flex items-center justify-between">
               <h3 class="text-neutral-700 text-base font-bold">Property Information</h3>
@@ -258,8 +262,8 @@
           </div>
         </div>
 
-        <!-- RIGHT COLUMN: Inquiry Details + Resident Feedback -->
-        <div class="min-w-0 lg:min-w-[420px] flex flex-col flex-1 gap-4">
+        <!-- MIDDLE COLUMN (Desktop): Inquiry Details + Resident Feedback -->
+        <div class="min-w-0 lg:min-w-[420px] flex flex-col flex-1 gap-4 lg:order-2">
           <div id="inquiry-detail" data-inquiry-id="inquiry-detail" data-field-group="inquiry_section" class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm p-4 gap-4">
             <h3 class="text-neutral-700 text-base font-bold">Inquiry Details</h3>
             <div data-field-group="inquiry_source_field"><label class="text-sm font-medium text-slate-600">Inquiry Source</label><select id="inquiry-source" data-inquiry-id="inquiry-source" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select></div>
