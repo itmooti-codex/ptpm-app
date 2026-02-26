@@ -577,7 +577,7 @@
 
   function requestUploadDetails(file, folderName) {
     if (!config.API_KEY) {
-      throw new Error('Missing API key. Set AppConfig.API_KEY (or dev mock API key) before uploading files.');
+      return Promise.reject(new Error('Missing API key. Set AppConfig.API_KEY (or dev mock API key) before uploading files.'));
     }
     var safeFolder = sanitizeFolderName(folderName || '');
     var name = (safeFolder ? safeFolder + '/' : '') + ((file && file.name) || 'upload');

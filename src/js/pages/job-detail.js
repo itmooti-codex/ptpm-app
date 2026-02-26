@@ -1747,16 +1747,21 @@
     Array.from(files).forEach(function (file) {
       if (!/^(image\/|application\/pdf)/.test(file.type)) return;
       startLoading('Uploading ' + file.name + '...');
-      U.uploadAndGetFileLink(file, 'uploads').then(function (url) {
-        var card = U.buildUploadCard({ url: url, name: file.name, type: file.type }, {
-          onView: function () { state.previewModal.show({ src: url, name: file.name, type: file.type }); },
-          onDelete: function () { card.remove(); },
-        });
-        card.setAttribute('data-upload-url', url);
-        card.setAttribute('data-file-name', file.name);
-        card.setAttribute('file-type', file.type);
-        listEl.appendChild(card);
-      }).catch(function (err) { console.error(err); showError('Upload failed: ' + file.name); })
+      Promise.resolve()
+        .then(function () {
+          return U.uploadAndGetFileLink(file, 'uploads');
+        })
+        .then(function (url) {
+          var card = U.buildUploadCard({ url: url, name: file.name, type: file.type }, {
+            onView: function () { state.previewModal.show({ src: url, name: file.name, type: file.type }); },
+            onDelete: function () { card.remove(); },
+          });
+          card.setAttribute('data-upload-url', url);
+          card.setAttribute('data-file-name', file.name);
+          card.setAttribute('file-type', file.type);
+          listEl.appendChild(card);
+        })
+        .catch(function (err) { console.error(err); showError('Upload failed: ' + file.name); })
         .finally(stopLoading);
     });
   }
