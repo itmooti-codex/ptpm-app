@@ -187,6 +187,8 @@
     plugin: null,
     models: {},
     urlPrefillApplied: false,
+    contactSearchReqId: 0,
+    entitySearchReqId: 0,
   };
 
   // ─── Model (SDK) ──────────────────────────────────────────────────────────────
@@ -411,6 +413,69 @@
         return rows && rows[0] ? rows[0] : null;
       })
       .catch(function () { return null; });
+  }
+
+  function getApiKeyForSearch() {
+    return (config.API_KEY && String(config.API_KEY).trim()) || (window.__MOCK_API_KEY__ && String(window.__MOCK_API_KEY__).trim()) || '';
+  }
+
+  function gqlSearch(query, variables) {
+    var apiKey = getApiKeyForSearch();
+    if (!apiKey) return Promise.reject(new Error('Missing API key'));
+    var endpoint = (config.API_BASE || 'https://' + (config.SLUG || 'peterpm') + '.vitalstats.app') + '/api/v1/graphql';
+    return fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Api-Key': apiKey },
+      body: JSON.stringify({ query: query, variables: variables || {} }),
+    }).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    }).then(function (json) {
+      if (json.errors && json.errors.length) throw new Error(json.errors[0].message || 'GraphQL error');
+      return json.data || {};
+    });
+  }
+
+  function searchContactsRemote(term) {
+    var searchExpression = '%' + String(term || '').trim() + '%';
+    if (!searchExpression || searchExpression === '%%') return Promise.resolve([]);
+    var query = 'query calcContacts($limit: IntScalar, $offset: IntScalar, $searchExpression: String!) { calcContacts(query: [{ where: { first_name: null, _OPERATOR_: like, _VALUE_EXPRESSION_: $searchExpression } }, { orWhere: { last_name: null, _OPERATOR_: like, _VALUE_EXPRESSION_: $searchExpression } }, { orWhere: { email: null, _OPERATOR_: like, _VALUE_EXPRESSION_: $searchExpression } }], limit: $limit, offset: $offset, orderBy: [{ path: ["first_name"], type: asc }]) { Contact_ID: field(arg: ["id"]) First_Name: field(arg: ["first_name"]) Last_Name: field(arg: ["last_name"]) Email: field(arg: ["email"]) SMS_Number: field(arg: ["sms_number"]) Office_Phone: field(arg: ["office_phone"]) } }';
+    return gqlSearch(query, { limit: 25, offset: 0, searchExpression: searchExpression }).then(function (data) {
+      var rows = (data && data.calcContacts) || [];
+      return rows.map(function (row, i) {
+        return formatContact({
+          id: row.Contact_ID,
+          first_name: row.First_Name,
+          last_name: row.Last_Name,
+          email: row.Email,
+          sms_number: row.SMS_Number,
+          office_phone: row.Office_Phone,
+        }, i);
+      });
+    });
+  }
+
+  function searchCompaniesRemote(term) {
+    var searchExpression = '%' + String(term || '').trim() + '%';
+    if (!searchExpression || searchExpression === '%%') return Promise.resolve([]);
+    var query = 'query calcCompanies($limit: IntScalar, $offset: IntScalar, $searchExpression: String!) { calcCompanies(query: [{ where: { name: null, _OPERATOR_: like, _VALUE_EXPRESSION_: $searchExpression } }], limit: $limit, offset: $offset, orderBy: [{ path: ["name"], type: asc }]) { ID: field(arg: ["id"]) Name: field(arg: ["name"]) Primary_Person_Contact_ID: field(arg: ["Primary_Person", "id"]) Primary_Person_First_Name: field(arg: ["Primary_Person", "first_name"]) Primary_Person_Last_Name: field(arg: ["Primary_Person", "last_name"]) Primary_Person_Email: field(arg: ["Primary_Person", "email"]) Primary_Person_SMS_Number: field(arg: ["Primary_Person", "sms_number"]) } }';
+    return gqlSearch(query, { limit: 25, offset: 0, searchExpression: searchExpression }).then(function (data) {
+      return ((data && data.calcCompanies) || []).map(normalizeEntityRow);
+    });
+  }
+
+  function normalizeEntityRow(row) {
+    var source = row || {};
+    var primary = source.Primary_Person || source.primary_person || {};
+    return {
+      ID: source.ID || source.id || '',
+      Name: source.Name || source.name || '',
+      Primary_Person_Contact_ID: source.Primary_Person_Contact_ID || source.primary_person_contact_id || primary.id || primary.ID || '',
+      Primary_Person_First_Name: source.Primary_Person_First_Name || source.primary_person_first_name || primary.first_name || primary.First_Name || '',
+      Primary_Person_Last_Name: source.Primary_Person_Last_Name || source.primary_person_last_name || primary.last_name || primary.Last_Name || '',
+      Primary_Person_Email: source.Primary_Person_Email || source.primary_person_email || primary.email || primary.Email || '',
+      Primary_Person_SMS_Number: source.Primary_Person_SMS_Number || source.primary_person_sms_number || primary.sms_number || primary.SMS_Number || '',
+    };
   }
 
   function fetchCompanyById(id) {
@@ -724,22 +789,35 @@
 
   // ─── View: Contact Search ─────────────────────────────────────────────────────
 
-  function renderContactList(query) {
+  function renderContactList(query, itemsOverride, options) {
     var root = $q('[data-search-root="contact-individual"]');
     if (!root) return;
     var results = root.querySelector('[data-search-results]');
     var empty = root.querySelector('[data-search-empty]');
     if (!results) return;
+    options = options || {};
 
-    var term = (query || '').trim().toLowerCase();
-    var items = term
-      ? state.contacts.filter(function (c) {
-          return [c.label, c.meta].filter(Boolean).some(function (v) { return v.toLowerCase().indexOf(term) >= 0; });
-        })
-      : state.contacts.slice();
+    var items = [];
+    if (Array.isArray(itemsOverride)) {
+      items = itemsOverride.slice();
+    } else {
+      var term = (query || '').trim().toLowerCase();
+      items = term
+        ? state.contacts.filter(function (c) {
+            return [c.label, c.meta].filter(Boolean).some(function (v) { return v.toLowerCase().indexOf(term) >= 0; });
+          })
+        : state.contacts.slice();
+    }
 
     state.filteredContacts = items;
     results.innerHTML = '';
+
+    if (options.message) {
+      results.classList.remove('hidden');
+      if (empty) empty.classList.add('hidden');
+      results.innerHTML = '<div class="px-4 py-6 text-sm text-slate-500 text-center">' + escapeHtml(options.message) + '</div>';
+      return;
+    }
 
     if (!items.length) {
       results.classList.add('hidden');
@@ -778,14 +856,68 @@
     var results = root.querySelector('[data-search-results]');
     var addBtn = root.querySelector('[data-search-add]');
 
+    var timer = null;
+
+    function runSearch(rawTerm, immediate) {
+      var term = String(rawTerm || '').trim();
+      if (panel) panel.classList.remove('hidden');
+      if (!term) {
+        renderContactList('', state.contacts.slice(0, 10), { message: 'Start typing to search contacts across the database.' });
+        return;
+      }
+      if (!immediate && term.length < 2) {
+        renderContactList(term, [], { message: 'Type at least 2 characters to search.' });
+        return;
+      }
+
+      var reqId = ++state.contactSearchReqId;
+      renderContactList(term, [], { message: 'Searching contacts...' });
+      searchContactsRemote(term).then(function (rows) {
+        if (state.contactSearchReqId !== reqId) return;
+        state.filteredContacts = rows || [];
+        if (!state.filteredContacts.length) {
+          var fallback = state.contacts.filter(function (c) {
+            return [c.label, c.meta].filter(Boolean).some(function (v) {
+              return String(v).toLowerCase().indexOf(term.toLowerCase()) >= 0;
+            });
+          });
+          renderContactList(term, fallback, {
+            message: fallback.length ? '' : 'No contacts found. Try a different name or email.',
+          });
+          return;
+        }
+        renderContactList(term, state.filteredContacts);
+      }).catch(function () {
+        if (state.contactSearchReqId !== reqId) return;
+        var fallback = state.contacts.filter(function (c) {
+          return [c.label, c.meta].filter(Boolean).some(function (v) {
+            return String(v).toLowerCase().indexOf(term.toLowerCase()) >= 0;
+          });
+        });
+        renderContactList(term, fallback, {
+          message: fallback.length ? '' : 'Search unavailable right now. You can keep typing or add manually.',
+        });
+      });
+    }
+
     if (input) {
       input.addEventListener('focus', function () {
         if (panel) panel.classList.remove('hidden');
-        renderContactList(input.value);
+        runSearch(input.value, false);
       });
       input.addEventListener('input', function (e) {
-        renderContactList(e.target.value);
+        if (timer) window.clearTimeout(timer);
+        var value = e.target.value;
+        timer = window.setTimeout(function () {
+          runSearch(value, false);
+        }, 220);
         if (panel) panel.classList.remove('hidden');
+      });
+      input.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        if (timer) window.clearTimeout(timer);
+        runSearch(input.value, true);
       });
     }
 
@@ -821,6 +953,7 @@
     if (!contact) return;
     state.contactId = contact.id;
     state.companyId = null;
+    state.entityContactId = null;
     populateContactFields(contact);
     clearPropertyFields();
     showRelatedLoading();
@@ -1657,24 +1790,21 @@
   function createEntityList(entities) {
     var root = $q('[data-search-root="contact-entity"]');
     if (!root) return;
+    root.__entityFallbackRows = Array.isArray(entities) ? entities.slice() : [];
     var input = root.querySelector('[data-search-input]');
     var panel = root.querySelector('[data-search-panel]');
     var results = root.querySelector('[data-search-results]');
     if (!input || !panel || !results) return;
+    if (root.__entitySearchBound) return;
+    root.__entitySearchBound = true;
 
-    function filter(q) {
-      var term = (q || '').trim().toLowerCase();
-      if (!term) return entities;
-      return entities.filter(function (p) {
-        var name = String(p.Name || p.name || '').toLowerCase();
-        return name.indexOf(term) >= 0;
-      });
-    }
+    var timer = null;
 
-    function render(q) {
-      var list = filter(q);
+    function render(list, message) {
       results.innerHTML = '';
-      if (!list || !list.length) {
+      if (message) {
+        results.innerHTML = '<div class="px-4 py-6 text-sm text-slate-500 text-center">' + escapeHtml(message) + '</div>';
+      } else if (!list || !list.length) {
         results.innerHTML = '<div class="px-4 py-6 text-sm text-slate-500 text-center">No matching entities.</div>';
       } else {
         list.forEach(function (p) {
@@ -1695,8 +1825,56 @@
       panel.classList.remove('hidden');
     }
 
-    input.addEventListener('input', function (e) { render(e.target.value); });
-    input.addEventListener('focus', function () { render(input.value); });
+    function fallbackSearch(term) {
+      var normalized = String(term || '').toLowerCase();
+      return (root.__entityFallbackRows || []).map(normalizeEntityRow).filter(function (p) {
+        var name = String((p && p.Name) || '').toLowerCase();
+        return name.indexOf(normalized) >= 0;
+      });
+    }
+
+    function runEntitySearch(rawTerm, immediate) {
+      var term = String(rawTerm || '').trim();
+      if (!term) {
+        render((root.__entityFallbackRows || []).slice(0, 10), 'Start typing to search entities across the database.');
+        return;
+      }
+      if (!immediate && term.length < 2) {
+        render([], 'Type at least 2 characters to search.');
+        return;
+      }
+
+      var reqId = ++state.entitySearchReqId;
+      render([], 'Searching entities...');
+      searchCompaniesRemote(term).then(function (rows) {
+        if (state.entitySearchReqId !== reqId) return;
+        if (!rows.length) {
+          var fallback = fallbackSearch(term);
+          render(fallback, fallback.length ? '' : 'No entities found. Try another company name.');
+          return;
+        }
+        render(rows);
+      }).catch(function () {
+        if (state.entitySearchReqId !== reqId) return;
+        var fallback = fallbackSearch(term);
+        render(fallback, fallback.length ? '' : 'Search unavailable right now. Try again in a moment.');
+      });
+    }
+
+    input.addEventListener('input', function (e) {
+      if (timer) window.clearTimeout(timer);
+      var value = e.target.value;
+      timer = window.setTimeout(function () {
+        runEntitySearch(value, false);
+      }, 220);
+    });
+    input.addEventListener('focus', function () { runEntitySearch(input.value, false); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      if (timer) window.clearTimeout(timer);
+      runEntitySearch(input.value, true);
+    });
     document.addEventListener('click', function (e) {
       if (!root.contains(e.target)) panel.classList.add('hidden');
     });
@@ -1709,9 +1887,11 @@
 
   function applyEntitySelection(entity, inputEl) {
     if (!entity) return;
-    state.companyId = entity.ID || entity.id || '';
-    state.entityContactId = entity.Primary_Person_Contact_ID || entity.primary_person_contact_id || '';
-    if (inputEl) inputEl.value = entity.Name || entity.name || '';
+    var normalizedEntity = normalizeEntityRow(entity);
+    state.companyId = normalizedEntity.ID || '';
+    state.entityContactId = normalizedEntity.Primary_Person_Contact_ID || '';
+    state.contactId = state.entityContactId || null;
+    if (inputEl) inputEl.value = normalizedEntity.Name || '';
     var entityInput = $q('[data-contact-field="entity-id"]');
     if (entityInput) entityInput.value = state.companyId;
 
@@ -1719,10 +1899,10 @@
     if (section) {
       var contactIdInput = section.querySelector('[data-contact-field="contact_id"]');
       if (contactIdInput) contactIdInput.value = state.entityContactId || '';
-      setEntityField(section, 'first_name', entity.Primary_Person_First_Name || entity.primary_person_first_name);
-      setEntityField(section, 'last_name', entity.Primary_Person_Last_Name || entity.primary_person_last_name);
-      setEntityField(section, 'email', entity.Primary_Person_Email || entity.primary_person_email);
-      setEntityField(section, 'sms_number', entity.Primary_Person_SMS_Number || entity.primary_person_sms_number);
+      setEntityField(section, 'first_name', normalizedEntity.Primary_Person_First_Name);
+      setEntityField(section, 'last_name', normalizedEntity.Primary_Person_Last_Name);
+      setEntityField(section, 'email', normalizedEntity.Primary_Person_Email);
+      setEntityField(section, 'sms_number', normalizedEntity.Primary_Person_SMS_Number);
     }
 
     var viewBtn = $('view-contact-detail');
