@@ -1,0 +1,2188 @@
+{
+  "generatedAt": "2026-02-26T15:25:52.653Z",
+  "baseUrl": "http://127.0.0.1:5173/dev/",
+  "maxClicksPerPage": 80,
+  "pages": [
+    {
+      "pageUrl": "http://127.0.0.1:5173/dev/",
+      "pageTitle": "PTPM | Dev Landing Page",
+      "statusCode": 200,
+      "clickablesDiscovered": 11,
+      "clicksAttempted": 11,
+      "clicksSkipped": 0,
+      "clickFailures": [],
+      "pageErrors": [
+        "VS.waitForPlugin is not a function",
+        "window.VitalSync.init is not a function",
+        "Cannot read properties of null (reading 'addEventListener')",
+        "Cannot read properties of null (reading 'addEventListener')",
+        "allJobs is not defined",
+        "Identifier 'toastTimer' has already been declared",
+        "Identifier 'toastTimer' has already been declared",
+        "Identifier 'toastTimer' has already been declared",
+        "Identifier 'toastTimer' has already been declared",
+        "waitingApprovalPayments is not defined",
+        "Identifier 'tabs' has already been declared",
+        "Cannot read properties of null (reading 'addEventListener')",
+        "authorId is not defined",
+        "Cannot read properties of null (reading 'getAttribute')",
+        "REMOVE_STATUS_AFTER_OP_VALUE is not defined",
+        "Missing required options: slug and/or apiKey",
+        "Cannot read properties of null (reading 'classList')"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "[NewInquiry] VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Profile modal element not found",
+        "Edit profile info modal element not found",
+        "Error fetching currently provided services: ReferenceError: endpoint is not defined\n    at fetchCurrentlyProvidedServices (http://127.0.0.1:5173/src/js/sp/profile.js:344:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:637:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)"
+      ],
+      "consoleWarnings": [
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "[CompanyDetail] Load failed Error: API key missing\n    at loadCompanyAndRelations (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:373:40)\n    at Object.init (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:425:5)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/dev/company-detail.html?company=62:128:62)",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[NewCustomer] VitalSync connect failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "Error fetching all services: ReferenceError: endpoint is not defined\n    at fetchAllServices (http://127.0.0.1:5173/src/js/sp/profile.js:362:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:638:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side"
+      ],
+      "requestFailures": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "https://static-au03.vitalstats.app/static/sdk/v1/1771338075/client.6f4c14ea.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/archive/pages/dev/mock-data.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/archive/pages/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/archive/pages/src/js/config.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/archive/pages/src/js/vitalsync.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        }
+      ],
+      "httpErrors": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/archive/pages/dev/mock-data.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/archive/pages/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/archive/pages/src/js/config.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/archive/pages/src/js/vitalsync.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        }
+      ],
+      "brokenLinks": [],
+      "findings": []
+    },
+    {
+      "pageUrl": "http://127.0.0.1:5173/dev/company-detail.html?company=62",
+      "pageTitle": "PTPM Company Detail (Dev)",
+      "statusCode": 200,
+      "clickablesDiscovered": 10,
+      "clicksAttempted": 10,
+      "clicksSkipped": 0,
+      "clickFailures": [],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "[NewInquiry] VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "consoleWarnings": [
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "[CompanyDetail] Load failed Error: API key missing\n    at loadCompanyAndRelations (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:373:40)\n    at Object.init (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:425:5)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/dev/company-detail.html?company=62:128:62)",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "[CompanyDetail] Load failed Error: API key missing\n    at loadCompanyAndRelations (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:373:40)\n    at Object.init (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:425:5)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/dev/company-detail.html?company=62:128:62)",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "[CompanyDetail] Load failed Error: API key missing\n    at loadCompanyAndRelations (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:373:40)\n    at Object.init (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:425:5)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/dev/company-detail.html?company=62:128:62)",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "[CompanyDetail] Load failed Error: API key missing\n    at loadCompanyAndRelations (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:373:40)\n    at Object.init (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:425:5)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/dev/company-detail.html?company=62:128:62)",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "[NewInquiry] Company prefill failed: Error: Plugin not available\n    at getModel (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:129:46)\n    at fetchAllFromModel (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:153:12)\n    at fetchCompanyById (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:344:12)\n    at prefillFromUrlParams (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:1539:7)\n    at Object.init (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:2246:5)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/dev/new-inquiry.html?company=62&accountType=entity:310:31)",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "[CompanyDetail] Load failed Error: API key missing\n    at loadCompanyAndRelations (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:373:40)\n    at Object.init (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:425:5)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/dev/company-detail.html?company=62:128:62)",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side"
+      ],
+      "requestFailures": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        }
+      ],
+      "httpErrors": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        }
+      ],
+      "brokenLinks": [],
+      "findings": []
+    },
+    {
+      "pageUrl": "http://127.0.0.1:5173/dev/customer-detail.html?contact=20",
+      "pageTitle": "PTPM Customer Detail (Dev)",
+      "statusCode": 200,
+      "clickablesDiscovered": 16,
+      "clicksAttempted": 16,
+      "clicksSkipped": 0,
+      "clickFailures": [],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "[NewInquiry] VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12"
+      ],
+      "consoleWarnings": [
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "[NewInquiry] Contact prefill failed: Error: Plugin not available\n    at getModel (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:129:46)\n    at fetchAllFromModel (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:153:12)\n    at fetchContactById (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:302:12)\n    at prefillFromUrlParams (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:1567:5)\n    at Object.init (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:2246:5)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/dev/new-inquiry.html?contact=20:310:31)",
+        "[NewInquiry] Contact prefill failed: Error: Plugin not available\n    at getModel (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:129:46)\n    at fetchAllFromModel (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:153:12)\n    at fetchContactById (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:302:12)\n    at prefillFromUrlParams (http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:1567:5)\n    at http://127.0.0.1:5173/src/js/pages/new-inquiry.js?v=14:2260:9",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12"
+      ],
+      "requestFailures": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        }
+      ],
+      "httpErrors": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        }
+      ],
+      "brokenLinks": [],
+      "findings": []
+    },
+    {
+      "pageUrl": "http://127.0.0.1:5173/dev/customers-list.html",
+      "pageTitle": "PTPM Customers List (Dev)",
+      "statusCode": 200,
+      "clickablesDiscovered": 26,
+      "clicksAttempted": 26,
+      "clicksSkipped": 0,
+      "clickFailures": [],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "consoleWarnings": [
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[NewCustomer] VitalSync connect failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[NewCustomer] VitalSync connect failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side"
+      ],
+      "requestFailures": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        }
+      ],
+      "httpErrors": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        }
+      ],
+      "brokenLinks": [],
+      "findings": []
+    },
+    {
+      "pageUrl": "http://127.0.0.1:5173/dev/dashboard.html",
+      "pageTitle": "PTPM Dashboard (Dev)",
+      "statusCode": 200,
+      "clickablesDiscovered": 38,
+      "clicksAttempted": 38,
+      "clicksSkipped": 32,
+      "clickFailures": [],
+      "pageErrors": [
+        "VitalSync not connected — cannot switch to model: PeterpmDeal"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "[NewInquiry] VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "consoleWarnings": [
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side"
+      ],
+      "requestFailures": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        }
+      ],
+      "httpErrors": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        }
+      ],
+      "brokenLinks": [],
+      "findings": []
+    },
+    {
+      "pageUrl": "http://127.0.0.1:5173/dev/index.html",
+      "pageTitle": "PTPM | Dev Landing Page",
+      "statusCode": 200,
+      "clickablesDiscovered": 11,
+      "clicksAttempted": 11,
+      "clicksSkipped": 0,
+      "clickFailures": [],
+      "pageErrors": [
+        "VS.waitForPlugin is not a function",
+        "window.VitalSync.init is not a function",
+        "Cannot read properties of null (reading 'addEventListener')",
+        "Cannot read properties of null (reading 'addEventListener')",
+        "allJobs is not defined",
+        "Identifier 'toastTimer' has already been declared",
+        "Identifier 'toastTimer' has already been declared",
+        "Identifier 'toastTimer' has already been declared",
+        "Identifier 'toastTimer' has already been declared",
+        "waitingApprovalPayments is not defined",
+        "Identifier 'tabs' has already been declared",
+        "Cannot read properties of null (reading 'addEventListener')",
+        "authorId is not defined",
+        "Cannot read properties of null (reading 'getAttribute')",
+        "REMOVE_STATUS_AFTER_OP_VALUE is not defined",
+        "Missing required options: slug and/or apiKey",
+        "Cannot read properties of null (reading 'classList')"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "[NewInquiry] VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Profile modal element not found",
+        "Edit profile info modal element not found",
+        "Error fetching currently provided services: ReferenceError: endpoint is not defined\n    at fetchCurrentlyProvidedServices (http://127.0.0.1:5173/src/js/sp/profile.js:344:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:637:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)"
+      ],
+      "consoleWarnings": [
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[CustomerDetail] VitalSync connect failed Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=7:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "[CompanyDetail] Load failed Error: API key missing\n    at loadCompanyAndRelations (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:373:40)\n    at Object.init (http://127.0.0.1:5173/src/js/pages/company-detail.js?v=4:425:5)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/dev/company-detail.html?company=62:128:62)",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[NewCustomer] VitalSync connect failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "Error fetching all services: ReferenceError: endpoint is not defined\n    at fetchAllServices (http://127.0.0.1:5173/src/js/sp/profile.js:362:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:638:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side"
+      ],
+      "requestFailures": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/archive/pages/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/archive/pages/dev/mock-data.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/archive/pages/src/js/config.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/archive/pages/src/js/vitalsync.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        }
+      ],
+      "httpErrors": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/archive/pages/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/archive/pages/dev/mock-data.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/archive/pages/src/js/config.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/archive/pages/src/js/vitalsync.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        }
+      ],
+      "brokenLinks": [],
+      "findings": []
+    },
+    {
+      "pageUrl": "http://127.0.0.1:5173/dev/inquiry-detail.html",
+      "pageTitle": "PTPM | Inquiry Detail (Dev)",
+      "statusCode": 200,
+      "clickablesDiscovered": 1,
+      "clicksAttempted": 1,
+      "clicksSkipped": 0,
+      "clickFailures": [],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "consoleWarnings": [
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side"
+      ],
+      "requestFailures": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        }
+      ],
+      "httpErrors": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        }
+      ],
+      "brokenLinks": [],
+      "findings": []
+    },
+    {
+      "pageUrl": "http://127.0.0.1:5173/dev/job-detail.html",
+      "pageTitle": "PTPM | Job Detail (Dev)",
+      "statusCode": 200,
+      "clickablesDiscovered": 14,
+      "clicksAttempted": 14,
+      "clicksSkipped": 14,
+      "clickFailures": [],
+      "pageErrors": [
+        "VS.waitForPlugin is not a function"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "consoleWarnings": [
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading"
+      ],
+      "requestFailures": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        }
+      ],
+      "httpErrors": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        }
+      ],
+      "brokenLinks": [],
+      "findings": [
+        {
+          "severity": "high",
+          "category": "page_load_exception",
+          "location": "http://127.0.0.1:5173/dev/job-detail.html",
+          "detail": "Page threw runtime exception on load: VS.waitForPlugin is not a function",
+          "repro": "Open http://127.0.0.1:5173/dev/job-detail.html and observe console/runtime errors on initial load.",
+          "evidence": "VS.waitForPlugin is not a function"
+        }
+      ]
+    },
+    {
+      "pageUrl": "http://127.0.0.1:5173/dev/new-customer.html",
+      "pageTitle": "PTPM Add New Customer (Dev)",
+      "statusCode": 200,
+      "clickablesDiscovered": 4,
+      "clicksAttempted": 4,
+      "clicksSkipped": 0,
+      "clickFailures": [],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12"
+      ],
+      "consoleWarnings": [
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[NewCustomer] VitalSync connect failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[NewCustomer] VitalSync connect failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[NewCustomer] VitalSync connect failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.",
+        "[NewCustomer] VitalSync connect failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js?v=2:57:12"
+      ],
+      "requestFailures": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        }
+      ],
+      "httpErrors": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        }
+      ],
+      "brokenLinks": [],
+      "findings": []
+    },
+    {
+      "pageUrl": "http://127.0.0.1:5173/dev/new-inquiry.html",
+      "pageTitle": "PTPM — New Inquiry (Dev)",
+      "statusCode": 200,
+      "clickablesDiscovered": 11,
+      "clicksAttempted": 11,
+      "clicksSkipped": 8,
+      "clickFailures": [],
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "[NewInquiry] VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "[NewInquiry] VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12",
+        "[NewInquiry] VitalSync connection failed: Error: Missing required options: slug and/or apiKey\n    at https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371223\n    at window.initVitalStatsSDK (https://static-au03.vitalstats.app/static/sdk/v1/latest.js:1:1371490)\n    at http://127.0.0.1:5173/src/js/vitalsync.js:57:12"
+      ],
+      "consoleWarnings": [
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+        "As of March 1st, 2025, google.maps.places.Autocomplete is not available to new customers. Please use google.maps.places.PlaceAutocompleteElement instead. At this time, google.maps.places.Autocomplete is not scheduled to be discontinued, but google.maps.places.PlaceAutocompleteElement is recommended over google.maps.places.Autocomplete. While google.maps.places.Autocomplete will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.Autocomplete will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide."
+      ],
+      "requestFailures": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        }
+      ],
+      "httpErrors": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        }
+      ],
+      "brokenLinks": [],
+      "findings": []
+    },
+    {
+      "pageUrl": "http://127.0.0.1:5173/dev/notification.html",
+      "pageTitle": "PTPM | Notifications (Dev)",
+      "statusCode": 200,
+      "clickablesDiscovered": 7,
+      "clicksAttempted": 7,
+      "clicksSkipped": 0,
+      "clickFailures": [],
+      "pageErrors": [
+        "window.VitalSync.init is not a function",
+        "window.VitalSync.init is not a function",
+        "window.VitalSync.init is not a function"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "consoleWarnings": [
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side",
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side"
+      ],
+      "requestFailures": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        }
+      ],
+      "httpErrors": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        },
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        }
+      ],
+      "brokenLinks": [],
+      "findings": [
+        {
+          "severity": "high",
+          "category": "page_load_exception",
+          "location": "http://127.0.0.1:5173/dev/notification.html",
+          "detail": "Page threw runtime exception on load: window.VitalSync.init is not a function",
+          "repro": "Open http://127.0.0.1:5173/dev/notification.html and observe console/runtime errors on initial load.",
+          "evidence": "window.VitalSync.init is not a function"
+        },
+        {
+          "severity": "high",
+          "category": "js_exception",
+          "location": "http://127.0.0.1:5173/dev/notification.html",
+          "detail": "Runtime exception after clicking \"#notification-btn\": window.VitalSync.init is not a function",
+          "repro": "Open http://127.0.0.1:5173/dev/notification.html, click \"#notification-btn\".",
+          "evidence": "window.VitalSync.init is not a function"
+        }
+      ]
+    },
+    {
+      "pageUrl": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "pageTitle": "PTPM | Service Provider Portal (Dev)",
+      "statusCode": 200,
+      "clickablesDiscovered": 0,
+      "clicksAttempted": 0,
+      "clicksSkipped": 0,
+      "clickFailures": [],
+      "pageErrors": [
+        "Cannot read properties of null (reading 'addEventListener')",
+        "Cannot read properties of null (reading 'addEventListener')",
+        "allJobs is not defined",
+        "Identifier 'toastTimer' has already been declared",
+        "Identifier 'toastTimer' has already been declared",
+        "Identifier 'toastTimer' has already been declared",
+        "Identifier 'toastTimer' has already been declared",
+        "waitingApprovalPayments is not defined",
+        "Identifier 'tabs' has already been declared",
+        "Cannot read properties of null (reading 'addEventListener')",
+        "authorId is not defined",
+        "Cannot read properties of null (reading 'getAttribute')",
+        "REMOVE_STATUS_AFTER_OP_VALUE is not defined",
+        "Missing required options: slug and/or apiKey"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Profile modal element not found",
+        "Edit profile info modal element not found",
+        "Error fetching currently provided services: ReferenceError: endpoint is not defined\n    at fetchCurrentlyProvidedServices (http://127.0.0.1:5173/src/js/sp/profile.js:344:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:637:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)"
+      ],
+      "consoleWarnings": [
+        "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+        "Error fetching all services: ReferenceError: endpoint is not defined\n    at fetchAllServices (http://127.0.0.1:5173/src/js/sp/profile.js:362:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:638:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)",
+        "loadable: `loadableReady()` requires state, please use `getScriptTags` or `getScriptElements` server-side"
+      ],
+      "requestFailures": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js",
+          "errorText": "net::ERR_ABORTED"
+        }
+      ],
+      "httpErrors": [
+        {
+          "method": "GET",
+          "resourceType": "script",
+          "status": 404,
+          "statusText": "Not Found",
+          "url": "http://127.0.0.1:5173/dev/mock-data.local.js"
+        }
+      ],
+      "brokenLinks": [],
+      "findings": [
+        {
+          "severity": "high",
+          "category": "page_load_exception",
+          "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+          "detail": "Page threw runtime exception on load: Cannot read properties of null (reading 'addEventListener')",
+          "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+          "evidence": "Cannot read properties of null (reading 'addEventListener')"
+        },
+        {
+          "severity": "high",
+          "category": "page_load_exception",
+          "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+          "detail": "Page threw runtime exception on load: allJobs is not defined",
+          "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+          "evidence": "allJobs is not defined"
+        },
+        {
+          "severity": "high",
+          "category": "page_load_exception",
+          "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+          "detail": "Page threw runtime exception on load: Identifier 'toastTimer' has already been declared",
+          "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+          "evidence": "Identifier 'toastTimer' has already been declared"
+        },
+        {
+          "severity": "high",
+          "category": "page_load_exception",
+          "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+          "detail": "Page threw runtime exception on load: waitingApprovalPayments is not defined",
+          "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+          "evidence": "waitingApprovalPayments is not defined"
+        },
+        {
+          "severity": "high",
+          "category": "page_load_exception",
+          "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+          "detail": "Page threw runtime exception on load: Identifier 'tabs' has already been declared",
+          "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+          "evidence": "Identifier 'tabs' has already been declared"
+        },
+        {
+          "severity": "high",
+          "category": "page_load_exception",
+          "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+          "detail": "Page threw runtime exception on load: authorId is not defined",
+          "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+          "evidence": "authorId is not defined"
+        },
+        {
+          "severity": "high",
+          "category": "page_load_exception",
+          "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+          "detail": "Page threw runtime exception on load: Cannot read properties of null (reading 'getAttribute')",
+          "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+          "evidence": "Cannot read properties of null (reading 'getAttribute')"
+        },
+        {
+          "severity": "high",
+          "category": "page_load_exception",
+          "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+          "detail": "Page threw runtime exception on load: REMOVE_STATUS_AFTER_OP_VALUE is not defined",
+          "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+          "evidence": "REMOVE_STATUS_AFTER_OP_VALUE is not defined"
+        },
+        {
+          "severity": "medium",
+          "category": "page_load_console_error",
+          "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+          "detail": "Console error on initial load: Profile modal element not found",
+          "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and inspect browser console on initial load.",
+          "evidence": "Profile modal element not found"
+        },
+        {
+          "severity": "medium",
+          "category": "page_load_console_error",
+          "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+          "detail": "Console error on initial load: Edit profile info modal element not found",
+          "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and inspect browser console on initial load.",
+          "evidence": "Edit profile info modal element not found"
+        },
+        {
+          "severity": "medium",
+          "category": "page_load_console_error",
+          "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+          "detail": "Console error on initial load: Error fetching currently provided services: ReferenceError: endpoint is not defined\n    at fetchCurrentlyProvidedServices (http://127.0.0.1:5173/src/js/sp/profile.js:344:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:637:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)",
+          "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and inspect browser console on initial load.",
+          "evidence": "Error fetching currently provided services: ReferenceError: endpoint is not defined\n    at fetchCurrentlyProvidedServices (http://127.0.0.1:5173/src/js/sp/profile.js:344:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:637:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)"
+        },
+        {
+          "severity": "medium",
+          "category": "page_load_warning",
+          "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+          "detail": "Warning on initial load: Error fetching all services: ReferenceError: endpoint is not defined\n    at fetchAllServices (http://127.0.0.1:5173/src/js/sp/profile.js:362:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:638:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)",
+          "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and inspect browser warnings on initial load.",
+          "evidence": "Error fetching all services: ReferenceError: endpoint is not defined\n    at fetchAllServices (http://127.0.0.1:5173/src/js/sp/profile.js:362:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:638:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "severity": "high",
+      "category": "page_load_exception",
+      "location": "http://127.0.0.1:5173/dev/job-detail.html",
+      "detail": "Page threw runtime exception on load: VS.waitForPlugin is not a function",
+      "repro": "Open http://127.0.0.1:5173/dev/job-detail.html and observe console/runtime errors on initial load.",
+      "evidence": "VS.waitForPlugin is not a function"
+    },
+    {
+      "severity": "high",
+      "category": "page_load_exception",
+      "location": "http://127.0.0.1:5173/dev/notification.html",
+      "detail": "Page threw runtime exception on load: window.VitalSync.init is not a function",
+      "repro": "Open http://127.0.0.1:5173/dev/notification.html and observe console/runtime errors on initial load.",
+      "evidence": "window.VitalSync.init is not a function"
+    },
+    {
+      "severity": "high",
+      "category": "js_exception",
+      "location": "http://127.0.0.1:5173/dev/notification.html",
+      "detail": "Runtime exception after clicking \"#notification-btn\": window.VitalSync.init is not a function",
+      "repro": "Open http://127.0.0.1:5173/dev/notification.html, click \"#notification-btn\".",
+      "evidence": "window.VitalSync.init is not a function"
+    },
+    {
+      "severity": "high",
+      "category": "page_load_exception",
+      "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "detail": "Page threw runtime exception on load: Cannot read properties of null (reading 'addEventListener')",
+      "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+      "evidence": "Cannot read properties of null (reading 'addEventListener')"
+    },
+    {
+      "severity": "high",
+      "category": "page_load_exception",
+      "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "detail": "Page threw runtime exception on load: allJobs is not defined",
+      "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+      "evidence": "allJobs is not defined"
+    },
+    {
+      "severity": "high",
+      "category": "page_load_exception",
+      "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "detail": "Page threw runtime exception on load: Identifier 'toastTimer' has already been declared",
+      "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+      "evidence": "Identifier 'toastTimer' has already been declared"
+    },
+    {
+      "severity": "high",
+      "category": "page_load_exception",
+      "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "detail": "Page threw runtime exception on load: waitingApprovalPayments is not defined",
+      "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+      "evidence": "waitingApprovalPayments is not defined"
+    },
+    {
+      "severity": "high",
+      "category": "page_load_exception",
+      "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "detail": "Page threw runtime exception on load: Identifier 'tabs' has already been declared",
+      "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+      "evidence": "Identifier 'tabs' has already been declared"
+    },
+    {
+      "severity": "high",
+      "category": "page_load_exception",
+      "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "detail": "Page threw runtime exception on load: authorId is not defined",
+      "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+      "evidence": "authorId is not defined"
+    },
+    {
+      "severity": "high",
+      "category": "page_load_exception",
+      "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "detail": "Page threw runtime exception on load: Cannot read properties of null (reading 'getAttribute')",
+      "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+      "evidence": "Cannot read properties of null (reading 'getAttribute')"
+    },
+    {
+      "severity": "high",
+      "category": "page_load_exception",
+      "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "detail": "Page threw runtime exception on load: REMOVE_STATUS_AFTER_OP_VALUE is not defined",
+      "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and observe console/runtime errors on initial load.",
+      "evidence": "REMOVE_STATUS_AFTER_OP_VALUE is not defined"
+    },
+    {
+      "severity": "medium",
+      "category": "page_load_console_error",
+      "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "detail": "Console error on initial load: Profile modal element not found",
+      "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and inspect browser console on initial load.",
+      "evidence": "Profile modal element not found"
+    },
+    {
+      "severity": "medium",
+      "category": "page_load_console_error",
+      "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "detail": "Console error on initial load: Edit profile info modal element not found",
+      "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and inspect browser console on initial load.",
+      "evidence": "Edit profile info modal element not found"
+    },
+    {
+      "severity": "medium",
+      "category": "page_load_console_error",
+      "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "detail": "Console error on initial load: Error fetching currently provided services: ReferenceError: endpoint is not defined\n    at fetchCurrentlyProvidedServices (http://127.0.0.1:5173/src/js/sp/profile.js:344:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:637:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)",
+      "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and inspect browser console on initial load.",
+      "evidence": "Error fetching currently provided services: ReferenceError: endpoint is not defined\n    at fetchCurrentlyProvidedServices (http://127.0.0.1:5173/src/js/sp/profile.js:344:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:637:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)"
+    },
+    {
+      "severity": "medium",
+      "category": "page_load_warning",
+      "location": "http://127.0.0.1:5173/dev/sp-dashboard.html",
+      "detail": "Warning on initial load: Error fetching all services: ReferenceError: endpoint is not defined\n    at fetchAllServices (http://127.0.0.1:5173/src/js/sp/profile.js:362:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:638:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)",
+      "repro": "Open http://127.0.0.1:5173/dev/sp-dashboard.html and inspect browser warnings on initial load.",
+      "evidence": "Error fetching all services: ReferenceError: endpoint is not defined\n    at fetchAllServices (http://127.0.0.1:5173/src/js/sp/profile.js:362:36)\n    at initializeServices (http://127.0.0.1:5173/src/js/sp/profile.js:638:9)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:5173/src/js/sp/profile.js:655:3)"
+    },
+    {
+      "severity": "medium",
+      "category": "source_marker",
+      "location": "src/js/inquiry-detail/app.js:2539",
+      "detail": "this.notify(\"Edit billing flow coming soon.\");",
+      "repro": "Inspect this code path and implement the missing behavior.",
+      "evidence": "this.notify(\"Edit billing flow coming soon.\");"
+    },
+    {
+      "severity": "medium",
+      "category": "source_marker",
+      "location": "src/js/pages/dashboard.js:1838",
+      "detail": "console.log('Delete record:', delRow.getAttribute('data-unique-id'), '(not implemented)');",
+      "repro": "Inspect this code path and implement the missing behavior.",
+      "evidence": "console.log('Delete record:', delRow.getAttribute('data-unique-id'), '(not implemented)');"
+    },
+    {
+      "severity": "medium",
+      "category": "source_marker",
+      "location": "src/js/pages/dashboard.js:2206",
+      "detail": "if (utils.showToast) utils.showToast('Batch action coming soon: ' + item.textContent.trim(), 'info');",
+      "repro": "Inspect this code path and implement the missing behavior.",
+      "evidence": "if (utils.showToast) utils.showToast('Batch action coming soon: ' + item.textContent.trim(), 'info');"
+    }
+  ],
+  "summary": {
+    "clickablesDiscovered": 149,
+    "clicksAttempted": 149,
+    "clicksSkipped": 54,
+    "clickFailures": 0,
+    "findings": {
+      "high": 11,
+      "medium": 7,
+      "low": 0
+    }
+  }
+}
