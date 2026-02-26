@@ -12,6 +12,9 @@
   var state = {
     models: {},
     jobId: '',
+    inquiryId: '',
+    isNewFlow: false,
+    inquiryRecord: null,
     contacts: [],
     companies: [],
     serviceProviders: [],
@@ -37,6 +40,7 @@
     statusModal: null,
     previewModal: null,
     latestAction: null,
+    pluginPromise: null,
   };
 
   // ── Option Data ────────────────────────────────────────────
@@ -85,10 +89,32 @@
 
   function getModel(name) {
     if (state.models[name]) return Promise.resolve(state.models[name]);
-    return VS.waitForPlugin().then(function (plugin) {
+    return ensurePlugin().then(function (plugin) {
       state.models[name] = plugin.switchTo(name);
       return state.models[name];
     });
+  }
+
+  function ensurePlugin() {
+    var plugin = VS && VS.getPlugin ? VS.getPlugin() : null;
+    if (plugin) return Promise.resolve(plugin);
+    if (!state.pluginPromise) {
+      if (!VS || typeof VS.connect !== 'function') {
+        return Promise.reject(new Error('VitalSync.connect is not available.'));
+      }
+      state.pluginPromise = VS.connect()
+        .then(function (connectedPlugin) {
+          var resolvedPlugin = connectedPlugin || (VS.getPlugin && VS.getPlugin()) || null;
+          if (!resolvedPlugin) throw new Error('VitalSync plugin unavailable after connect.');
+          return resolvedPlugin;
+        })
+        .catch(function (err) {
+          // Allow retry after failed init/connect attempts.
+          state.pluginPromise = null;
+          throw err;
+        });
+    }
+    return state.pluginPromise;
   }
 
   function unwrap(resp) {
@@ -119,6 +145,20 @@
 
   function stopLoading() {
     U.hideLoader(state.loaderEl, state.loaderCount, true);
+  }
+
+  function readField(record, keys) {
+    if (!record) return '';
+    for (var i = 0; i < keys.length; i += 1) {
+      var value = record[keys[i]];
+      if (value !== undefined && value !== null) return value;
+    }
+    return '';
+  }
+
+  function getServiceProviderContact(record) {
+    if (!record) return {};
+    return record.Contact_Information || record.contact_information || {};
   }
 
   function actionBadgeClass(status) {
@@ -302,6 +342,66 @@
     });
   }
 
+  function setLookupValue(displayInput, hiddenInput, id, label) {
+    if (displayInput) displayInput.value = label || '';
+    if (hiddenInput) hiddenInput.value = id || '';
+  }
+
+  function clearValidationError(el) {
+    if (!el) return;
+    el.classList.remove('border-rose-400', 'ring-1', 'ring-rose-300');
+    var parent = el.parentElement;
+    if (!parent) return;
+    var msg = parent.querySelector('[data-validation-for="' + (el.getAttribute('data-field') || '') + '"]');
+    if (msg) msg.remove();
+  }
+
+  function showValidationError(el, message) {
+    if (!el) return;
+    clearValidationError(el);
+    el.classList.add('border-rose-400', 'ring-1', 'ring-rose-300');
+    var parent = el.parentElement;
+    if (!parent) return;
+    var field = el.getAttribute('data-field') || '';
+    var msg = document.createElement('p');
+    msg.className = 'mt-1 text-xs text-rose-600';
+    msg.setAttribute('data-validation-for', field);
+    msg.textContent = message;
+    parent.appendChild(msg);
+  }
+
+  function clearJobInfoValidation() {
+    ['client', 'entity_name', 'properties'].forEach(function (field) {
+      clearValidationError($('[data-field="' + field + '"]'));
+    });
+  }
+
+  function validateJobInfoStep(showInlineErrors) {
+    var section = $('[data-section="job-information"]');
+    if (!section) return true;
+    clearJobInfoValidation();
+    var fields = getFieldValues(section);
+    var hasClient = state.activeContactType === 'individual'
+      ? !!fields.client_id
+      : !!fields.company_id;
+    var hasProperty = !!fields.property_id;
+    var valid = hasClient && hasProperty;
+    if (!valid && showInlineErrors) {
+      if (!hasClient) {
+        if (state.activeContactType === 'individual') {
+          showValidationError($('[data-field="client"]'), 'Select a client contact.');
+        } else {
+          showValidationError($('[data-field="entity_name"]'), 'Select a company.');
+        }
+      }
+      if (!hasProperty) {
+        showValidationError($('[data-field="properties"]'), 'Select a property.');
+      }
+      showError('Please complete required fields before continuing.');
+    }
+    return valid;
+  }
+
   // ── Model Layer ────────────────────────────────────────────
 
   function fetchAll(modelName, fields, includes) {
@@ -473,7 +573,7 @@
         .select([
           'id', 'unique_id', 'job_status', 'date_started', 'date_booked', 'date_job_required_by',
           'payment_status', 'job_total', 'account_type', 'priority', 'invoice_total', 'invoice_number',
-          'xero_invoice_status', 'invoice_date', 'due_date',
+          'xero_invoice_status', 'invoice_date', 'due_date', 'inquiry_record_id',
           'PTPM_Last_Action_Status', 'PTPM_Last_Action_Message', 'PTPM_Last_Action_Type', 'PTPM_Last_Action_At', 'PTPM_Last_Action_Source',
         ])
         .include('Property', function (pq) { pq.deSelectAll().select(['id', 'property_name', 'address_1']); })
@@ -489,6 +589,33 @@
     }).then(function (job) {
       hydrateLatestActionFromRecord(job);
       return job;
+    });
+  }
+
+  function syncInquiryContextFromJob(job) {
+    if (!job) return job;
+    if (!state.inquiryId) {
+      state.inquiryId = String(readField(job, ['inquiry_record_id', 'Inquiry_Record_ID']) || '').trim();
+    }
+    return job;
+  }
+
+  function fetchInquiryDetail(inquiryId) {
+    if (!inquiryId) return Promise.resolve(null);
+    return getModel('PeterpmDeal').then(function (model) {
+      var q = model.query().where('id', inquiryId).deSelectAll()
+        .select(['id', 'account_type', 'primary_contact_id', 'company_id', 'property_id', 'date_job_required_by', 'service_provider_id', 'service_provider_id_inquiry'])
+        .include('Primary_Contact', function (cq) { cq.deSelectAll().select(['id', 'first_name', 'last_name', 'email']); })
+        .include('Company', function (coq) { coq.deSelectAll().select(['id', 'name']); })
+        .include('Property', function (pq) { pq.deSelectAll().select(['id', 'property_name']); })
+        .include('Service_Provider', function (spq) {
+          spq.deSelectAll().select(['id']).include('Contact_Information', function (cq) {
+            cq.deSelectAll().select(['first_name', 'last_name']);
+          });
+        })
+        .noDestroy();
+      q.getOrInitQueryCalc && q.getOrInitQueryCalc();
+      return q.fetchDirect().toPromise().then(unwrapOne);
     });
   }
 
@@ -620,6 +747,7 @@
         div.addEventListener('click', function () {
           input.value = name.trim();
           if (hiddenId) hiddenId.value = id;
+          clearValidationError(input);
           results.classList.add('hidden');
         });
         results.appendChild(div);
@@ -653,6 +781,7 @@
         div.addEventListener('click', function () {
           input.value = name;
           if (hiddenId) hiddenId.value = id;
+          clearValidationError(input);
           results.classList.add('hidden');
         });
         results.appendChild(div);
@@ -671,14 +800,14 @@
       if (!results) return;
       if (q.length < 1) { results.classList.add('hidden'); return; }
       var matches = state.serviceProviders.filter(function (sp) {
-        var ci = sp.Contact_Information || {};
-        var name = ((ci.first_name || '') + ' ' + (ci.last_name || '')).toLowerCase();
+        var ci = getServiceProviderContact(sp);
+        var name = ((readField(ci, ['first_name', 'First_Name']) || '') + ' ' + (readField(ci, ['last_name', 'Last_Name']) || '')).toLowerCase();
         return name.indexOf(q) !== -1;
       }).slice(0, 10);
       results.innerHTML = '';
       matches.forEach(function (sp) {
-        var ci = sp.Contact_Information || {};
-        var name = ((ci.first_name || '') + ' ' + (ci.last_name || '')).trim();
+        var ci = getServiceProviderContact(sp);
+        var name = ((readField(ci, ['first_name', 'First_Name']) || '') + ' ' + (readField(ci, ['last_name', 'Last_Name']) || '')).trim();
         var id = sp.ID || sp.id;
         var div = document.createElement('div');
         div.className = 'px-3 py-2 hover:bg-slate-100 cursor-pointer text-sm text-slate-700';
@@ -686,11 +815,56 @@
         div.addEventListener('click', function () {
           input.value = name;
           if (hiddenId) hiddenId.value = id;
+          clearValidationError(input);
           results.classList.add('hidden');
         });
         results.appendChild(div);
       });
       results.classList.remove('hidden');
+    });
+  }
+
+  function setupMaterialServiceProviderSearch() {
+    var input = $('[data-material-sp-search="input"]');
+    var hiddenId = $('[data-section="add-materials"] [data-field="service_provider_id"]');
+    var results = $('[data-material-sp-search="results"]');
+    if (!input || !results) return;
+    input.addEventListener('input', function () {
+      var q = String(input.value || '').toLowerCase().trim();
+      if (!q) {
+        results.classList.add('hidden');
+        return;
+      }
+      var matches = state.serviceProviders.filter(function (sp) {
+        var ci = getServiceProviderContact(sp);
+        var fullName = ((readField(ci, ['first_name', 'First_Name']) || '') + ' ' + (readField(ci, ['last_name', 'Last_Name']) || '')).toLowerCase().trim();
+        return fullName.indexOf(q) !== -1;
+      }).slice(0, 10);
+      results.innerHTML = '';
+      matches.forEach(function (sp) {
+        var ci = getServiceProviderContact(sp);
+        var spId = readField(sp, ['id', 'ID']);
+        var fullName = ((readField(ci, ['first_name', 'First_Name']) || '') + ' ' + (readField(ci, ['last_name', 'Last_Name']) || '')).trim();
+        var row = document.createElement('div');
+        row.className = 'px-3 py-2 hover:bg-slate-100 cursor-pointer text-sm text-slate-700';
+        row.textContent = fullName || ('Service Provider #' + spId);
+        row.addEventListener('click', function () {
+          input.value = fullName;
+          if (hiddenId) hiddenId.value = spId;
+          results.classList.add('hidden');
+        });
+        results.appendChild(row);
+      });
+      if (!matches.length) {
+        var empty = document.createElement('div');
+        empty.className = 'px-3 py-2 text-xs text-slate-400';
+        empty.textContent = 'No matching service providers';
+        results.appendChild(empty);
+      }
+      results.classList.remove('hidden');
+    });
+    document.addEventListener('click', function (e) {
+      if (!results.contains(e.target) && !input.contains(e.target)) results.classList.add('hidden');
     });
   }
 
@@ -716,6 +890,7 @@
         div.addEventListener('click', function () {
           input.value = name;
           if (hiddenId) hiddenId.value = id;
+          clearValidationError(input);
           results.classList.add('hidden');
         });
         results.appendChild(div);
@@ -752,6 +927,7 @@
         var entSection = $('[data-client-section="entity"]');
         if (indSection) indSection.classList.toggle('hidden', type !== 'individual');
         if (entSection) entSection.classList.toggle('hidden', type !== 'entity');
+        clearJobInfoValidation();
       });
     });
   }
@@ -789,7 +965,8 @@
     }
     var rows = state.activities.map(function (a) {
       var id = a.ID || a.id;
-      var service = a.Service_Service_Name || a.service_name || '';
+      var activityService = a.Service || a.service || null;
+      var service = readField(a, ['Service_Service_Name', 'service_name']) || readField(activityService, ['service_name', 'Service_Name']);
       var status = a.Activity_Status || a.activity_status || '';
       var price = U.money(a.Activity_Price || a.activity_price);
       var task = a.Task || a.task || '';
@@ -904,10 +1081,12 @@
   // ── View: Services Dropdown ────────────────────────────────
 
   function renderServiceDropdowns() {
-    var primary = state.services.filter(function (s) { return s.Service_Type === 'Primary'; });
+    var primary = state.services.filter(function (s) {
+      return String(readField(s, ['service_type', 'Service_Type'])).toLowerCase() === 'primary';
+    });
     var secondaryMap = {};
     state.services.forEach(function (s) {
-      var pid = s.Primary_Service_ID || '';
+      var pid = readField(s, ['primary_service_id', 'Primary_Service_ID']) || '';
       if (!secondaryMap[pid]) secondaryMap[pid] = [];
       secondaryMap[pid].push(s);
     });
@@ -928,18 +1107,26 @@
     }
 
     if (servSelect) {
-      populateSelect(servSelect, primary.map(function (s) { return { value: s.Service_Name, text: s.Service_Name, id: s.ID }; }), 'Select');
+      populateSelect(servSelect, primary.map(function (s) {
+        var serviceName = readField(s, ['service_name', 'Service_Name']);
+        return { value: serviceName, text: serviceName, id: readField(s, ['id', 'ID']) };
+      }), 'Select');
       servSelect.addEventListener('change', function () {
-        var selected = primary.find(function (s) { return s.Service_Name === servSelect.value; });
+        var selected = primary.find(function (s) {
+          return readField(s, ['service_name', 'Service_Name']) === servSelect.value;
+        });
         if (!selected) return;
-        serviceIdField.value = selected.ID || '';
-        if (priceField) priceField.value = selected.Service_Price || '';
-        if (warrantyField) warrantyField.value = selected.Standard_Warranty || '';
-        if (textField) textField.value = selected.Description || '';
-        var subs = secondaryMap[selected.ID] || [];
+        serviceIdField.value = readField(selected, ['id', 'ID']) || '';
+        if (priceField) priceField.value = readField(selected, ['service_price', 'Service_Price']) || '';
+        if (warrantyField) warrantyField.value = readField(selected, ['standard_warranty', 'Standard_Warranty']) || '';
+        if (textField) textField.value = readField(selected, ['description', 'Description']) || '';
+        var subs = secondaryMap[readField(selected, ['id', 'ID'])] || [];
         if (secWrapper && secSelect) {
           if (subs.length) {
-            populateSelect(secSelect, subs.map(function (s) { return { value: s.Service_Name, text: s.Service_Name }; }), 'Select');
+            populateSelect(secSelect, subs.map(function (s) {
+              var serviceName = readField(s, ['service_name', 'Service_Name']);
+              return { value: serviceName, text: serviceName };
+            }), 'Select');
             secWrapper.classList.remove('hidden');
             secSelect.classList.remove('hidden');
           } else {
@@ -950,13 +1137,15 @@
     }
     if (secSelect) {
       secSelect.addEventListener('change', function () {
-        var allSubs = state.services.filter(function (s) { return s.Service_Name === secSelect.value; });
+        var allSubs = state.services.filter(function (s) {
+          return readField(s, ['service_name', 'Service_Name']) === secSelect.value;
+        });
         var sel = allSubs[0];
         if (!sel) return;
-        serviceIdField.value = sel.ID || '';
-        if (priceField) priceField.value = sel.Service_Price || '';
-        if (warrantyField) warrantyField.value = sel.Standard_Warranty || '';
-        if (textField) textField.value = sel.Description || '';
+        serviceIdField.value = readField(sel, ['id', 'ID']) || '';
+        if (priceField) priceField.value = readField(sel, ['service_price', 'Service_Price']) || '';
+        if (warrantyField) warrantyField.value = readField(sel, ['standard_warranty', 'Standard_Warranty']) || '';
+        if (textField) textField.value = readField(sel, ['description', 'Description']) || '';
       });
     }
   }
@@ -976,8 +1165,12 @@
       var total = U.money(m.Total || m.total);
       var txType = m.Transaction_Type || m.transaction_type || '';
       var tax = m.Tax || m.tax || '';
-      var sp = '';
-      if (m.Contact_First_Name || m.Contact_Last_Name) sp = (m.Contact_First_Name || '') + ' ' + (m.Contact_Last_Name || '');
+      var serviceProvider = m.Service_Provider || m.service_provider || null;
+      var contact = getServiceProviderContact(serviceProvider);
+      var sp = [
+        readField(m, ['Contact_First_Name']) || readField(contact, ['first_name', 'First_Name']),
+        readField(m, ['Contact_Last_Name']) || readField(contact, ['last_name', 'Last_Name'])
+      ].filter(Boolean).join(' ');
       var created = U.formatDate(m.Created_At || m.created_at);
       return '<tr class="border-b border-slate-100">' +
         '<td class="px-3 py-2 text-sm">' + created + '</td>' +
@@ -1207,8 +1400,11 @@
     var host = $('[data-field="host_id"]');
     if (host) {
       populateSelect(host, state.serviceProviders.map(function (sp) {
-        var ci = sp.Contact_Information || {};
-        return { value: sp.ID || sp.id, text: ((ci.first_name || '') + ' ' + (ci.last_name || '')).trim() };
+        var ci = getServiceProviderContact(sp);
+        return {
+          value: sp.ID || sp.id,
+          text: ((readField(ci, ['first_name', 'First_Name']) || '') + ' ' + (readField(ci, ['last_name', 'Last_Name']) || '')).trim()
+        };
       }), 'Select');
     }
     // Inquiry dropdown
@@ -1222,7 +1418,11 @@
     var job = $('[data-field="job_id"]');
     if (job) {
       populateSelect(job, state.jobs.map(function (j) {
-        return { value: j.ID || j.id, text: (j.Unique_ID || j.unique_id || '') + ' - ' + (j.Property_Property_Name || '') };
+        var property = j.Property || j.property || null;
+        return {
+          value: j.ID || j.id,
+          text: (j.Unique_ID || j.unique_id || '') + ' - ' + (readField(j, ['Property_Property_Name']) || readField(property, ['property_name', 'Property_Name']) || '')
+        };
       }), 'Select');
     }
     // State dropdowns
@@ -1232,6 +1432,8 @@
     // Activity status dropdown
     var actStatus = $('[data-section="add-activities"] [data-field="activity_status"]');
     if (actStatus) populateSelect(actStatus, ACTIVITY_STATUSES, 'Select One');
+    var taskSelect = $('[data-section="add-activities"] [data-field="task"]');
+    if (taskSelect) populateSelect(taskSelect, ['Job 1', 'Job 2', 'Job 3', 'Job 4', 'Job 5'], 'Select');
     // Appointment status
     var apptStatus = $('[data-job-section="job-section-appointment"] [data-field="status"]');
     if (apptStatus) populateSelect(apptStatus, APPOINTMENT_STATUSES, 'Select');
@@ -1295,19 +1497,30 @@
     setProp('priority', data.priority || data.Priority);
     setProp('job_status', data.job_status || data.Job_Status);
     setProp('payment_status', data.payment_status || data.Payment_Status);
-    setProp('job_required_by', formatDateInput(data.date_job_required_by || data.Date_Job_Required_By));
-    setProp('properties', data.property_name || data.Property_Property_Name || '');
-    setProp('property_id', data.property_id || data.Property_ID || '');
-    setProp('serviceman_id', data.serviceman_id || data.Primary_Service_Provider_ID || '');
-    var spName = [data.serviceman_first_name || data.Contact_First_Name, data.serviceman_last_name || data.Contact_Last_Name].filter(Boolean).join(' ');
+    setProp('job_required_by', formatDateInput(readField(data, ['date_job_required_by', 'Date_Job_Required_By'])));
+    var propertyRecord = data.Property || data.property || null;
+    setProp('properties', readField(data, ['property_name', 'Property_Property_Name']) || readField(propertyRecord, ['property_name', 'Property_Name']));
+    setProp('property_id', readField(data, ['property_id', 'Property_ID']) || readField(propertyRecord, ['id', 'ID']));
+    var spRecord = data.Primary_Service_Provider || data.primary_service_provider || null;
+    var spContact = getServiceProviderContact(spRecord);
+    setProp('serviceman_id', readField(data, ['serviceman_id', 'Primary_Service_Provider_ID']) || readField(spRecord, ['id', 'ID']));
+    var spName = [
+      readField(data, ['serviceman_first_name', 'Contact_First_Name']) || readField(spContact, ['first_name', 'First_Name']),
+      readField(data, ['serviceman_last_name', 'Contact_Last_Name']) || readField(spContact, ['last_name', 'Last_Name'])
+    ].filter(Boolean).join(' ');
     setProp('serviceman', spName);
 
     if (accountType === 'contact') {
-      setProp('client', [data.client_individual_first_name || data.Client_Individual_First_Name, data.client_individual_last_name || data.Client_Individual_Last_Name].filter(Boolean).join(' '));
-      setProp('client_id', data.client_individual_id || data.Client_Individual_Contact_ID || '');
+      var clientRecord = data.Client_Individual || data.client_individual || null;
+      setProp('client', [
+        readField(data, ['client_individual_first_name', 'Client_Individual_First_Name']) || readField(clientRecord, ['first_name', 'First_Name']),
+        readField(data, ['client_individual_last_name', 'Client_Individual_Last_Name']) || readField(clientRecord, ['last_name', 'Last_Name'])
+      ].filter(Boolean).join(' '));
+      setProp('client_id', readField(data, ['client_individual_id', 'Client_Individual_Contact_ID']) || readField(clientRecord, ['id', 'ID']));
     } else {
-      setProp('entity_name', data.client_entity_name || data.Client_Entity_Name || '');
-      setProp('company_id', data.client_entity_id || data.Client_Entity_ID || '');
+      var entityRecord = data.Client_Entity || data.client_entity || null;
+      setProp('entity_name', readField(data, ['client_entity_name', 'Client_Entity_Name']) || readField(entityRecord, ['name', 'Name']));
+      setProp('company_id', readField(data, ['client_entity_id', 'Client_Entity_ID']) || readField(entityRecord, ['id', 'ID']));
     }
 
     // Prefill invoice fields on load for edit consistency.
@@ -1317,11 +1530,56 @@
     setProp('xero_invoice_status', data.xero_invoice_status || data.Xero_Invoice_Status || '');
   }
 
+  function prefillFromInquiry(inquiry) {
+    if (!inquiry) return;
+    state.inquiryRecord = inquiry;
+    var accountType = String(readField(inquiry, ['account_type', 'Account_Type']) || '').toLowerCase();
+    var propertyRecord = inquiry.Property || inquiry.property || null;
+    var primaryContactRecord = inquiry.Primary_Contact || inquiry.primary_contact || null;
+    var companyRecord = inquiry.Company || inquiry.company || null;
+    var spRecord = inquiry.Service_Provider || inquiry.service_provider || null;
+    var spContact = getServiceProviderContact(spRecord);
+    var propertyId = readField(inquiry, ['property_id', 'Property_ID']) || readField(propertyRecord, ['id', 'ID']);
+    var contactId = readField(inquiry, ['primary_contact_id', 'Primary_Contact_ID']) || readField(primaryContactRecord, ['id', 'ID']);
+    var companyId = readField(inquiry, ['company_id', 'Company_ID']) || readField(companyRecord, ['id', 'ID']);
+    var serviceProviderId = readField(inquiry, ['service_provider_id', 'Service_Provider_ID', 'service_provider_id_inquiry', 'Service_Provider_ID_Inquiry']) || readField(spRecord, ['id', 'ID']);
+    var propertyName = readField(propertyRecord, ['property_name', 'Property_Name'])
+      || readField(inquiry, ['property_name', 'Property_Property_Name']);
+    var clientName = [
+      readField(primaryContactRecord, ['first_name', 'First_Name']),
+      readField(primaryContactRecord, ['last_name', 'Last_Name'])
+    ].filter(Boolean).join(' ');
+    var serviceProviderName = [
+      readField(spContact, ['first_name', 'First_Name']),
+      readField(spContact, ['last_name', 'Last_Name'])
+    ].filter(Boolean).join(' ');
+    var companyName = readField(companyRecord, ['name', 'Name']);
+    var setProp = function (field, value) {
+      var input = $('[data-field="' + field + '"]');
+      if (input) input.value = value || '';
+    };
+
+    if (accountType === 'company' || accountType === 'entity') {
+      var entityToggle = $('[data-contact-toggle="entity"]');
+      if (entityToggle) entityToggle.click();
+      setLookupValue($('[data-field="entity_name"]'), $('[data-field="company_id"]'), companyId, companyName);
+    } else {
+      var individualToggle = $('[data-contact-toggle="individual"]');
+      if (individualToggle) individualToggle.click();
+      setLookupValue($('[data-field="client"]'), $('[data-field="client_id"]'), contactId, clientName);
+    }
+    setLookupValue($('[data-field="properties"]'), $('[data-field="property_id"]'), propertyId, propertyName);
+    setLookupValue($('[data-field="serviceman"]'), $('[data-field="serviceman_id"]'), serviceProviderId, serviceProviderName);
+    setProp('job_required_by', formatDateInput(readField(inquiry, ['date_job_required_by', 'Date_Job_Required_By'])));
+    setLatestAction('processing', 'job.prefill', 'Inquiry context loaded for new Direct Job.', 'job-detail');
+  }
+
   // ── View: Job Information Submit ───────────────────────────
 
   function handleJobInfoSubmit() {
     var section = $('[data-section="job-information"]');
     if (!section) return Promise.resolve();
+    if (!validateJobInfoStep(true)) return Promise.reject(new Error('Job Information validation failed.'));
     var fields = getFieldValues(section);
     var jobData = {
       priority: fields.priority || '',
@@ -1338,6 +1596,7 @@
     }
     if (fields.property_id) jobData.Property = { id: fields.property_id };
     if (fields.serviceman_id) jobData.Primary_Service_Provider = { id: fields.serviceman_id };
+    if (!state.jobId && state.inquiryId) jobData.inquiry_record_id = state.inquiryId;
 
     startLoading('Saving job information...');
     var promise = state.jobId
@@ -1351,11 +1610,53 @@
       }
       syncWorkflowStatus('job.action', { operation: 'save-job-information' }, 'Job information saved. Syncing workflow status...');
       showSuccess('Job information saved.', 'job.action');
-    }).catch(function (err) { console.error(err); showError('Failed to save job information.'); })
+      return result;
+    }).catch(function (err) {
+      console.error(err);
+      showError('Failed to save job information.');
+      throw err;
+    })
       .finally(function () {
         stopLoading();
-        if (submitBtn && U.setButtonLoading) U.setButtonLoading(submitBtn, false);
       });
+  }
+
+  function handleFinalSubmit() {
+    var invoiceSection = $('[data-section="invoice"]');
+    var submitBtn = $('[data-nav-action="next"]');
+    var invoiceFields = invoiceSection ? getFieldValues(invoiceSection) : {};
+    var payload = {};
+    if (invoiceFields.invoice_date) payload.invoice_date = dateToUnix(invoiceFields.invoice_date);
+    if (invoiceFields.due_date) payload.due_date = dateToUnix(invoiceFields.due_date);
+    if (state.inquiryId) payload.inquiry_record_id = state.inquiryId;
+    if (submitBtn && U.setButtonLoading) U.setButtonLoading(submitBtn, true, { label: 'Submitting...' });
+    startLoading('Submitting Direct Job...');
+    var saveJobPromise = state.jobId ? Promise.resolve() : handleJobInfoSubmit();
+    return saveJobPromise.then(function () {
+      if (!state.jobId) throw new Error('Unable to determine Job ID after save.');
+      return Object.keys(payload).length ? updateRecord('PeterpmJob', state.jobId, payload) : Promise.resolve();
+    }).then(function () {
+      if (!state.inquiryId) return Promise.resolve();
+      return updateRecord('PeterpmDeal', state.inquiryId, {
+        inquiry_status: 'Quote Created',
+        quote_record_id: Number(state.jobId),
+        inquiry_for_job_id: Number(state.jobId),
+      });
+    }).then(function () {
+      showSuccess('Direct Job submitted and linked to inquiry.', 'job.submit');
+      syncWorkflowStatus(
+        'job.submit',
+        { operation: 'submit-direct-job', jobId: state.jobId, inquiryId: state.inquiryId || '' },
+        'Direct Job submitted. Syncing workflow status...'
+      );
+    }).catch(function (err) {
+      console.error(err);
+      showError('Direct Job submit failed.', 'job.submit');
+      throw err;
+    }).finally(function () {
+      stopLoading();
+      if (submitBtn && U.setButtonLoading) U.setButtonLoading(submitBtn, false);
+    });
   }
 
   // ── View: Google Places Autocomplete ───────────────────────
@@ -1472,8 +1773,12 @@
     var nextBtn = $('[data-nav-action="next"]');
     var backBtn = $('[data-nav-action="back"]');
     if (nextBtn) nextBtn.addEventListener('click', function () {
-      if (state.currentSectionIdx === 0) {
-        handleJobInfoSubmit().then(goNext);
+      var isLastStep = state.currentSectionIdx === state.sectionOrder.length - 1;
+      if (isLastStep) {
+        handleFinalSubmit();
+      } else if (state.currentSectionIdx === 0) {
+        if (!validateJobInfoStep(true)) return;
+        handleJobInfoSubmit().then(goNext).catch(function () {});
       } else {
         goNext();
       }
@@ -1560,7 +1865,13 @@
     $$('[data-section-target]').forEach(function (el) {
       el.addEventListener('click', function () {
         var target = el.getAttribute('data-section-target');
-        if (target) showSection(target);
+        if (!target) return;
+        if (state.currentSectionIdx === 0 && target !== 'job-information') {
+          if (!validateJobInfoStep(true)) return;
+          handleJobInfoSubmit().then(function () { showSection(target); }).catch(function () {});
+          return;
+        }
+        showSection(target);
       });
     });
   }
@@ -1571,6 +1882,12 @@
     // Resolve job ID
     var body = document.body;
     state.jobId = (body && (body.dataset.jobId || body.dataset.JobId) || '').toString().trim();
+    var params = new URLSearchParams(window.location.search || '');
+    state.isNewFlow = params.get('new') === '1';
+    state.inquiryId = (params.get('inquiry') || '').toString().trim();
+    if (!state.jobId) {
+      state.jobId = (params.get('job') || params.get('quote') || params.get('payment') || '').toString().trim();
+    }
 
     // Init loader and modal
     state.loaderEl = U.initOperationLoader();
@@ -1599,30 +1916,44 @@
 
     // Load data in parallel
     startLoading('Loading...');
-    Promise.all([
-      fetchContacts().then(setupContactSearch),
-      fetchCompanies().then(setupCompanySearch),
-      fetchServiceProviders().then(setupServiceProviderSearch),
-      fetchProperties().then(setupPropertySearch),
-      fetchInquiries(),
-      fetchJobs(),
-      fetchServices().then(renderServiceDropdowns),
-    ]).then(function () {
-      populateDropdowns();
-
-      // Load job details if editing
-      if (state.jobId) {
+    Promise.resolve()
+      .then(function () {
         return Promise.all([
-          fetchJobDetail(state.jobId).then(populateJobFromRecord),
-          fetchActivities(state.jobId).then(renderActivitiesTable),
-          fetchMaterials(state.jobId).then(renderMaterialsTable),
-          fetchUploads(state.jobId).then(renderExistingUploads),
-          fetchAppointment(state.jobId).then(populateAppointmentFields),
-        ]).then(renderInvoiceSection);
-      }
-    }).catch(function (err) {
-      console.error('[PtpmJobDetail] Init error:', err);
-    }).finally(stopLoading);
+          fetchContacts().then(setupContactSearch),
+          fetchCompanies().then(setupCompanySearch),
+          fetchServiceProviders().then(setupServiceProviderSearch),
+          fetchProperties().then(setupPropertySearch),
+          fetchInquiries(),
+          fetchJobs(),
+          fetchServices().then(renderServiceDropdowns),
+        ]);
+      })
+      .then(function () {
+        setupMaterialServiceProviderSearch();
+        populateDropdowns();
+
+        // Load job details if editing
+        if (state.jobId) {
+          return Promise.all([
+            fetchJobDetail(state.jobId).then(function (job) {
+              syncInquiryContextFromJob(job);
+              populateJobFromRecord(job);
+            }),
+            fetchActivities(state.jobId).then(renderActivitiesTable),
+            fetchMaterials(state.jobId).then(renderMaterialsTable),
+            fetchUploads(state.jobId).then(renderExistingUploads),
+            fetchAppointment(state.jobId).then(populateAppointmentFields),
+          ]).then(renderInvoiceSection);
+        }
+        if (state.inquiryId) {
+          return fetchInquiryDetail(state.inquiryId).then(prefillFromInquiry);
+        }
+      })
+      .catch(function (err) {
+        console.error('[PtpmJobDetail] Init error:', err);
+        showError('Failed to load Direct Job data. Please refresh and try again.', 'job.init');
+      })
+      .finally(stopLoading);
 
     // Lazy-load Google Places
     setTimeout(function () { initGooglePlaces(); }, 3000);

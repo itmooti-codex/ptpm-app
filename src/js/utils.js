@@ -576,6 +576,9 @@
   }
 
   function requestUploadDetails(file, folderName) {
+    if (!config.API_KEY) {
+      throw new Error('Missing API key. Set AppConfig.API_KEY (or dev mock API key) before uploading files.');
+    }
     var safeFolder = sanitizeFolderName(folderName || '');
     var name = (safeFolder ? safeFolder + '/' : '') + ((file && file.name) || 'upload');
     var params = new URLSearchParams({
@@ -588,7 +591,13 @@
     })
       .then(function (res) { return res.json().then(function (data) { return { res: res, data: data }; }); })
       .then(function (r) {
-        if (!r.res.ok || r.data.statusCode !== 200) throw new Error('Failed to obtain upload URL');
+        if (!r.res.ok || r.data.statusCode !== 200) {
+          var apiMessage = (r.data && (r.data.message || r.data.error || (r.data.data && r.data.data.message))) || '';
+          if (r.res.status === 401 || r.res.status === 403) {
+            throw new Error('Upload authorization failed (HTTP ' + r.res.status + '). Check your API key and permissions.');
+          }
+          throw new Error(apiMessage || ('Failed to obtain upload URL (HTTP ' + r.res.status + ').'));
+        }
         return r.data.data;
       });
   }
