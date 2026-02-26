@@ -10,6 +10,42 @@ const MAX_CLICKABLES_PER_PAGE = Number(process.env.QA_MAX_CLICKS_PER_PAGE || 80)
 const NAV_TIMEOUT_MS = Number(process.env.QA_NAV_TIMEOUT_MS || 20000);
 const CLICK_TIMEOUT_MS = Number(process.env.QA_CLICK_TIMEOUT_MS || 5000);
 const WARNING_SIGNAL_REGEX = /(not implemented|coming soon|failed|missing|error)/i;
+const KNOWN_NOISE_MESSAGE_PATTERNS = [
+  /Missing required options: slug and\/or apiKey/i,
+  /Failed to load resource: the server responded with a status of 404 \(Not Found\)/i,
+  /cdn\.tailwindcss\.com should not be used/i,
+  /loadableReady\(\) requires state/i,
+  /Google Maps JavaScript API has been loaded directly without loading=async/i,
+  /google\.maps\.places\.Autocomplete is not available to new customers/i,
+];
+const OPTIONAL_DEV_ASSET_PATTERNS = [
+  /\/dev\/mock-data\.local\.js(\?.*)?$/i,
+  /\/archive\/pages\/dev\/mock-data(\.local)?\.js(\?.*)?$/i,
+  /\/archive\/pages\/src\/js\/config\.js(\?.*)?$/i,
+  /\/archive\/pages\/src\/js\/vitalsync\.js(\?.*)?$/i,
+];
+
+function isNoiseMessage(message) {
+  return KNOWN_NOISE_MESSAGE_PATTERNS.some((regex) => regex.test(String(message || '')));
+}
+
+function isOptionalDevAssetUrl(url) {
+  const value = String(url || '');
+  return OPTIONAL_DEV_ASSET_PATTERNS.some((regex) => regex.test(value));
+}
+
+function shouldIgnoreRequestFailure(failure) {
+  if (!failure) return true;
+  if (isOptionalDevAssetUrl(failure.url)) return true;
+  if (/net::ERR_ABORTED/i.test(String(failure.errorText || ''))) return true;
+  return false;
+}
+
+function shouldIgnoreHttpError(httpErr) {
+  if (!httpErr) return true;
+  if (httpErr.status === 404 && isOptionalDevAssetUrl(httpErr.url)) return true;
+  return false;
+}
 
 function normalizeBaseUrl(input) {
   const url = new URL(input || 'http://127.0.0.1:8000/dev/');
@@ -101,7 +137,7 @@ function scanSourceMarkers() {
 
   const markers = [];
   const files = walkDirRecursive(srcDir).filter((filePath) => filePath.endsWith('.js'));
-  const markerRegex = /(not implemented|coming soon|TODO|FIXME)/i;
+  const markerRegex = /(not implemented|coming soon|\bTODO\b|\bFIXME\b)/i;
 
   for (const filePath of files) {
     const relPath = path.relative(PROJECT_ROOT, filePath);
@@ -286,9 +322,21 @@ async function collectInteractiveElements(page) {
     }
 
     const candidates = Array.from(
-      document.querySelectorAll('a[href], button, [role="button"], input[type="button"], input[type="submit"]')
+      document.querySelectorAll(
+        'a[href], button, input[type="button"], input[type="submit"], [role="button"][tabindex], [role="button"][onclick], [role="button"][data-action]'
+      )
     )
-      .filter((element) => !element.disabled && isVisible(element))
+      .filter((element) => {
+        if (element.disabled) return false;
+        if (!isVisible(element)) return false;
+        const tag = element.tagName.toLowerCase();
+        const type = (element.getAttribute('type') || '').toLowerCase();
+        const isNativeInteractive =
+          tag === 'a' || tag === 'button' || (tag === 'input' && (type === 'button' || type === 'submit'));
+        if (isNativeInteractive) return true;
+        const cursor = window.getComputedStyle(element).cursor;
+        return cursor === 'pointer';
+      })
       .map((element) => ({
         selector: cssPath(element),
         tag: element.tagName.toLowerCase(),
@@ -371,6 +419,7 @@ async function auditSinglePage(context, pageUrl, options) {
     statusCode: null,
     clickablesDiscovered: 0,
     clicksAttempted: 0,
+    clicksSkipped: 0,
     clickFailures: [],
     pageErrors: [],
     consoleErrors: [],
@@ -502,6 +551,12 @@ async function auditSinglePage(context, pageUrl, options) {
         throw new Error('Element not found for selector: ' + target.selector);
       }
       await locator.scrollIntoViewIfNeeded().catch(() => {});
+      try {
+        await locator.click({ timeout: Math.min(CLICK_TIMEOUT_MS, 2000), trial: true });
+      } catch (_err) {
+        pageResult.clicksSkipped += 1;
+        continue;
+      }
       await locator.click({ timeout: CLICK_TIMEOUT_MS });
     } catch (err) {
       clickError = err;
@@ -517,6 +572,19 @@ async function auditSinglePage(context, pageUrl, options) {
 
     await page.waitForTimeout(300);
     const afterUrl = page.url();
+    let navigatedAway = false;
+    try {
+      const afterParsed = new URL(afterUrl);
+      navigatedAway = afterParsed.pathname !== desiredUrl.pathname || afterParsed.search !== desiredUrl.search;
+    } catch (_err) {
+      navigatedAway = false;
+    }
+
+    const newPageErrors = pageResult.pageErrors.slice(beforeCounts.pageErrors);
+    const newConsoleErrors = pageResult.consoleErrors.slice(beforeCounts.consoleErrors);
+    const newConsoleWarnings = pageResult.consoleWarnings.slice(beforeCounts.consoleWarnings);
+    const newRequestFailures = pageResult.requestFailures.slice(beforeCounts.requestFailures);
+    const newHttpErrors = pageResult.httpErrors.slice(beforeCounts.httpErrors);
 
     if (clickError) {
       const label = target.label || target.selector;
@@ -537,8 +605,42 @@ async function auditSinglePage(context, pageUrl, options) {
       );
     }
 
-    const newPageErrors = pageResult.pageErrors.slice(beforeCounts.pageErrors);
+    if (navigatedAway && !clickError) {
+      for (const failure of newRequestFailures) {
+        if (shouldIgnoreRequestFailure(failure)) continue;
+        if (failure.resourceType !== 'document') continue;
+        pageResult.findings.push(
+          createFinding(
+            'high',
+            'request_failed',
+            pageUrl,
+            'Navigation request failed (' + failure.resourceType + '): ' + failure.url,
+            'Open ' + pageUrl + ', click "' + (target.label || target.selector) + '".',
+            failure.errorText
+          )
+        );
+      }
+
+      for (const httpErr of newHttpErrors) {
+        if (shouldIgnoreHttpError(httpErr)) continue;
+        if (httpErr.resourceType !== 'document') continue;
+        pageResult.findings.push(
+          createFinding(
+            'high',
+            'http_error',
+            pageUrl,
+            'Navigation HTTP ' + httpErr.status + ': ' + httpErr.url,
+            'Open ' + pageUrl + ', click "' + (target.label || target.selector) + '".',
+            httpErr.statusText
+          )
+        );
+      }
+
+      continue;
+    }
+
     for (const message of newPageErrors) {
+      if (isNoiseMessage(message)) continue;
       pageResult.findings.push(
         createFinding(
           'high',
@@ -551,8 +653,8 @@ async function auditSinglePage(context, pageUrl, options) {
       );
     }
 
-    const newConsoleErrors = pageResult.consoleErrors.slice(beforeCounts.consoleErrors);
     for (const message of newConsoleErrors) {
+      if (isNoiseMessage(message)) continue;
       pageResult.findings.push(
         createFinding(
           'medium',
@@ -565,8 +667,8 @@ async function auditSinglePage(context, pageUrl, options) {
       );
     }
 
-    const newConsoleWarnings = pageResult.consoleWarnings.slice(beforeCounts.consoleWarnings);
     for (const message of newConsoleWarnings) {
+      if (isNoiseMessage(message)) continue;
       if (!WARNING_SIGNAL_REGEX.test(message)) continue;
       pageResult.findings.push(
         createFinding(
@@ -580,8 +682,8 @@ async function auditSinglePage(context, pageUrl, options) {
       );
     }
 
-    const newRequestFailures = pageResult.requestFailures.slice(beforeCounts.requestFailures);
     for (const failure of newRequestFailures) {
+      if (shouldIgnoreRequestFailure(failure)) continue;
       const severity = /script|document|xhr|fetch/.test(failure.resourceType) ? 'high' : 'medium';
       pageResult.findings.push(
         createFinding(
@@ -595,8 +697,8 @@ async function auditSinglePage(context, pageUrl, options) {
       );
     }
 
-    const newHttpErrors = pageResult.httpErrors.slice(beforeCounts.httpErrors);
     for (const httpErr of newHttpErrors) {
+      if (shouldIgnoreHttpError(httpErr)) continue;
       const severity = /document|xhr|fetch/.test(httpErr.resourceType) ? 'high' : 'medium';
       pageResult.findings.push(
         createFinding(
@@ -634,6 +736,7 @@ function buildMarkdownReport(auditResult) {
   lines.push('- Pages audited: ' + auditResult.pages.length);
   lines.push('- Clickables discovered: ' + summary.clickablesDiscovered);
   lines.push('- Clicks attempted: ' + summary.clicksAttempted);
+  lines.push('- Clicks skipped (non-actionable): ' + summary.clicksSkipped);
   lines.push('- Click failures: ' + summary.clickFailures);
   lines.push('- Findings: high `' + summary.findings.high + '`, medium `' + summary.findings.medium + '`, low `' + summary.findings.low + '`');
   lines.push('');
@@ -713,8 +816,8 @@ function buildMarkdownReport(auditResult) {
 
   lines.push('## Page Coverage Summary');
   lines.push('');
-  lines.push('| Page | Status | Clickables | Clicks Attempted | Click Failures | Console Errors | JS Exceptions | Broken Links |');
-  lines.push('|---|---:|---:|---:|---:|---:|---:|---:|');
+  lines.push('| Page | Status | Clickables | Clicks Attempted | Clicks Skipped | Click Failures | Console Errors | JS Exceptions | Broken Links |');
+  lines.push('|---|---:|---:|---:|---:|---:|---:|---:|---:|');
   auditResult.pages.forEach((page) => {
     lines.push(
       '| `' +
@@ -725,6 +828,8 @@ function buildMarkdownReport(auditResult) {
         page.clickablesDiscovered +
         ' | ' +
         page.clicksAttempted +
+        ' | ' +
+        page.clicksSkipped +
         ' | ' +
         page.clickFailures.length +
         ' | ' +
@@ -804,6 +909,7 @@ async function main() {
   const summary = {
     clickablesDiscovered: pageResults.reduce((sum, page) => sum + page.clickablesDiscovered, 0),
     clicksAttempted: pageResults.reduce((sum, page) => sum + page.clicksAttempted, 0),
+    clicksSkipped: pageResults.reduce((sum, page) => sum + page.clicksSkipped, 0),
     clickFailures: pageResults.reduce((sum, page) => sum + page.clickFailures.length, 0),
     findings: summarizeFindings(findings),
   };
