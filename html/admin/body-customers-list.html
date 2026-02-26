@@ -1,9 +1,9 @@
 <!-- PTPM Customers List — Ontraport Body HTML Block -->
 <!-- Paste this into: Ontraport Page → HTML Block in Body -->
 
-<main class="flex flex-col space-y-6 mb-4" data-page="customers-list">
+<main class="ptpm-page-shell mb-4" data-page="customers-list">
   <!-- Header Bar -->
-  <header class="w-full px-4 sm:px-5 py-4 bg-[#003882] border-b border-gray-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white shadow-card">
+  <header class="ptpm-page-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white">
     <div class="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
       <div class="flex items-center gap-3">
         <a id="customers-list-back" href="#" class="flex items-center gap-2 text-white hover:text-white/90" aria-label="Back">
@@ -47,7 +47,7 @@
 
     <!-- Filters Sidebar -->
     <aside id="filters-panel" class="hidden w-full lg:block lg:w-[340px] lg:shrink-0 lg:grow-0 lg:basis-[360px]">
-      <div class="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="ptpm-card flex h-full flex-col overflow-hidden rounded-2xl">
         <div class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
           <span class="font-semibold text-neutral-700">All Filters</span>
           <div class="inline-flex items-center gap-2">
@@ -118,7 +118,7 @@
         <div id="filter-chips" class="flex flex-wrap items-center gap-2"></div>
         <button id="clear-all-filters" type="button" class="text-sm font-medium text-slate-600 hover:text-[#003882] hidden">Clear All</button>
       </div>
-      <section class="w-full flex flex-col bg-white rounded-lg border border-slate-200 shadow-card overflow-hidden">
+      <section class="ptpm-table-shell w-full flex flex-col rounded-lg overflow-hidden">
         <div class="flex-1 overflow-hidden border-t border-slate-200">
           <div id="customers-table-container" class="w-full overflow-x-auto"></div>
         </div>

@@ -71,7 +71,7 @@
     })();
   </script>
   <!-- Dev nav: back to dashboard / dev home -->
-  <div style="background:#fff3cd;padding:6px 12px;font-size:12px;text-align:center;font-family:monospace;">
+  <div class="dev-mode-banner">
     DEV MODE &mdash; Job Detail &bull; <a href="./index.html" style="color:#003882;text-decoration:underline;">Dev home</a> &bull; <a href="./dashboard.html" style="color:#003882;text-decoration:underline;">Dashboard</a>
   </div>
 
@@ -103,9 +103,9 @@
   </script>
 
   <!-- Body HTML (same as Ontraport body block) -->
-  <main class="flex flex-col min-h-screen">
+  <main class="ptpm-page-shell min-h-screen">
     <!-- Header Bar -->
-    <header class="px-6 py-4 bg-[#003882] border-b border-gray-300 flex items-center justify-between text-white shadow-card">
+    <header class="ptpm-page-header flex items-center justify-between text-white">
       <div class="flex items-center gap-3">
         <span class="text-xl font-bold">New Direct Job</span>
         <span data-current-section-label class="ml-3 text-sm text-gray-200"></span>
@@ -187,7 +187,7 @@
 
         <!-- Section 1: Job Information -->
         <div data-section="job-information" class="flex flex-col gap-3">
-          <div class="bg-white rounded-lg border border-slate-200 shadow-sm">
+          <div class="ptpm-card bg-white rounded-lg">
             <div class="flex border-b border-slate-200">
               <button data-tab="overview" class="px-6 py-3 text-sm font-medium border-b-2 border-[#003882] text-[#003882]">Overview</button>
               <button data-tab="appointments" class="px-6 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500">Appointments</button>
@@ -288,7 +288,7 @@
 
         <!-- Section 2: Activities -->
         <div data-section="add-activities" class="hidden w-full flex flex-row gap-4">
-          <div class="w-[440px] bg-white rounded-lg border border-slate-200 p-5 flex flex-col gap-4 shadow-sm shrink-0">
+          <div class="ptpm-card w-[440px] bg-white rounded-lg p-5 flex flex-col gap-4 shrink-0">
             <div class="flex flex-col items-start gap-2">
               <div class="text-neutral-800 text-base font-semibold">Add New Activity</div>
               <label class="flex items-center gap-2 text-slate-600 text-sm"><input type="checkbox" data-field="invoice_to_client" class="w-4 h-4 accent-[#003882]"> Invoice to client</label>
@@ -310,12 +310,12 @@
               <button id="add-activities" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Add</button>
             </div>
           </div>
-          <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm"><div id="addActivitiesTable" class="w-full"></div></div>
+          <div class="ptpm-card flex-1 bg-white rounded-lg p-4"><div id="addActivitiesTable" class="w-full"></div></div>
         </div>
 
         <!-- Section 3: Materials -->
         <div data-section="add-materials" class="hidden w-full flex flex-row gap-4">
-          <div class="w-[440px] bg-white rounded-lg border border-slate-200 p-5 flex flex-col gap-4 shadow-sm shrink-0">
+          <div class="ptpm-card w-[440px] bg-white rounded-lg p-5 flex flex-col gap-4 shrink-0">
             <div class="text-neutral-800 text-base font-semibold">Add Materials</div>
             <div class="flex flex-col gap-4">
               <div><label class="text-neutral-700 text-sm font-medium">Material Name</label><input type="text" data-field="material_name" placeholder="Enter material name" class="mt-1 w-full px-3 py-2 rounded border border-slate-300 text-sm"></div>
@@ -332,12 +332,12 @@
               <button id="add-material-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Add</button>
             </div>
           </div>
-          <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm"><div id="addMaterialsTable" class="w-full"></div></div>
+          <div class="ptpm-card flex-1 bg-white rounded-lg p-4"><div id="addMaterialsTable" class="w-full"></div></div>
         </div>
 
         <!-- Section 4: Uploads -->
         <div data-section="uploads" class="hidden w-full flex flex-row gap-4">
-          <div class="w-[440px] bg-white rounded-lg border border-slate-200 p-5 flex flex-col gap-4 shadow-sm shrink-0">
+          <div class="ptpm-card w-[440px] bg-white rounded-lg p-5 flex flex-col gap-4 shrink-0">
             <div class="text-neutral-800 text-base font-semibold">Uploads</div>
             <div data-upload-trigger class="cursor-pointer w-full h-24 border border-dashed border-gray-300 rounded bg-gray-50 flex flex-col items-center justify-center text-sm">
               <span class="text-sky-900 font-medium">Click to upload</span>
@@ -348,7 +348,7 @@
             <div class="flex flex-col gap-2" data-section="images-uploads"></div>
             <div class="flex justify-end"><button id="add-images-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Save Uploads</button></div>
           </div>
-          <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm">
+          <div class="ptpm-card flex-1 bg-white rounded-lg p-4">
             <div class="text-slate-800 text-base font-semibold mb-3">Existing Uploads</div>
             <div class="flex flex-col gap-2" data-section="existing-uploads"></div>
           </div>
@@ -356,7 +356,7 @@
 
         <!-- Section 5: Invoice -->
         <div data-section="invoice" class="hidden w-full">
-          <div class="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-4">
+          <div class="ptpm-card bg-white rounded-lg p-6 space-y-4">
             <div class="text-neutral-800 text-base font-semibold">Invoice Details</div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div><label class="block text-sm font-medium text-neutral-700 mb-1">Invoice Number</label><input data-field="invoice_number" type="text" class="w-full px-3 py-2 rounded border border-slate-300 text-sm" readonly></div>
@@ -400,6 +400,7 @@
   <!-- App scripts -->
   <script src="../src/js/config.js"></script>
   <script src="../src/js/utils.js"></script>
+  <script src="../src/js/shared/interaction.js"></script>
   <script src="../src/js/vitalsync.js"></script>
   <script src="../src/js/shared/form-modal.js"></script>
   <script src="../src/js/pages/job-detail.js"></script>

@@ -6,6 +6,7 @@
 
   var config = window.AppConfig || {};
   var utils = window.PtpmUtils || window.AppUtils || {};
+  var interaction = window.PtpmInteraction || {};
 
   function byId(id) { return document.getElementById(id); }
   function escapeHtml(text) { return utils.escapeHtml ? utils.escapeHtml(text) : (function (t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; })(text); }
@@ -428,12 +429,16 @@
     if (!container) return;
     var tab = state.relatedRecordsTab;
     if (tab === 'payments' || tab === 'credits' || tab === 'notes' || tab === 'engagements') {
-      container.innerHTML = '<div class="px-4 py-8 text-center text-slate-500 text-sm">No records for this tab.</div>';
+      container.innerHTML = interaction.emptyState
+        ? interaction.emptyState('No records for this tab.')
+        : '<div class="px-4 py-8 text-center text-slate-500 text-sm">No records for this tab.</div>';
       return;
     }
     var rows = state.relatedRecords || [];
     if (rows.length === 0) {
-      container.innerHTML = '<div class="px-4 py-8 text-center text-slate-500 text-sm">No records for this tab.</div>';
+      container.innerHTML = interaction.emptyState
+        ? interaction.emptyState('No records for this tab.')
+        : '<div class="px-4 py-8 text-center text-slate-500 text-sm">No records for this tab.</div>';
       return;
     }
     var headers = ['ID', 'Date', 'Priority', 'Status', 'Source', 'Type', 'Assigned To', 'Total Due', 'Actions'];

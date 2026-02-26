@@ -1,9 +1,9 @@
 <!-- PTPM Dashboard — Ontraport Body HTML Block -->
 <!-- Paste this into: Ontraport Page → HTML Block in Body -->
 
-<main class="flex flex-col space-y-4 mb-4">
+<main class="ptpm-page-shell mb-4">
   <!-- Header Bar -->
-  <header class="dashboard-header w-full px-4 sm:px-5 py-4 bg-[#003882] border-b border-gray-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white shadow-card">
+  <header class="ptpm-page-header dashboard-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white">
     <div class="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
       <div class="flex items-center gap-3 min-w-[208px]">
         <div class="w-10 h-10 rounded bg-white/10 border border-white/20 flex items-center justify-center text-[12px] font-semibold">PT</div>
@@ -60,7 +60,7 @@
 
     <!-- Filters Panel (Docked Left) -->
     <aside id="filters-panel" class="hidden w-full lg:w-[320px] lg:shrink-0">
-      <div class="dashboard-filter-panel flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="dashboard-filter-panel ptpm-card flex h-full flex-col overflow-hidden rounded-2xl">
         <div class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
           <div class="flex items-center gap-3">
             <span class="font-semibold text-neutral-700">All Filters</span>
@@ -139,7 +139,7 @@
       <section class="rounded-xl">
         <div id="calendar-grid" class="w-full overflow-x-auto rounded-lg"></div>
       </section>
-      <section class="w-full flex flex-col bg-white rounded-lg outline outline-1 outline-gray-300 shadow-card overflow-hidden">
+      <section class="ptpm-table-shell w-full flex flex-col rounded-lg overflow-hidden">
         <div class="flex flex-col w-full">
           <div class="px-6 py-4 border-b border-gray-300 flex flex-wrap justify-between items-center gap-3">
             <div class="flex flex-wrap items-center gap-2 sm:gap-3">

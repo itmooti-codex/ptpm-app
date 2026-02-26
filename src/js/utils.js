@@ -59,7 +59,38 @@
   function formatDate(ts, locale) {
     if (!ts) return 'N/A';
     try {
-      var date = typeof ts === 'number' ? new Date(ts * 1000) : new Date(ts);
+      var date;
+      if (typeof ts === 'number') {
+        date = new Date(ts * 1000);
+      } else if (typeof ts === 'string') {
+        var trimmed = ts.trim();
+        if (/^\d+$/.test(trimmed)) {
+          // Treat pure numeric strings as unix seconds.
+          date = new Date(Number(trimmed) * 1000);
+        } else {
+          // Support DD/MM/YYYY and DD/MM/YYYY HH:mm[:ss] explicitly.
+          var dmY = trimmed.match(
+            /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}|mm)(?::(\d{2}))?)?$/i
+          );
+          if (dmY) {
+            var day = Number(dmY[1]);
+            var month = Number(dmY[2]) - 1;
+            var year = Number(dmY[3]);
+            var hour = Number(dmY[4] || 0);
+            var minuteToken = String(dmY[5] || '0').toLowerCase();
+            var minute = minuteToken === 'mm' ? 0 : Number(minuteToken || 0);
+            var second = Number(dmY[6] || 0);
+            date = new Date(year, month, day, hour, minute, second);
+          } else {
+            date = new Date(trimmed);
+          }
+        }
+      } else {
+        date = new Date(ts);
+      }
+      if (!(date instanceof Date) || isNaN(date.getTime())) {
+        return typeof ts === 'string' ? ts : 'N/A';
+      }
       return date.toLocaleDateString(locale || 'en-AU', {
         day: 'numeric',
         month: 'short',

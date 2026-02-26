@@ -1791,7 +1791,7 @@
   function normalizeJobDetailTemplate(template) {
     var raw = String(template || '');
     if (!raw) return '';
-    return raw.replace(/job-detail\.html\?(?:job|quote|payment)=\{id\}/g, 'inquiry-detail.html?job={id}');
+    return raw;
   }
 
   function getDetailUrlTemplateForTab(tabKey) {

@@ -10,6 +10,7 @@ document.addEventListener('alpine:init', function () {
     var UI = window.PtpmUI;
     var Panels = window.PtpmPanels;
     var Utils = window.PtpmUtils || window.AppUtils || {};
+    var Interaction = window.PtpmInteraction || {};
     var Config = window.AppConfig || {};
     var ACTION_STATUS_POLL_MS = 15000;
     var OPTION_TEXT_BY_ID = {
@@ -40,6 +41,7 @@ document.addEventListener('alpine:init', function () {
       // Primary record
       inquiry: null,
       inquiryId: null,
+      jobId: null,
 
       // Related records
       contact: null,
@@ -65,6 +67,9 @@ document.addEventListener('alpine:init', function () {
       showMoreActions: false,
       toastMessage: null,
       toastTimer: null,
+      taskActionLoading: {},
+      taskOutcomeOptions: [],
+      taskOutcomeOptionsLoaded: false,
 
       // Editable status fields
       inquiryStatus: '',
@@ -77,8 +82,14 @@ document.addEventListener('alpine:init', function () {
         // Get inquiry ID from URL
         var params = new URLSearchParams(window.location.search);
         this.inquiryId = params.get('deal') || params.get('inquiry') || params.get('id');
+        this.jobId = params.get('job') || params.get('quote') || params.get('payment');
+        if (!this.inquiryId && this.jobId) {
+          this.inquiryId = await this.resolveInquiryIdFromJob(this.jobId);
+        }
         if (!this.inquiryId) {
-          this.error = 'No inquiry ID provided. Add ?deal=ID to the URL.';
+          this.error = this.jobId
+            ? 'No inquiry was linked to this job ID.'
+            : 'No inquiry ID provided. Add ?deal=ID to the URL.';
           this.loading = false;
           return;
         }
@@ -98,6 +109,24 @@ document.addEventListener('alpine:init', function () {
           this.error = err.message || 'Failed to load inquiry';
           this.loading = false;
         }
+      },
+
+      async resolveInquiryIdFromJob(jobId) {
+        if (!jobId || !Q || typeof Q.fetchInquiriesForJob !== 'function') return null;
+        try {
+          var linked = await Q.fetchInquiriesForJob(Number(jobId));
+          var first = linked && linked.length ? linked[0] : null;
+          return first ? (first.id || first.ID || null) : null;
+        } catch (err) {
+          console.error('Failed to resolve inquiry for job:', err);
+          return null;
+        }
+      },
+
+      normalizeJobDetailTemplate(tpl) {
+        var raw = String(tpl || '');
+        if (!raw) return 'job-view.html?job={id}';
+        return raw;
       },
 
       // ── Data Loading ───────────────────────────────────────────────────
@@ -389,7 +418,7 @@ document.addEventListener('alpine:init', function () {
 
       navigateToJob() {
         if (!this.inquiry || !this.inquiry.quote_record_id) return;
-        var tpl = Config.JOB_DETAIL_URL_TEMPLATE || 'job-detail.html?job={id}';
+        var tpl = this.normalizeJobDetailTemplate(Config.JOB_DETAIL_URL_TEMPLATE || 'inquiry-detail.html?job={id}');
         window.location.href = tpl.replace('{id}', this.inquiry.quote_record_id);
       },
 
@@ -404,6 +433,11 @@ document.addEventListener('alpine:init', function () {
         window.location.href = tpl + (tpl.indexOf('?') >= 0 ? '&' : '?') + 'inquiry=' + this.inquiryId;
       },
 
+      navigateToDashboard() {
+        var target = Config.DASHBOARD_URL || 'dashboard.html';
+        window.location.href = target;
+      },
+
       navigateToProperty() {
         if (!this.property || !this.property.id) return;
         var tpl = Config.PROPERTY_DETAIL_URL_TEMPLATE || '';
@@ -416,7 +450,7 @@ document.addEventListener('alpine:init', function () {
 
       navigateToInquiryJobLink() {
         if (!this.inquiry || !this.inquiry.inquiry_for_job_id) return;
-        var tpl = Config.JOB_DETAIL_URL_TEMPLATE || 'job-detail.html?job={id}';
+        var tpl = this.normalizeJobDetailTemplate(Config.JOB_DETAIL_URL_TEMPLATE || 'inquiry-detail.html?job={id}');
         window.location.href = tpl.replace('{id}', this.inquiry.inquiry_for_job_id);
       },
 
@@ -533,32 +567,147 @@ document.addEventListener('alpine:init', function () {
 
       // Event delegation for panel actions
       handlePanelClick(event) {
+        var self = this;
+        var actionHandlers = {
+          'memo-send': function () { self.sendMemo(); },
+          'task-complete': function (target) { self.completeTask(target.getAttribute('data-task-id')); },
+          'task-reopen': function (target) { self.reopenTask(target.getAttribute('data-task-id')); },
+          'task-add': function () { self.addTask(); },
+          'note-add': function () { self.addNote(); },
+          'upload-add': function () { self.addUpload(); },
+          'upload-view': function (target) { self.viewUpload(target.getAttribute('data-upload-id')); },
+          'appointment-add': function () { self.addAppointment(); },
+        };
+        if (Interaction.dispatchPanelAction) {
+          Interaction.dispatchPanelAction(event, actionHandlers);
+          return;
+        }
+        // Fallback if shared helper isn't loaded.
         var target = event.target.closest('[data-panel-action]');
         if (!target) return;
         var action = target.getAttribute('data-panel-action');
+        if (actionHandlers[action]) actionHandlers[action](target, action, event);
+      },
 
-        switch (action) {
-          case 'memo-send': this.sendMemo(); break;
-          case 'task-toggle': this.toggleTask(target.getAttribute('data-task-id')); break;
-          case 'task-add': this.addTask(); break;
-          case 'note-add': this.addNote(); break;
-          case 'upload-add': this.addUpload(); break;
-          case 'upload-view': this.viewUpload(target.getAttribute('data-upload-id')); break;
-          case 'appointment-add': this.addAppointment(); break;
+      isTaskActionBusy(taskId) {
+        return !!(this.taskActionLoading && this.taskActionLoading[String(taskId)]);
+      },
+
+      setTaskActionBusy(taskId, busy) {
+        var key = String(taskId || '');
+        if (!key) return;
+        this.taskActionLoading[key] = !!busy;
+        this.taskActionLoading = Object.assign({}, this.taskActionLoading);
+      },
+
+      async refreshTasksTab() {
+        this._loadedTabs.tasks = false;
+        await this.loadTabData('tasks');
+      },
+
+      normalizeTaskOutcomeOptions(rows) {
+        return (rows || []).map(function (row) {
+          var id = row && (row.id != null ? row.id : row.ID);
+          var name = row && (row.name || row.Name || row.label || row.Label);
+          if (id == null || !name) return null;
+          return { value: String(id), label: String(name) };
+        }).filter(Boolean);
+      },
+
+      async getTaskOutcomeOptions() {
+        if (this.taskOutcomeOptionsLoaded) return this.taskOutcomeOptions || [];
+        try {
+          var rows = await Q.fetchTaskOutcomes();
+          this.taskOutcomeOptions = this.normalizeTaskOutcomeOptions(rows);
+        } catch (err) {
+          console.warn('Failed to load task outcomes:', err);
+          this.taskOutcomeOptions = [];
+          this.showToast('Could not load saved outcomes. You can still complete with notes.');
+        } finally {
+          this.taskOutcomeOptionsLoaded = true;
+        }
+        return this.taskOutcomeOptions;
+      },
+
+      async completeTask(taskId) {
+        if (!taskId) return;
+        if (this.isTaskActionBusy(taskId)) return;
+        var task = (this.tasks || []).find(function (t) { return String(t.id) === String(taskId); });
+        if (!task) return;
+        if (task.status === 'Completed') return;
+
+        var FM = window.PtpmFormModal;
+        if (!FM) return;
+
+        this.setTaskActionBusy(taskId, true);
+        try {
+          var outcomeOptions = await this.getTaskOutcomeOptions();
+          var completionFields = (FM.FORM_DEFS.taskComplete || []).map(function (field) {
+            if (field.name === 'outcome_id') {
+              return Object.assign({}, field, { options: outcomeOptions });
+            }
+            return field;
+          });
+
+          var data = await FM.open({
+            title: 'Complete Task',
+            fields: completionFields,
+            values: {
+              outcome_id: '',
+              completion_notes: '',
+            },
+            submitLabel: 'Complete Task',
+          });
+
+          var response = await this.dispatchWorkflowAction('task.complete', {
+            taskId: Number(taskId),
+            taskSubject: task.subject || task.Subject || null,
+            outcomeId: data.outcome_id ? Number(data.outcome_id) : null,
+            notes: data.completion_notes || '',
+          });
+          if (this.inquiry) {
+            this.inquiry.last_action_status = this.workflowToActionStatus(response);
+            this.inquiry.last_action_message = (response && response.message) || 'Task completion dispatched';
+            this.inquiry.last_action_type = 'task.complete';
+            this.inquiry.last_action_request_id = (response && response.requestId) || this.newActionRequestId();
+            this.inquiry.last_action_source = 'inquiry-detail';
+            this.inquiry.last_action_at = new Date().toISOString();
+          }
+          this.refreshActionStatus();
+          await this.refreshTasksTab();
+          this.showToast('Task completed');
+        } catch (err) {
+          if (err && err.message === 'cancelled') return;
+          console.error('Failed to complete task:', err);
+          this.showToast((err && err.message) || 'Failed to complete task');
+        } finally {
+          this.setTaskActionBusy(taskId, false);
         }
       },
 
-      async toggleTask(taskId) {
+      async reopenTask(taskId) {
         if (!taskId) return;
+        if (this.isTaskActionBusy(taskId)) return;
         var task = (this.tasks || []).find(function (t) { return String(t.id) === String(taskId); });
         if (!task) return;
-        var newStatus = task.status === 'Completed' ? 'Open' : 'Completed';
+        if (task.status !== 'Completed') return;
+
+        this.setTaskActionBusy(taskId, true);
         try {
-          await Q.mutate('updateTask', { id: Number(taskId), payload: { status: newStatus } });
-          task.status = newStatus;
-          this.showToast('Task ' + (newStatus === 'Completed' ? 'completed' : 'reopened'));
+          await Q.mutate('updateTask', {
+            id: Number(taskId),
+            payload: {
+              status: 'Open',
+              date_complete: null,
+            },
+          });
+          await this.refreshTasksTab();
+          this.showToast('Task reopened');
         } catch (err) {
-          console.error('Failed to toggle task:', err);
+          console.error('Failed to reopen task:', err);
+          this.showToast((err && err.message) || 'Failed to reopen task');
+        } finally {
+          this.setTaskActionBusy(taskId, false);
         }
       },
 
@@ -568,7 +717,16 @@ document.addEventListener('alpine:init', function () {
         var FM = window.PtpmFormModal; if (!FM) return;
         try {
           var data = await FM.open({ title: 'Add Task', fields: FM.FORM_DEFS.task, submitLabel: 'Create Task' });
-          await Q.mutate('createTask', { payload: { subject: data.subject, details: data.details || undefined, date_due: data.date_due || undefined, status: 'Open', Deal_id: Number(this.inquiryId) } });
+          var dueEpoch = data.date_due != null && !isNaN(Number(data.date_due)) ? Number(data.date_due) : undefined;
+          await Q.mutate('createTask', {
+            payload: {
+              subject: data.subject,
+              details: data.details || undefined,
+              date_due: dueEpoch,
+              status: 'Open',
+              Deal_id: Number(this.inquiryId),
+            },
+          });
           this._loadedTabs['tasks'] = false; await this.loadTabData('tasks');
           this.showToast('Task created');
         } catch (e) { if (e && e.message !== 'cancelled') { console.error(e); this.showToast('Failed to create task'); } }
@@ -626,6 +784,10 @@ document.addEventListener('alpine:init', function () {
       },
 
       showToast(msg) {
+        if (Interaction.showVmToast) {
+          Interaction.showVmToast(this, msg, 3000);
+          return;
+        }
         var self = this;
         if (self.toastTimer) clearTimeout(self.toastTimer);
         self.toastMessage = msg;

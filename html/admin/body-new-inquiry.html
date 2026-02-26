@@ -1,9 +1,9 @@
 <!-- PTPM New Inquiry — Ontraport Body HTML Block -->
 <!-- Paste this into: Ontraport Page → HTML Block in Body -->
 
-<main class="flex min-h-screen flex-col" data-page="new-inquiry">
+<main class="ptpm-page-shell min-h-screen" data-page="new-inquiry">
   <!-- Header (sticky) -->
-  <header class="sticky top-0 z-50 w-full px-6 py-4 bg-[#003882] border-b border-gray-300 flex justify-between items-center text-white shadow-card">
+  <header class="ptpm-page-header sticky top-0 z-50 flex justify-between items-center text-white">
     <div class="flex items-center gap-3">
       <span class="text-xl font-medium">Inquiry Information</span>
     </div>
@@ -32,7 +32,7 @@
       <div class="min-w-0 lg:min-w-[460px] flex flex-col flex-1 gap-4">
 
         <!-- Contact Details Card -->
-        <div class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="ptpm-card flex flex-col rounded-lg">
           <header class="flex flex-col pt-4 px-4">
             <div class="text-neutral-700 text-base font-bold">Contact Details</div>
           </header>
@@ -133,7 +133,7 @@
         </div>
 
         <!-- Related Data Card -->
-        <div class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm" data-related>
+        <div class="ptpm-card flex flex-col rounded-lg" data-related>
           <div class="px-4 py-3 border-b border-slate-200">
             <div class="flex items-center gap-3">
               <button type="button" data-related-tab="properties" class="px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-50 text-blue-700">Properties (0)</button>
@@ -155,7 +155,7 @@
       <!-- MIDDLE COLUMN: Property Information -->
       <div id="property-information" class="min-w-[460px] flex flex-col flex-1 gap-4">
         <!-- Property Address -->
-        <div class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm p-4 gap-4">
+        <div class="ptpm-card flex flex-col rounded-lg p-4 gap-4">
           <div class="flex items-center justify-between">
             <h3 class="text-neutral-700 text-base font-bold">Property Information</h3>
             <div class="flex items-center gap-2">

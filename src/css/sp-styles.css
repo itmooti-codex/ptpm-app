@@ -2,7 +2,8 @@
 /*Font size, line-height and font-weight*/
 
 body {
-  font-family: "Inter", serif !important;
+  font-family: var(--font-body, "Inter", sans-serif) !important;
+  color: var(--dark-color, #0f172a);
 }
 [x-cloak] {
   display: none !important;
@@ -63,7 +64,7 @@ body {
   color: var(--dark-color);
 }
 .selectedTab {
-  background: #003882;
+  background: var(--primary-color, #003882);
   color: white;
 }
 
@@ -92,7 +93,7 @@ html {
 /*Button style*/
 .outlineButton {
   border: 1px solid var(--primary-color);
-  color: var(--primary);
+  color: var(--primary-color);
   border: 1px solid var(--primary-color);
 }
 .outlineButton:hover {
@@ -199,28 +200,28 @@ a {
   border-bottom: 2px solid transparent;
   min-width: max-content;
   &:hover {
-    color: #003882;
+    color: var(--primary-color, #003882);
     cursor: pointer;
   }
 }
 
 .activeTab {
-  color: #003882;
-  border-bottom: 2px solid #003882;
+  color: var(--primary-color, #003882);
+  border-bottom: 2px solid var(--primary-color, #003882);
 }
 
 .button-primary {
   padding: 12px 16px;
   border-radius: 4px;
-  border: 1px solid #003882;
-  background: #003882;
+  border: 1px solid var(--primary-color, #003882);
+  background: var(--primary-color, #003882);
   color: white;
   transition: 0.2s ease-in-out;
   cursor: pointer;
   font-size: 14px;
   line-height: 14px;
   font-weight: 500;
-  font-family: "Inter", serif;
+  font-family: var(--font-body, "Inter", sans-serif);
   &:hover {
     border: 1px solid #0052cc;
     background: #0052cc;
@@ -237,13 +238,13 @@ a {
 
 .button-plain {
   padding: 12px 16px;
-  color: #003882;
+  color: var(--primary-color, #003882);
   transition: 0.2s ease-in-out;
   cursor: pointer;
   font-size: 14px;
   line-height: 14px;
   font-weight: 500;
-  font-family: "Inter", serif;
+  font-family: var(--font-body, "Inter", sans-serif);
   &:hover {
     color: #0052cc;
   }
@@ -258,15 +259,15 @@ a {
 .button-outline {
   padding: 12px 16px;
   border-radius: 4px;
-  border: 1px solid #003882;
+  border: 1px solid var(--primary-color, #003882);
   background: white;
-  color: #003882;
+  color: var(--primary-color, #003882);
   transition: 0.2s ease-in-out;
   cursor: pointer;
   font-size: 14px;
   line-height: 14px;
   font-weight: 500;
-  font-family: "Inter", serif;
+  font-family: var(--font-body, "Inter", sans-serif);
   &:hover {
     border: 1px solid #0052cc;
     background: #0052cc;
@@ -295,7 +296,7 @@ a {
   font-size: 14px;
   line-height: 14px;
   font-weight: 500;
-  font-family: "Inter", serif;
+  font-family: var(--font-body, "Inter", sans-serif);
   &:hover {
     border: 1px solid #770808;
     background: #770808;
@@ -315,7 +316,7 @@ input {
   height: unset !important;
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
-  border: 1px solid #d3d7e2 !important;
+  border: 1px solid var(--gray-300, #d3d7e2) !important;
   border-radius: 4px !important;
   padding: 12px 12px !important;
   width: 100% !important;
@@ -323,13 +324,13 @@ input {
   background-color: white !important;
   font-size: 16px !important;
   &:hover {
-    border: 1px solid #0052cc !important;
+    border: 1px solid #3b82f6 !important;
   }
   &:active {
-    border: 1px solid #0052cc !important;
+    border: 1px solid #3b82f6 !important;
   }
   &:focus {
-    border: 1px solid #0052cc !important;
+    border: 1px solid #3b82f6 !important;
   }
 }
 
@@ -338,7 +339,7 @@ textarea {
   height: unset !important;
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
-  border: 1px solid #d3d7e2 !important;
+  border: 1px solid var(--gray-300, #d3d7e2) !important;
   outline: none !important;
   border-radius: 4px !important;
   padding: 12px 12px !important;
@@ -346,37 +347,37 @@ textarea {
   box-sizing: border-box !important;
   background-color: white !important;
   &:hover {
-    border: 1px solid #0052cc !important;
+    border: 1px solid #3b82f6 !important;
   }
   &:active {
-    border: 1px solid #0052cc !important;
+    border: 1px solid #3b82f6 !important;
   }
   &:focus {
-    border: 1px solid #0052cc !important;
+    border: 1px solid #3b82f6 !important;
   }
 }
 
 select {
   width: 100% !important;
   height: unset !important;
-  border: 1px solid #d3d7e2 !important;
+  border: 1px solid var(--gray-300, #d3d7e2) !important;
   border-radius: 4px !important;
   padding: 12px 12px !important;
   background-color: white !important;
   font-size: 16px !important;
   &:hover {
-    border: 1px solid #0052cc !important;
+    border: 1px solid #3b82f6 !important;
   }
   &:active {
-    border: 1px solid #0052cc !important;
+    border: 1px solid #3b82f6 !important;
   }
   &:focus {
-    border: 1px solid #0052cc !important;
+    border: 1px solid #3b82f6 !important;
   }
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: var(--font-body, "Inter", sans-serif);
 }
 
 .hidden {

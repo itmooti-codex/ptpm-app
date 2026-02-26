@@ -7,6 +7,7 @@
   var U = window.PtpmUtils;
   var VS = window.VitalSync;
   var config = window.AppConfig || {};
+  var interaction = window.PtpmInteraction || {};
 
   // ── State ──────────────────────────────────────────────────
   var state = {
@@ -43,6 +44,16 @@
     pluginPromise: null,
     devReadinessWarned: false,
   };
+
+  function getJobViewUrl(jobId) {
+    var id = String(jobId || '').trim();
+    if (!id) return 'job-view.html';
+    var template = String(config.JOB_VIEW_URL_TEMPLATE || config.JOB_DETAIL_URL_TEMPLATE || 'job-view.html?job={id}').trim();
+    if (!template) template = 'job-view.html?job={id}';
+    var safeId = encodeURIComponent(id);
+    if (template.indexOf('{id}') >= 0) return template.replace(/\{id\}/g, safeId);
+    return template + (template.indexOf('?') >= 0 ? '&' : '?') + 'job=' + safeId;
+  }
 
   // ── Option Data ────────────────────────────────────────────
   var STATE_OPTIONS = [
@@ -971,7 +982,9 @@
     var container = byId('addActivitiesTable');
     if (!container) return;
     if (!state.activities.length) {
-      container.innerHTML = '<p class="text-sm text-slate-500 text-center py-4">No activities added yet.</p>';
+      container.innerHTML = interaction.emptyState
+        ? interaction.emptyState('No activities added yet.')
+        : '<p class="text-sm text-slate-500 text-center py-4">No activities added yet.</p>';
       return;
     }
     var rows = state.activities.map(function (a) {
@@ -1065,7 +1078,7 @@
     var section = $('[data-section="add-activities"]');
     if (!section) return Promise.resolve();
     var data = getFieldValues(section);
-    if (!data.task && !data.service_name) { showError('Please select a task or service.'); return Promise.resolve(); }
+    if (!data.task && !data.service_id && !data.service_name) { showError('Please select a task or service.'); return Promise.resolve(); }
     data.job_id = state.jobId;
     if (data.date_required) data.date_required = dateToUnix(data.date_required);
     if (data.invoice_to_client === true) data.invoice_to_client = '1';
@@ -1120,11 +1133,11 @@
     if (servSelect) {
       populateSelect(servSelect, primary.map(function (s) {
         var serviceName = readField(s, ['service_name', 'Service_Name']);
-        return { value: serviceName, text: serviceName, id: readField(s, ['id', 'ID']) };
+        return { value: String(readField(s, ['id', 'ID']) || ''), text: serviceName, id: readField(s, ['id', 'ID']) };
       }), 'Select');
       servSelect.addEventListener('change', function () {
         var selected = primary.find(function (s) {
-          return readField(s, ['service_name', 'Service_Name']) === servSelect.value;
+          return String(readField(s, ['id', 'ID']) || '') === String(servSelect.value || '');
         });
         if (!selected) return;
         serviceIdField.value = readField(selected, ['id', 'ID']) || '';
@@ -1136,7 +1149,7 @@
           if (subs.length) {
             populateSelect(secSelect, subs.map(function (s) {
               var serviceName = readField(s, ['service_name', 'Service_Name']);
-              return { value: serviceName, text: serviceName };
+              return { value: String(readField(s, ['id', 'ID']) || ''), text: serviceName };
             }), 'Select');
             secWrapper.classList.remove('hidden');
             secSelect.classList.remove('hidden');
@@ -1148,10 +1161,9 @@
     }
     if (secSelect) {
       secSelect.addEventListener('change', function () {
-        var allSubs = state.services.filter(function (s) {
-          return readField(s, ['service_name', 'Service_Name']) === secSelect.value;
+        var sel = state.services.find(function (s) {
+          return String(readField(s, ['id', 'ID']) || '') === String(secSelect.value || '');
         });
-        var sel = allSubs[0];
         if (!sel) return;
         serviceIdField.value = readField(sel, ['id', 'ID']) || '';
         if (priceField) priceField.value = readField(sel, ['service_price', 'Service_Price']) || '';
@@ -1167,7 +1179,9 @@
     var container = byId('addMaterialsTable');
     if (!container) return;
     if (!state.materials.length) {
-      container.innerHTML = '<p class="text-sm text-slate-500 text-center py-4">No materials added yet.</p>';
+      container.innerHTML = interaction.emptyState
+        ? interaction.emptyState('No materials added yet.')
+        : '<p class="text-sm text-slate-500 text-center py-4">No materials added yet.</p>';
       return;
     }
     var rows = state.materials.map(function (m) {
@@ -1271,7 +1285,9 @@
     if (!container) return;
     container.innerHTML = '';
     if (!state.uploads.length) {
-      container.innerHTML = '<p class="text-sm text-slate-500 text-center py-4">No uploads yet.</p>';
+      container.innerHTML = interaction.emptyState
+        ? interaction.emptyState('No uploads yet.')
+        : '<p class="text-sm text-slate-500 text-center py-4">No uploads yet.</p>';
       return;
     }
     state.previewModal = state.previewModal || U.ensureFilePreviewModal();
@@ -1660,6 +1676,9 @@
         { operation: 'submit-direct-job', jobId: state.jobId, inquiryId: state.inquiryId || '' },
         'Direct Job submitted. Syncing workflow status...'
       );
+      setTimeout(function () {
+        window.location.href = getJobViewUrl(state.jobId);
+      }, 350);
     }).catch(function (err) {
       console.error(err);
       showError('Direct Job submit failed.', 'job.submit');
@@ -1905,20 +1924,10 @@
       state.jobId = (params.get('job') || params.get('quote') || params.get('payment') || '').toString().trim();
     }
 
-    // Existing jobs should open in the redesigned detail experience.
+    // Existing jobs should open in the dedicated job view page.
     // Keep this wizard route for explicit new-flow create journeys only (?new=1&inquiry=<id>).
     if (state.jobId && !state.isNewFlow) {
-      var target = 'inquiry-detail.html?job=' + encodeURIComponent(state.jobId);
-      var inquiryTpl = String(config.INQUIRY_DETAIL_URL_TEMPLATE || '').trim();
-      if (inquiryTpl) {
-        target = inquiryTpl.replace(/\{id\}/g, encodeURIComponent(state.jobId));
-        target = target
-          .replace(/[?&](?:deal|inquiry|id)=\{id\}/g, '')
-          .replace(/[?&](?:deal|inquiry|id)=[^&]*/g, '')
-          .replace(/[?&]$/, '');
-        target += (target.indexOf('?') >= 0 ? '&' : '?') + 'job=' + encodeURIComponent(state.jobId);
-      }
-      window.location.replace(target);
+      window.location.replace(getJobViewUrl(state.jobId));
       return;
     }
 

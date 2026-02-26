@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PTPM | Job View (Dev)</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    [x-cloak] { display: none !important; }
+    .thin-scrollbar { scrollbar-width: thin; scrollbar-color: #94a3b8 transparent; }
+    .thin-scrollbar::-webkit-scrollbar { width: 6px; }
+    .thin-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+  </style>
+  <link rel="stylesheet" href="../src/css/styles.css?v=3">
+</head>
+<body class="ptpm-detail-page bg-gray-50 text-gray-900" x-data="jobDetail" x-cloak>
+  <div class="dev-mode-banner">
+    DEV MODE &mdash; Job View &bull; <a href="./index.html">Dev home</a> &bull; <a href="./dashboard.html">Dashboard</a>
+  </div>
+
+  <script src="mock-data.js"></script>
+  <script src="./mock-data.local.js"></script>
+  <script>
+    (function () {
+      var m = window.__ONTRAPORT_MOCK__ ? window : {};
+      window.AppConfig = {
+        SLUG: 'peterpm',
+        API_KEY: m.__MOCK_API_KEY__ || '',
+        API_BASE: 'https://peterpm.vitalstats.app',
+        CONTACT_ID: m.__MOCK_CONTACT_ID__ || '',
+        LOGGED_IN_USER_ID: m.__MOCK_LOGGED_IN_USER_ID__ || '',
+        DEBUG: true,
+        TIMEZONE: 'Australia/Brisbane',
+        JOB_DETAIL_URL_TEMPLATE: 'job-view.html?job={id}',
+        QUOTE_DETAIL_URL_TEMPLATE: 'job-view.html?quote={id}',
+        PAYMENT_DETAIL_URL_TEMPLATE: 'job-view.html?payment={id}',
+        INQUIRY_DETAIL_URL_TEMPLATE: 'inquiry-detail.html?inquiry={id}',
+        CUSTOMER_DETAIL_URL_TEMPLATE: 'customer-detail.html?contact={id}',
+        DASHBOARD_URL: 'dashboard.html',
+        N8N_ACTION_WEBHOOK_URL: 'https://peterpm.awesomate.io/webhook/ptpm/action-dispatch/v1',
+        N8N_ACTION_CONTRACT_VERSION: 'ptpm.action.v1',
+        N8N_ACTION_WEBHOOK_TOKEN: '',
+        N8N_ACTION_WEBHOOK_TIMEOUT_MS: 20000,
+      };
+    })();
+  </script>
+
+  <template x-if="toastMessage">
+    <div class="fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 bg-gray-900 text-white rounded-lg shadow-xl text-xs font-medium">
+      <span class="text-emerald-400">&#x2713;</span>
+      <span x-text="toastMessage"></span>
+      <button @click="toastMessage = null" class="text-gray-400 hover:text-white ml-2">&times;</button>
+    </div>
+  </template>
+
+  <template x-if="loading">
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center">
+        <div class="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-3"></div>
+        <p class="text-sm text-gray-500">Loading job...</p>
+      </div>
+    </div>
+  </template>
+
+  <template x-if="!loading && error">
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center max-w-md">
+        <p class="text-lg font-semibold text-red-600 mb-2">Error</p>
+        <p class="text-sm text-gray-600" x-text="error"></p>
+        <a href="dashboard.html" class="inline-block mt-4 px-4 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-gray-800">&larr; Back to Dashboard</a>
+      </div>
+    </div>
+  </template>
+
+  <template x-if="!loading && !error && job">
+    <div class="min-h-screen flex flex-col">
+      <header class="ptpm-detail-header px-6 py-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2.5">
+              <span class="text-lg">&#x1F4C4;</span>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h1 class="text-base font-bold" x-text="jobDisplayId"></h1>
+                  <select x-model="jobStatus" @change="updateJobStatus()" class="ptpm-detail-select text-xs border border-gray-300 rounded-md px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <template x-for="opt in $store.enums?.job_status || ['Create Quote','To Be Scheduled','Scheduled','In Progress','Complete','Completed','Cancelled']">
+                      <option :value="opt" x-text="opt"></option>
+                    </template>
+                  </select>
+                  <select x-model="quoteStatus" @change="updateQuoteStatus()" class="ptpm-detail-select text-xs border border-gray-300 rounded-md px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <template x-for="opt in $store.enums?.quote_status || ['New Quote','Quote Sent','Accepted','Rejected','Expired','Draft']">
+                      <option :value="opt" x-text="opt"></option>
+                    </template>
+                  </select>
+                  <select x-model="paymentStatus" @change="updatePaymentStatus()" class="ptpm-detail-select text-xs border border-gray-300 rounded-md px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <template x-for="opt in $store.enums?.payment_status || ['Invoice Required','Invoice Sent','Overdue','Paid','Cancelled','Written Off']">
+                      <option :value="opt" x-text="opt"></option>
+                    </template>
+                  </select>
+                </div>
+                <p class="ptpm-detail-meta text-xs mt-0.5">
+                  Created <span x-text="job.created_at || '—'"></span> &middot;
+                  Type: <span x-text="job.job_type || '—'"></span> &middot;
+                  Priority: <span x-text="job.priority || '—'"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button @click="navigateToDashboard()" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-1.5">&larr; Dashboard</button>
+            <button @click="printJob()" class="ptpm-btn ptpm-btn-primary-on-dark ptpm-btn-sm inline-flex items-center gap-1.5">&#x1F5A8; Print</button>
+            <div class="relative">
+              <button @click="showEmailMenu = !showEmailMenu" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-1.5">&#x2709; Send Email &#x25BE;</button>
+              <div x-show="showEmailMenu" @click.away="showEmailMenu = false" x-cloak class="absolute right-0 top-full mt-1 w-52 bg-white border border-gray-200 rounded-lg shadow-xl z-50 py-1">
+                <template x-for="t in ['Email Customer','Email Service Provider','Quote Follow Up','Invoice Follow Up']">
+                  <button @click="sendEmail(t)" class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 text-gray-700" x-text="t"></button>
+                </template>
+              </div>
+            </div>
+            <div class="relative">
+              <button @click="showMoreActions = !showMoreActions" class="ptpm-btn ptpm-btn-ghost-on-dark ptpm-btn-sm inline-flex items-center ptpm-detail-action-tertiary">&vellip;</button>
+              <div x-show="showMoreActions" @click.away="showMoreActions = false" x-cloak class="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-50 py-1">
+                <template x-for="t in ['Mark Complete','Cancel Job','Duplicate Job']">
+                  <button @click="moreAction(t)" class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 text-gray-700" x-text="t"></button>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="px-6 pt-3 space-y-2">
+        <template x-if="job.popup_comment || (contact && contact.popup_comment)">
+          <div class="flex items-start gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+            <span class="text-amber-500 text-sm flex-shrink-0 mt-px">&#x26A0;</span>
+            <div><span class="font-bold">Contact Alert:</span> <span class="font-medium leading-relaxed" x-text="job.popup_comment || (contact && contact.popup_comment)"></span></div>
+          </div>
+        </template>
+        <template x-if="job.return_job_to_admin">
+          <div class="flex items-start gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+            <span class="text-amber-500 text-sm flex-shrink-0 mt-px">&#x26A0;</span>
+            <div><span class="font-bold">SP Return:</span> <span class="font-medium">Returned by service provider</span></div>
+          </div>
+        </template>
+        <template x-if="job.create_a_callback || callbackJobs.length">
+          <div class="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800">
+            <span class="text-blue-500 text-sm">&#x1F4DE;</span>
+            <span>Callback activity exists for this job.</span>
+          </div>
+        </template>
+      </div>
+
+      <div class="flex-1 bg-gray-50 p-6">
+        <div class="grid grid-cols-12 gap-5">
+          <div class="col-span-8 space-y-5">
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x1F4DD;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Job Details</h3></div>
+              </div>
+              <div class="p-4">
+                <div class="grid grid-cols-4 gap-4 mb-4">
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Type</dt><dd class="text-sm text-gray-900" x-text="job.job_type || '—'"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Priority</dt><dd class="text-sm text-gray-900" x-text="job.priority || '—'"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Date Scheduled</dt><dd class="text-sm text-gray-900" x-text="job.date_scheduled || '—'"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Date Completed</dt><dd class="text-sm text-gray-900" x-text="job.date_completed || '—'"></dd></div>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Quote Total</dt><dd class="text-sm text-gray-900" x-text="money(job.quote_total)"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Job Total</dt><dd class="text-sm text-gray-900" x-text="money(job.job_total)"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Invoice Total</dt><dd class="text-sm text-gray-900" x-text="money(job.invoice_total)"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Activity Subtotal</dt><dd class="text-sm text-gray-900" x-text="money(jobActivitySubtotal)"></dd></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200" x-data="{ open: true }">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg cursor-pointer select-none" @click="open = !open">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x1F4C8;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Quote Details</h3></div>
+              </div>
+              <div x-show="open" class="p-4">
+                <div class="grid grid-cols-4 gap-4">
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Quote Date</dt><dd class="text-sm text-gray-900" x-text="job.quote_date || '—'"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Valid Until</dt><dd class="text-sm text-gray-900" x-text="job.quote_valid_until || '—'"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Variation Type</dt><dd class="text-sm text-gray-900" x-text="job.quote_variation_type || '—'"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Variation Price</dt><dd class="text-sm text-gray-900" x-text="money(job.quote_variation_price)"></dd></div>
+                </div>
+                <div class="mt-3 border-t border-gray-100 pt-3">
+                  <dt class="text-xs text-gray-400 font-medium mb-0.5">Variation Notes</dt>
+                  <dd class="text-sm text-gray-900" x-text="job.quote_variation_text || '—'"></dd>
+                </div>
+              </div>
+            </div>
+
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x2699;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Activity Summary</h3></div>
+              </div>
+              <div class="p-4 max-h-72 overflow-y-auto thin-scrollbar" x-html="window.PtpmPanels.activities(activities || [])"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-5">
+              <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+                <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                  <div class="flex items-center gap-2"><span class="text-sm">&#x1F4CC;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Admin Recommendation</h3></div>
+                </div>
+                <div class="p-4">
+                  <pre class="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed bg-gray-50 rounded-md p-3 border border-gray-100 max-h-40 overflow-y-auto thin-scrollbar" x-text="job.admin_recommendation || 'No admin recommendation.'"></pre>
+                </div>
+              </div>
+              <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+                <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                  <div class="flex items-center gap-2"><span class="text-sm">&#x1F4AC;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Follow Up Notes</h3></div>
+                </div>
+                <div class="p-4">
+                  <pre class="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed bg-gray-50 rounded-md p-3 border border-gray-100 max-h-40 overflow-y-auto thin-scrollbar" x-text="job.follow_up_comment || 'No follow up notes.'"></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <div class="flex border-b border-gray-200 bg-white px-1 gap-0.5 overflow-x-auto">
+                <template x-for="tab in tabItems" :key="tab.id">
+                  <button @click="switchTab(tab.id)" :class="activeTab === tab.id ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600 hover:border-gray-300'" class="px-3 py-2.5 text-xs font-semibold whitespace-nowrap border-b-2 transition-colors">
+                    <span x-text="tab.label"></span>
+                    <template x-if="tab.count != null">
+                      <span :class="activeTab === tab.id ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500'" class="ml-1.5 px-1.5 py-0.5 rounded-full text-xs" x-text="tab.count"></span>
+                    </template>
+                  </button>
+                </template>
+              </div>
+              <div class="p-4 max-h-96 overflow-y-auto thin-scrollbar" x-html="panelHtml" @click="handlePanelClick($event)"></div>
+            </div>
+          </div>
+
+          <div class="col-span-4 space-y-5">
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x1F464;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Client</h3></div>
+                <button @click="navigateToCustomer()" class="ptpm-detail-btn" x-show="contact">View Record</button>
+              </div>
+              <div class="p-4 space-y-2">
+                <p class="text-sm font-semibold text-gray-900" x-text="clientDisplayName"></p>
+                <template x-if="contact">
+                  <div class="space-y-1.5 text-xs">
+                    <template x-if="contact.email"><div class="text-gray-700" x-text="contact.email"></div></template>
+                    <template x-if="contact.sms_number"><div class="text-gray-700" x-text="contact.sms_number"></div></template>
+                    <template x-if="contact.office_phone"><div class="text-gray-700" x-text="contact.office_phone"></div></template>
+                  </div>
+                </template>
+                <template x-if="company">
+                  <div class="space-y-1.5 text-xs">
+                    <div class="text-gray-700" x-text="company.phone || '—'"></div>
+                    <div class="text-gray-700" x-text="[company.address, company.city, company.state, company.postal_code].filter(Boolean).join(', ') || '—'"></div>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x1F3E0;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Property</h3></div>
+                <button class="ptpm-detail-btn" @click="navigateToProperty()" x-show="property">View Record</button>
+              </div>
+              <div class="p-4">
+                <template x-if="property">
+                  <div>
+                    <p class="text-sm font-semibold text-gray-900" x-text="propertyAddress || (property.property_name || '—')"></p>
+                    <div class="grid grid-cols-2 gap-2 mt-3">
+                      <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Type</dt><dd class="text-sm text-gray-900" x-text="property.property_type || '—'"></dd></div>
+                      <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Building</dt><dd class="text-sm text-gray-900" x-text="property.building_type || '—'"></dd></div>
+                      <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Owner Type</dt><dd class="text-sm text-gray-900" x-text="property.owner_type || '—'"></dd></div>
+                      <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Foundation</dt><dd class="text-sm text-gray-900" x-text="property.foundation_type || '—'"></dd></div>
+                    </div>
+                  </div>
+                </template>
+                <template x-if="!property"><p class="text-xs text-gray-400 italic">No property linked.</p></template>
+              </div>
+            </div>
+
+            <template x-if="property">
+              <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200" x-data="{ open: true }">
+                <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg cursor-pointer select-none" @click="open = !open">
+                  <div class="flex items-center gap-2"><span class="text-sm">&#x1F465;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Property Contacts</h3></div>
+                </div>
+                <div x-show="open" class="p-4 space-y-2.5">
+                  <template x-for="pc in propertyContacts" :key="pc.id">
+                    <div class="flex items-center justify-between p-2 rounded-md bg-gray-50 border border-gray-100">
+                      <div>
+                        <p class="text-xs font-semibold text-gray-700" x-text="(pc.contact_name || '') + ' ' + (pc.contact_last_name || '')"></p>
+                        <p class="text-xs text-gray-400" x-text="pc.role || ''"></p>
+                      </div>
+                      <div class="text-right text-xs">
+                        <p class="text-gray-600" x-text="pc.contact_phone || ''"></p>
+                        <p class="text-gray-400" x-text="pc.contact_email || ''"></p>
+                      </div>
+                    </div>
+                  </template>
+                  <template x-if="!propertyContacts.length"><p class="text-xs text-gray-400 italic">No contacts linked to property.</p></template>
+                </div>
+              </div>
+            </template>
+
+            <template x-if="serviceProvider">
+              <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+                <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                  <div class="flex items-center gap-2"><span class="text-sm">&#x1F527;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Service Provider</h3></div>
+                </div>
+                <div class="p-4">
+                  <div class="flex items-center gap-3 mb-2">
+                    <div class="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center text-sm font-bold text-emerald-600" x-text="spInitial"></div>
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2">
+                        <p class="text-sm font-semibold text-gray-900" x-text="spName"></p>
+                        <span x-html="badge(serviceProvider.status || 'Active')"></span>
+                      </div>
+                      <p class="text-xs text-gray-500"><span x-text="serviceProvider.mobile_number || ''"></span> &middot; <span x-text="(serviceProvider.job_rate_percentage || '') + '%'"></span> rate</p>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="flex justify-between p-1.5 bg-gray-50 rounded"><span class="text-gray-400">Capacity</span><span :class="spCapacityColor" class="font-semibold" x-text="serviceProvider.workload_capacity || '—'"></span></div>
+                    <div class="flex justify-between p-1.5 bg-gray-50 rounded"><span class="text-gray-400">In Progress</span><span class="font-semibold text-gray-700" x-text="serviceProvider.jobs_in_progress || '0'"></span></div>
+                    <div class="flex justify-between p-1.5 bg-gray-50 rounded"><span class="text-gray-400">Done (30d)</span><span class="font-semibold text-gray-700" x-text="serviceProvider.completed_jobs_last_30_days || '0'"></span></div>
+                    <div class="flex justify-between p-1.5 bg-gray-50 rounded"><span class="text-gray-400">Callbacks</span><span class="font-semibold text-gray-700" x-text="serviceProvider.call_backs_last_30_days || '0'"></span></div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <div class="ptpm-detail-card bg-white rounded-lg border border-amber-300 ring-1 ring-amber-100">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-amber-200 bg-amber-50 rounded-t-lg">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x1F4B3;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-amber-800">Invoice</h3></div>
+              </div>
+              <div class="p-4">
+                <div class="grid grid-cols-2 gap-2">
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Invoice #</dt><dd class="text-sm text-gray-900" x-text="job.invoice_number || '—'"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Status</dt><dd class="text-sm text-gray-900" x-text="job.xero_invoice_status || job.payment_status || '—'"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Invoice Total</dt><dd class="text-sm text-gray-900" x-text="money(job.invoice_total)"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Part Payment</dt><dd class="text-sm text-gray-900" x-text="money(job.Part_Payment_Made)"></dd></div>
+                </div>
+              </div>
+            </div>
+
+            <template x-if="linkedInquiry">
+              <div class="ptpm-detail-card bg-white rounded-lg border border-blue-200">
+                <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-blue-100 bg-blue-50 rounded-t-lg">
+                  <div class="flex items-center gap-2"><span class="text-sm">&#x1F517;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-blue-800">Linked Inquiry</h3></div>
+                </div>
+                <div class="p-4">
+                  <button @click="navigateToLinkedInquiry()" class="w-full text-left group">
+                    <p class="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors" x-text="'INQ-' + (linkedInquiry.unique_id || linkedInquiry.id)"></p>
+                    <p class="text-xs text-gray-500 mt-1" x-text="linkedInquiry.deal_name || 'Open inquiry'"></p>
+                  </button>
+                </div>
+              </div>
+            </template>
+
+            <template x-if="callbackJobs && callbackJobs.length">
+              <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+                <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                  <div class="flex items-center gap-2"><span class="text-sm">&#x1F501;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Callback Jobs</h3></div>
+                </div>
+                <div class="p-4 space-y-2">
+                  <template x-for="cb in callbackJobs" :key="cb.id">
+                    <button @click="openCallbackJob(cb.id)" class="w-full text-left p-2 rounded-md border border-gray-100 hover:border-gray-300">
+                      <div class="flex items-center justify-between">
+                        <span class="text-sm font-semibold text-gray-800" x-text="'JOB-' + (cb.unique_id || cb.id)"></span>
+                        <span x-html="badge(cb.job_status || '')"></span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-1">Total: <span x-text="money(cb.job_total)"></span></p>
+                    </button>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script src="../src/js/config.js"></script>
+  <script src="../src/js/utils.js"></script>
+  <script src="../src/js/shared/interaction.js"></script>
+  <script src="../src/js/shared/ui.js"></script>
+  <script src="../src/js/shared/panels.js"></script>
+  <script src="../src/js/shared/queries.js"></script>
+  <script src="../src/js/shared/form-modal.js"></script>
+  <script src="../src/js/job-view.js"></script>
+</body>
+</html>
