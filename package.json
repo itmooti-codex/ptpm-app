@@ -9,7 +9,8 @@
     "sync:legacy:dry-run": "node scripts/sync/legacy-to-graphql-sync.js --dry-run",
     "sync:legacy:run": "node scripts/sync/legacy-to-graphql-sync.js --write",
     "sync:legacy:backfill-feb-2026": "node scripts/sync/legacy-to-graphql-sync.js --write --entities jobs,inquiries --from 2026-02-01T00:00:00Z --to 2026-03-01T00:00:00Z",
-    "sync:legacy:feb-jobs": "node scripts/sync/legacy-to-graphql-sync.js --write --entities jobs --from 2026-02-01T00:00:00Z --to 2026-03-01T00:00:00Z --batch-size 100 --max-batches 20"
+    "sync:legacy:feb-jobs": "node scripts/sync/legacy-to-graphql-sync.js --write --entities jobs --from 2026-02-01T00:00:00Z --to 2026-03-01T00:00:00Z --batch-size 100 --max-batches 20",
+    "qa:click-audit": "node scripts/qa/click-audit.js"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "fast-xml-parser": "^4.5.0",
+    "playwright": "^1.58.2",
     "vite": "^6.1.0"
   }
 }
