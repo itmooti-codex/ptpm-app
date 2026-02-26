@@ -89,6 +89,83 @@
   var BUILDING_TYPES = ['House', 'Unit', 'Townhouse', 'Duplex', 'Apartment', 'Villa', 'Other'];
   var FOUNDATION_TYPES = ['Slab on Ground', 'Stumps', 'Piers', 'Strip Footing', 'Raft', 'Other'];
 
+  var FIELD_GROUPS = [
+    'related_data',
+    'property_section',
+    'property_contacts',
+    'service_field',
+    'service_name_field',
+    'admin_notes_field',
+    'referral_field',
+    'resident_feedback_section',
+    'noise_signs_field',
+    'pest_active_field',
+    'pest_location_field',
+    'renovations_field',
+    'date_required_field',
+    'resident_availability_field',
+    'customer_media_field',
+    'internal_media_field',
+  ];
+
+  var INQUIRY_TYPE_RULES = {
+    'General Inquiry': {
+      required: ['inquiry_source', 'help'],
+      visibleGroups: ['related_data', 'admin_notes_field', 'referral_field'],
+      visibleRelatedTabs: ['properties', 'jobs', 'inquiries'],
+    },
+    'Service Request or Quote': {
+      required: ['inquiry_source', 'help', 'service', 'property'],
+      visibleGroups: FIELD_GROUPS.slice(),
+      visibleRelatedTabs: ['properties', 'jobs', 'inquiries'],
+    },
+    'Product or Service Information': {
+      required: ['inquiry_source', 'help'],
+      visibleGroups: ['related_data', 'service_field', 'service_name_field', 'admin_notes_field', 'referral_field'],
+      visibleRelatedTabs: ['inquiries'],
+    },
+    'Customer Support or Technical Assistance': {
+      required: ['inquiry_source', 'help'],
+      visibleGroups: ['related_data', 'service_field', 'admin_notes_field', 'referral_field'],
+      visibleRelatedTabs: ['properties', 'jobs', 'inquiries'],
+    },
+    'Billing and Payment': {
+      required: ['inquiry_source', 'help'],
+      visibleGroups: ['related_data', 'admin_notes_field', 'referral_field'],
+      visibleRelatedTabs: ['jobs', 'inquiries'],
+    },
+    'Appointment Scheduling or Rescheduling': {
+      required: ['inquiry_source', 'help', 'property', 'date_required'],
+      visibleGroups: ['related_data', 'property_section', 'property_contacts', 'service_field', 'admin_notes_field', 'date_required_field', 'resident_availability_field', 'referral_field'],
+      visibleRelatedTabs: ['properties', 'jobs', 'inquiries'],
+    },
+    'Feedback or Suggestions': {
+      required: ['inquiry_source', 'help'],
+      visibleGroups: ['related_data', 'admin_notes_field', 'referral_field'],
+      visibleRelatedTabs: ['properties', 'jobs', 'inquiries'],
+    },
+    'Complaint or Issue Reporting': {
+      required: ['inquiry_source', 'help', 'property'],
+      visibleGroups: ['related_data', 'property_section', 'property_contacts', 'service_field', 'admin_notes_field', 'resident_feedback_section', 'noise_signs_field', 'pest_active_field', 'pest_location_field', 'customer_media_field', 'internal_media_field'],
+      visibleRelatedTabs: ['properties', 'jobs', 'inquiries'],
+    },
+    'Partnership or Collaboration Inquiry': {
+      required: ['inquiry_source', 'help'],
+      visibleGroups: ['related_data', 'admin_notes_field', 'referral_field'],
+      visibleRelatedTabs: ['inquiries'],
+    },
+    'Job Application or Career Opportunities': {
+      required: ['inquiry_source', 'help'],
+      visibleGroups: ['admin_notes_field'],
+      visibleRelatedTabs: [],
+    },
+    'Media or Press Inquiry': {
+      required: ['inquiry_source', 'help'],
+      visibleGroups: ['admin_notes_field', 'referral_field'],
+      visibleRelatedTabs: [],
+    },
+  };
+
   // ─── State ────────────────────────────────────────────────────────────────────
 
   var state = {
@@ -346,47 +423,138 @@
     }).then(function (r) { return { resp: (r && r.data || []).map(unwrapRecord) }; });
   }
 
-  function fetchPropertiesByEmail(email) {
-    return fetchAllFromModel('property', function (q) {
-      return q.field('id', 'id').field('property_name', 'property_name')
-        .field('address_1', 'address_1').field('address_2', 'address_2')
-        .field('suburb_town', 'suburb_town').field('state', 'state')
-        .field('postal_code', 'postal_code').field('map_url', 'map_url')
-        .field('owner_name', 'owner_name').field('status', 'status')
-        .field('unique_id', 'unique_id')
-        .limit(100);
-    }).then(function (r) { return (r && r.data || []).map(unwrapRecord); })
-    .catch(function () { return []; });
+  function uniqueById(rows) {
+    var byId = {};
+    (rows || []).forEach(function (row) {
+      var id = row && (row.id || row.ID);
+      if (!id) return;
+      byId[String(id)] = row;
+    });
+    return Object.keys(byId).map(function (k) { return byId[k]; });
   }
 
-  function fetchJobsByEmail(email) {
+  function fetchPropertiesByContactId(contactId) {
+    if (!contactId) return Promise.resolve([]);
+    return fetchAllFromModel('affiliation', function (q) {
+      return q.deSelectAll()
+        .select(['id', 'contact_id', 'property_id'])
+        .where({ Contact_ID: contactId })
+        .include('Property', function (pq) {
+          pq.deSelectAll().select(['id', 'property_name', 'address_1', 'address_2', 'suburb_town', 'state', 'postal_code']);
+        })
+        .limit(200)
+        .noDestroy();
+    }).then(function (r) {
+      var rows = extractRecordsFromResult(r).map(unwrapRecord);
+      var props = rows.map(function (row) { return row.Property || row.property || null; }).filter(Boolean).map(unwrapRecord);
+      return uniqueById(props);
+    }).catch(function () { return []; });
+  }
+
+  function fetchJobsByContactId(contactId) {
+    if (!contactId) return Promise.resolve([]);
     return fetchAllFromModel('job', function (q) {
-      return q.field('id', 'id').field('unique_id', 'unique_id')
-        .field('status', 'status').field('created_at', 'created_at')
-        .field('date_completed', 'date_completed')
-        .field('provider_name', 'provider_name')
-        .field('property_name', 'property_name')
-        .limit(100);
-    }).then(function (r) { return (r && r.data || []).map(unwrapRecord); })
-    .catch(function () { return []; });
+      return q.deSelectAll()
+        .select(['id', 'unique_id', 'status', 'created_at', 'date_completed'])
+        .where({ client_individual_id: contactId })
+        .include('Primary_Service_Provider', function (spq) {
+          spq.deSelectAll().select(['id']).include('Contact_Information', function (cq) {
+            cq.deSelectAll().select(['first_name', 'last_name']);
+          });
+        })
+        .include('Property', function (pq) {
+          pq.deSelectAll().select(['property_name']);
+        })
+        .limit(200)
+        .noDestroy();
+    }).then(function (r) {
+      return extractRecordsFromResult(r).map(unwrapRecord).map(function (row) {
+        var provider = row.Primary_Service_Provider || row.primary_service_provider || {};
+        var contact = provider.Contact_Information || provider.contact_information || {};
+        var providerName = [contact.first_name || contact.First_Name, contact.last_name || contact.Last_Name].filter(Boolean).join(' ').trim();
+        var property = row.Property || row.property || {};
+        return Object.assign({}, row, {
+          provider_name: providerName,
+          property_name: row.property_name || row.Property_Property_Name || property.property_name || property.Property_Name || '',
+        });
+      });
+    }).catch(function () { return []; });
   }
 
-  function fetchInquiriesByEmail(email) {
+  function fetchJobsByCompanyId(companyId) {
+    if (!companyId) return Promise.resolve([]);
+    return fetchAllFromModel('job', function (q) {
+      return q.deSelectAll()
+        .select(['id', 'unique_id', 'status', 'created_at', 'date_completed'])
+        .where({ client_entity_id: companyId })
+        .include('Primary_Service_Provider', function (spq) {
+          spq.deSelectAll().select(['id']).include('Contact_Information', function (cq) {
+            cq.deSelectAll().select(['first_name', 'last_name']);
+          });
+        })
+        .include('Property', function (pq) {
+          pq.deSelectAll().select(['property_name']);
+        })
+        .limit(200)
+        .noDestroy();
+    }).then(function (r) {
+      return extractRecordsFromResult(r).map(unwrapRecord).map(function (row) {
+        var provider = row.Primary_Service_Provider || row.primary_service_provider || {};
+        var contact = provider.Contact_Information || provider.contact_information || {};
+        var providerName = [contact.first_name || contact.First_Name, contact.last_name || contact.Last_Name].filter(Boolean).join(' ').trim();
+        var property = row.Property || row.property || {};
+        return Object.assign({}, row, {
+          provider_name: providerName,
+          property_name: row.property_name || row.Property_Property_Name || property.property_name || property.Property_Name || '',
+        });
+      });
+    }).catch(function () { return []; });
+  }
+
+  function fetchInquiriesByContactId(contactId) {
+    if (!contactId) return Promise.resolve([]);
     return fetchAllFromModel('deal', function (q) {
-      return q.field('id', 'id').field('unique_id', 'unique_id')
-        .field('status', 'status').field('service_name', 'service_name')
-        .field('created_at', 'created_at')
-        .limit(100);
-    }).then(function (r) { return (r && r.data || []).map(unwrapRecord); })
-    .catch(function () { return []; });
+      return q.deSelectAll()
+        .select(['id', 'unique_id', 'inquiry_status', 'service_type', 'created_at'])
+        .where({ primary_contact_id: contactId })
+        .limit(200)
+        .noDestroy();
+    }).then(function (r) {
+      return extractRecordsFromResult(r).map(unwrapRecord).map(function (row) {
+        return Object.assign({}, row, {
+          status: row.status || row.inquiry_status || row.Inquiry_Status || '',
+          service_name: row.service_name || row.service_type || row.Service_Type || '',
+        });
+      });
+    }).catch(function () { return []; });
   }
 
-  function fetchRelated(email) {
-    if (!email) return Promise.resolve({ properties: [], jobs: [], inquiries: [] });
+  function fetchInquiriesByCompanyId(companyId) {
+    if (!companyId) return Promise.resolve([]);
+    return fetchAllFromModel('deal', function (q) {
+      return q.deSelectAll()
+        .select(['id', 'unique_id', 'inquiry_status', 'service_type', 'created_at'])
+        .where({ company_id: companyId })
+        .limit(200)
+        .noDestroy();
+    }).then(function (r) {
+      return extractRecordsFromResult(r).map(unwrapRecord).map(function (row) {
+        return Object.assign({}, row, {
+          status: row.status || row.inquiry_status || row.Inquiry_Status || '',
+          service_name: row.service_name || row.service_type || row.Service_Type || '',
+        });
+      });
+    }).catch(function () { return []; });
+  }
+
+  function fetchRelated(context) {
+    var contactId = context && context.contactId;
+    var companyId = context && context.companyId;
+    if (!contactId && !companyId) return Promise.resolve({ properties: [], jobs: [], inquiries: [] });
     return Promise.all([
-      fetchPropertiesByEmail(email),
-      fetchJobsByEmail(email),
-      fetchInquiriesByEmail(email),
+      fetchPropertiesByContactId(contactId),
+      Promise.all([fetchJobsByContactId(contactId), fetchJobsByCompanyId(companyId)]).then(function (r) { return uniqueById((r[0] || []).concat(r[1] || [])); }),
+      Promise.all([fetchInquiriesByContactId(contactId), fetchInquiriesByCompanyId(companyId)]).then(function (r) { return uniqueById((r[0] || []).concat(r[1] || [])); }),
     ]).then(function (results) {
       return { properties: results[0], jobs: results[1], inquiries: results[2] };
     });
@@ -652,10 +820,11 @@
   function handleContactSelected(contact) {
     if (!contact) return;
     state.contactId = contact.id;
+    state.companyId = null;
     populateContactFields(contact);
     clearPropertyFields();
     showRelatedLoading();
-    loadRelatedData(contact.fields && contact.fields.email);
+    loadRelatedData({ contactId: state.contactId });
   }
 
   function populateContactFields(contact) {
@@ -824,6 +993,69 @@
     updateRelatedUI();
   }
 
+  function getInquiryTypeRule() {
+    var typeEl = $('inquiry-type');
+    var type = typeEl ? String(typeEl.value || '').trim() : '';
+    return INQUIRY_TYPE_RULES[type] || null;
+  }
+
+  function setFieldGroupVisible(group, visible) {
+    $qa('[data-field-group="' + group + '"]').forEach(function (el) {
+      el.classList.toggle('hidden', !visible);
+    });
+  }
+
+  function applyRelatedTabVisibility(visibleTabs) {
+    var tabs = ['properties', 'jobs', 'inquiries'];
+    var visibleSet = {};
+    (visibleTabs || tabs).forEach(function (t) { visibleSet[t] = true; });
+    tabs.forEach(function (tab) {
+      var tabEl = $q('[data-related-tab="' + tab + '"]');
+      var panelEl = $q('[data-related-panel="' + tab + '"]');
+      var isVisible = !!visibleSet[tab];
+      if (tabEl) tabEl.classList.toggle('hidden', !isVisible);
+      if (panelEl && !isVisible) panelEl.classList.add('hidden');
+    });
+    var currentStillVisible = !!visibleSet[state.activeRelatedTab];
+    if (!currentStillVisible) {
+      state.activeRelatedTab = tabs.find(function (t) { return !!visibleSet[t]; }) || 'properties';
+    }
+    if (Object.keys(visibleSet).length === 0) {
+      setFieldGroupVisible('related_data', false);
+    } else {
+      setFieldGroupVisible('related_data', true);
+      setActiveRelatedTab(state.activeRelatedTab);
+    }
+  }
+
+  function applyInquiryTypeVisibility() {
+    var rule = getInquiryTypeRule();
+    var alwaysVisible = ['related_data', 'property_section', 'property_contacts', 'service_field', 'service_name_field', 'admin_notes_field', 'referral_field', 'resident_feedback_section', 'noise_signs_field', 'pest_active_field', 'pest_location_field', 'renovations_field', 'date_required_field', 'resident_availability_field', 'customer_media_field', 'internal_media_field'];
+    if (!rule) {
+      alwaysVisible.forEach(function (group) { setFieldGroupVisible(group, false); });
+      setFieldGroupVisible('service_field', true);
+      setFieldGroupVisible('help_field', true);
+      setFieldGroupVisible('inquiry_source_field', true);
+      setFieldGroupVisible('inquiry_type_field', true);
+      applyRelatedTabVisibility([]);
+      return;
+    }
+    alwaysVisible.forEach(function (group) { setFieldGroupVisible(group, false); });
+    setFieldGroupVisible('inquiry_type_field', true);
+    setFieldGroupVisible('inquiry_source_field', true);
+    setFieldGroupVisible('help_field', true);
+    (rule.visibleGroups || []).forEach(function (group) { setFieldGroupVisible(group, true); });
+    applyRelatedTabVisibility(rule.visibleRelatedTabs || ['properties', 'jobs', 'inquiries']);
+  }
+
+  function bindInquiryTypeChange() {
+    var typeEl = $('inquiry-type');
+    if (!typeEl) return;
+    typeEl.addEventListener('change', function () {
+      applyInquiryTypeVisibility();
+    });
+  }
+
   function updateRelatedUI() {
     var counts = {
       properties: state.relatedData.properties.length,
@@ -885,11 +1117,13 @@
     setActiveRelatedTab(state.activeRelatedTab);
   }
 
-  function loadRelatedData(email) {
-    if (!email) { state.relatedData = { properties: [], jobs: [], inquiries: [] }; updateRelatedUI(); return; }
+  function loadRelatedData(context) {
+    var contactId = context && context.contactId;
+    var companyId = context && context.companyId;
+    if (!contactId && !companyId) { state.relatedData = { properties: [], jobs: [], inquiries: [] }; updateRelatedUI(); return; }
     var reqId = ++state.relatedRequestId;
     showRelatedLoading();
-    fetchRelated(email.trim()).then(function (data) {
+    fetchRelated({ contactId: contactId, companyId: companyId }).then(function (data) {
       if (state.relatedRequestId !== reqId) return;
       renderRelatedData(data);
     }).catch(function () {
@@ -1496,7 +1730,7 @@
 
     var reqId = ++state.entityRelatedRequestId;
     showRelatedLoading();
-    fetchRelated(entity.Primary_Person_Email || entity.primary_person_email || '').then(function (data) {
+    fetchRelated({ contactId: state.entityContactId, companyId: state.companyId }).then(function (data) {
       if (state.entityRelatedRequestId !== reqId) return;
       renderRelatedData(data);
     });
@@ -1561,6 +1795,7 @@
       return String(c.id || '') === String(contactId);
     });
     if (match) {
+      state.urlPrefillApplied = true;
       handleContactSelected(match);
       return;
     }
@@ -1754,6 +1989,8 @@
   var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   function collectValidationErrors() {
     var errors = [];
+    var rule = getInquiryTypeRule();
+    var required = (rule && rule.required) || ['inquiry_source', 'help', 'service', 'property'];
     var contactId = '';
     var entityId = '';
     if (state.activeContactTab === 'individual') {
@@ -1779,8 +2016,31 @@
         else if (!emailRegex.test(v)) errors.push({ el: em, message: 'Enter a valid email address.' });
       }
     }
-    var serviceEl = $q('#service-inquiry');
-    if (serviceEl && !(serviceEl.value || '').trim()) errors.push({ el: serviceEl, message: 'Service is required.' });
+    if (required.indexOf('inquiry_source') >= 0) {
+      var sourceEl = $q('#inquiry-source');
+      if (sourceEl && !(sourceEl.value || '').trim()) errors.push({ el: sourceEl, message: 'Inquiry source is required.' });
+    }
+    if (required.indexOf('help') >= 0) {
+      var helpEl = $q('[data-inquiry-id="how-can-we-help"]');
+      if (helpEl && !(helpEl.value || '').trim()) errors.push({ el: helpEl, message: 'How can we help? is required.' });
+    }
+    if (required.indexOf('service') >= 0) {
+      var serviceEl = $q('#service-inquiry');
+      if (serviceEl && !(serviceEl.value || '').trim()) errors.push({ el: serviceEl, message: 'Service is required.' });
+    }
+    if (required.indexOf('property') >= 0) {
+      var propertyId = $('selected-property-id') ? $('selected-property-id').value : state.propertyId;
+      var propertyInput = $q('[data-property-id="search-properties"]');
+      if (!propertyId && (!propertyInput || !(propertyInput.value || '').trim())) {
+        errors.push({ el: propertyInput || document.body, message: 'Select or enter a property for this inquiry type.' });
+      }
+    }
+    if (required.indexOf('date_required') >= 0) {
+      var dateEl = $q('[data-feedback-id="date-job-required-by"]');
+      if (dateEl && !(dateEl.value || '').trim()) {
+        errors.push({ el: dateEl, message: 'Date job required by is required.' });
+      }
+    }
     return { valid: errors.length === 0, errors: errors };
   }
   function initValidation() {
@@ -2172,9 +2432,7 @@
           var viewBtn = $('view-contact-detail');
           if (viewBtn) viewBtn.classList.remove('hidden');
 
-          if (c.Email) {
-            loadRelatedData(c.Email);
-          }
+          loadRelatedData({ contactId: data.Primary_Contact_ID });
         }
       });
     }
@@ -2243,8 +2501,6 @@
   // ─── Init ─────────────────────────────────────────────────────────────────────
 
   function init() {
-    prefillFromUrlParams();
-
     // Connect to VitalSync
     if (window.VitalSync) {
       window.VitalSync.connect().then(function (plugin) {
@@ -2252,16 +2508,18 @@
         console.log('[NewInquiry] VitalSync connected');
         loadContacts().then(function () {
           prefillFromUrlParams();
+          checkEditMode();
         });
-        checkEditMode();
       }).catch(function (err) {
         console.error('[NewInquiry] VitalSync connection failed:', err);
         if (config.DEBUG || window.__ONTRAPORT_MOCK__) loadMockContacts();
         prefillFromUrlParams();
+        checkEditMode();
       });
     } else {
       if (config.DEBUG || window.__ONTRAPORT_MOCK__) loadMockContacts();
       prefillFromUrlParams();
+      checkEditMode();
     }
 
     // Populate dropdowns and checkbox groups
@@ -2271,11 +2529,13 @@
     bindContactSearch();
     bindContactTabs();
     bindRelatedTabs();
+    bindInquiryTypeChange();
     bindHeaderButtons();
     bindSameAsContactAddress();
     initFlatpickr();
     initFileUploads();
     initValidation();
+    applyInquiryTypeVisibility();
 
     // Bind same-as-contact checkbox for each section
     $qa('[data-same-as-contact]').forEach(function (cb) {

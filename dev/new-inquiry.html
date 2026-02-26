@@ -189,7 +189,7 @@
           </div>
 
           <!-- Related Data Card -->
-          <div class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm" data-related>
+          <div class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm" data-related data-field-group="related_data">
             <div class="px-4 py-3 border-b border-slate-200">
               <div class="flex items-center gap-3">
                 <button type="button" data-related-tab="properties" class="px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-50 text-blue-700">Properties (0)</button>
@@ -207,7 +207,7 @@
         </div>
 
         <!-- MIDDLE COLUMN: Property Information -->
-        <div id="property-information" class="min-w-[460px] flex flex-col flex-1 gap-4">
+        <div id="property-information" data-field-group="property_section" class="min-w-[460px] flex flex-col flex-1 gap-4">
           <div class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm p-4 gap-4">
             <div class="flex items-center justify-between">
               <h3 class="text-neutral-700 text-base font-bold">Property Information</h3>
@@ -246,7 +246,7 @@
           </div>
 
           <!-- Property Contacts -->
-          <div id="property-contacts" class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div id="property-contacts" data-field-group="property_contacts" class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
               <h3 class="text-neutral-700 text-base font-bold">Property Contacts</h3>
               <button id="add-contact-btn" type="button" class="hidden px-3 py-1.5 bg-[#003882] rounded text-white text-xs font-medium">+ Add Contact</button>
@@ -260,29 +260,30 @@
 
         <!-- RIGHT COLUMN: Inquiry Details + Resident Feedback -->
         <div class="min-w-0 lg:min-w-[420px] flex flex-col flex-1 gap-4">
-          <div id="inquiry-detail" data-inquiry-id="inquiry-detail" class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm p-4 gap-4">
+          <div id="inquiry-detail" data-inquiry-id="inquiry-detail" data-field-group="inquiry_section" class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm p-4 gap-4">
             <h3 class="text-neutral-700 text-base font-bold">Inquiry Details</h3>
-            <div><label class="text-sm font-medium text-slate-600">Inquiry Source</label><select id="inquiry-source" data-inquiry-id="inquiry-source" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select></div>
-            <div><label class="text-sm font-medium text-slate-600">Type</label><select id="inquiry-type" data-inquiry-id="type" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select></div>
-            <div><label class="text-sm font-medium text-slate-600">Service</label><select id="service-inquiry" data-inquiry-id="services" data-feedback-id="services" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select></div>
-            <div><label class="text-sm font-medium text-slate-600">Service Name</label><input type="text" data-inquiry-id="service-name" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
-            <div><label class="text-sm font-medium text-slate-600">How Can We Help?</label><textarea data-inquiry-id="how-can-we-help" rows="3" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></textarea></div>
-            <div><label class="text-sm font-medium text-slate-600">Admin Notes</label><textarea data-inquiry-id="admin-notes" rows="3" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></textarea></div>
-            <div><label class="text-sm font-medium text-slate-600">Referral Source</label><select id="referral-source" data-inquiry-id="how-did-you-hear" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select></div>
+            <div data-field-group="inquiry_source_field"><label class="text-sm font-medium text-slate-600">Inquiry Source</label><select id="inquiry-source" data-inquiry-id="inquiry-source" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select></div>
+            <div data-field-group="inquiry_type_field"><label class="text-sm font-medium text-slate-600">Type</label><select id="inquiry-type" data-inquiry-id="type" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select></div>
+            <div data-field-group="service_field"><label class="text-sm font-medium text-slate-600">Service</label><select id="service-inquiry" data-inquiry-id="services" data-feedback-id="services" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select></div>
+            <div data-field-group="service_name_field"><label class="text-sm font-medium text-slate-600">Service Name</label><input type="text" data-inquiry-id="service-name" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></div>
+            <div data-field-group="help_field"><label class="text-sm font-medium text-slate-600">How Can We Help?</label><textarea data-inquiry-id="how-can-we-help" rows="3" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></textarea></div>
+            <div data-field-group="admin_notes_field"><label class="text-sm font-medium text-slate-600">Admin Notes</label><textarea data-inquiry-id="admin-notes" rows="3" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></textarea></div>
+            <div data-field-group="referral_field"><label class="text-sm font-medium text-slate-600">Referral Source</label><select id="referral-source" data-inquiry-id="how-did-you-hear" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"></select></div>
           </div>
 
-          <div id="resident-feedback" data-feedback-id="resident-feedback" class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm p-4 gap-4">
+          <div id="resident-feedback" data-feedback-id="resident-feedback" data-field-group="resident_feedback_section" class="flex flex-col rounded-lg border border-slate-200 bg-white shadow-sm p-4 gap-4">
             <h3 class="text-neutral-700 text-base font-bold">Resident Feedback</h3>
-            <div><label class="text-sm font-medium text-slate-600">Noise / Signs</label><ul data-feedback-id="noise-signs-options-as-text" class="mt-2 grid grid-cols-2 gap-2"></ul></div>
-            <div><label class="text-sm font-medium text-slate-600">Pest Active Times</label><ul data-feedback-id="pest-active-times-options-as-text" class="mt-2 grid grid-cols-2 gap-2"></ul></div>
-            <div><label class="text-sm font-medium text-slate-600">Pest Location</label><ul data-feedback-id="pest-location-options-as-text" class="mt-2 grid grid-cols-2 gap-2"></ul></div>
-            <div><label class="text-sm font-medium text-slate-600">Renovations</label><select data-feedback-id="renovations" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"><option value="">Select</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
-            <div><label class="text-sm font-medium text-slate-600">Date Job Required By</label><input type="text" data-feedback-id="date-job-required-by" placeholder="DD/MM/YYYY" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm flatpickr-input"></div>
-            <div><label class="text-sm font-medium text-slate-600">Customer Images</label>
+            <div data-field-group="noise_signs_field"><label class="text-sm font-medium text-slate-600">Noise / Signs</label><ul data-feedback-id="noise-signs-options-as-text" class="mt-2 grid grid-cols-2 gap-2"></ul></div>
+            <div data-field-group="pest_active_field"><label class="text-sm font-medium text-slate-600">Pest Active Times</label><ul data-feedback-id="pest-active-times-options-as-text" class="mt-2 grid grid-cols-2 gap-2"></ul></div>
+            <div data-field-group="pest_location_field"><label class="text-sm font-medium text-slate-600">Pest Location</label><ul data-feedback-id="pest-location-options-as-text" class="mt-2 grid grid-cols-2 gap-2"></ul></div>
+            <div data-field-group="renovations_field"><label class="text-sm font-medium text-slate-600">Renovations</label><select data-feedback-id="renovations" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm appearance-none"><option value="">Select</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+            <div data-field-group="date_required_field"><label class="text-sm font-medium text-slate-600">Date Job Required By</label><input type="text" data-feedback-id="date-job-required-by" placeholder="DD/MM/YYYY" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm flatpickr-input"></div>
+            <div data-field-group="resident_availability_field"><label class="text-sm font-medium text-slate-600">Resident Availability</label><textarea data-feedback-id="resident-availability" rows="2" class="mt-1 w-full px-2.5 py-2 rounded outline outline-1 outline-gray-300 text-sm"></textarea></div>
+            <div data-field-group="customer_media_field"><label class="text-sm font-medium text-slate-600">Customer Images</label>
               <div class="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-4 text-center"><label class="cursor-pointer text-sm text-blue-600">Click to upload or drag & drop<input type="file" data-feedback-upload="customer" accept="image/*,application/pdf" multiple class="hidden"></label></div>
               <div data-feedback-upload-list="customer" class="mt-2 space-y-2"></div>
             </div>
-            <div><label class="text-sm font-medium text-slate-600">Internal Images</label>
+            <div data-field-group="internal_media_field"><label class="text-sm font-medium text-slate-600">Internal Images</label>
               <div class="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-4 text-center"><label class="cursor-pointer text-sm text-blue-600">Click to upload or drag & drop<input type="file" data-feedback-upload="internal" accept="image/*,application/pdf" multiple class="hidden"></label></div>
               <div data-feedback-upload-list="internal" class="mt-2 space-y-2"></div>
             </div>
