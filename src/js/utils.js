@@ -59,7 +59,38 @@
   function formatDate(ts, locale) {
     if (!ts) return 'N/A';
     try {
-      var date = typeof ts === 'number' ? new Date(ts * 1000) : new Date(ts);
+      var date;
+      if (typeof ts === 'number') {
+        date = new Date(ts * 1000);
+      } else if (typeof ts === 'string') {
+        var trimmed = ts.trim();
+        if (/^\d+$/.test(trimmed)) {
+          // Treat pure numeric strings as unix seconds.
+          date = new Date(Number(trimmed) * 1000);
+        } else {
+          // Support DD/MM/YYYY and DD/MM/YYYY HH:mm[:ss] explicitly.
+          var dmY = trimmed.match(
+            /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}|mm)(?::(\d{2}))?)?$/i
+          );
+          if (dmY) {
+            var day = Number(dmY[1]);
+            var month = Number(dmY[2]) - 1;
+            var year = Number(dmY[3]);
+            var hour = Number(dmY[4] || 0);
+            var minuteToken = String(dmY[5] || '0').toLowerCase();
+            var minute = minuteToken === 'mm' ? 0 : Number(minuteToken || 0);
+            var second = Number(dmY[6] || 0);
+            date = new Date(year, month, day, hour, minute, second);
+          } else {
+            date = new Date(trimmed);
+          }
+        }
+      } else {
+        date = new Date(ts);
+      }
+      if (!(date instanceof Date) || isNaN(date.getTime())) {
+        return typeof ts === 'string' ? ts : 'N/A';
+      }
       return date.toLocaleDateString(locale || 'en-AU', {
         day: 'numeric',
         month: 'short',
@@ -576,6 +607,9 @@
   }
 
   function requestUploadDetails(file, folderName) {
+    if (!config.API_KEY) {
+      return Promise.reject(new Error('Missing API key. Set AppConfig.API_KEY (or dev mock API key) before uploading files.'));
+    }
     var safeFolder = sanitizeFolderName(folderName || '');
     var name = (safeFolder ? safeFolder + '/' : '') + ((file && file.name) || 'upload');
     var params = new URLSearchParams({
@@ -588,7 +622,13 @@
     })
       .then(function (res) { return res.json().then(function (data) { return { res: res, data: data }; }); })
       .then(function (r) {
-        if (!r.res.ok || r.data.statusCode !== 200) throw new Error('Failed to obtain upload URL');
+        if (!r.res.ok || r.data.statusCode !== 200) {
+          var apiMessage = (r.data && (r.data.message || r.data.error || (r.data.data && r.data.data.message))) || '';
+          if (r.res.status === 401 || r.res.status === 403) {
+            throw new Error('Upload authorization failed (HTTP ' + r.res.status + '). Check your API key and permissions.');
+          }
+          throw new Error(apiMessage || ('Failed to obtain upload URL (HTTP ' + r.res.status + ').'));
+        }
         return r.data.data;
       });
   }

@@ -1788,6 +1788,12 @@
   // ROW CLICK HANDLING
   // ═══════════════════════════════════════════════════════════
 
+  function normalizeJobDetailTemplate(template) {
+    var raw = String(template || '');
+    if (!raw) return '';
+    return raw;
+  }
+
   function getDetailUrlTemplateForTab(tabKey) {
     var c = config;
     switch (tabKey) {
@@ -1795,12 +1801,12 @@
       case 'urgent-calls':
         return c.INQUIRY_DETAIL_URL_TEMPLATE || '';
       case 'quote':
-        return c.QUOTE_DETAIL_URL_TEMPLATE || '';
+        return normalizeJobDetailTemplate(c.QUOTE_DETAIL_URL_TEMPLATE || '');
       case 'jobs':
       case 'active-jobs':
-        return c.JOB_DETAIL_URL_TEMPLATE || '';
+        return normalizeJobDetailTemplate(c.JOB_DETAIL_URL_TEMPLATE || '');
       case 'payment':
-        return c.PAYMENT_DETAIL_URL_TEMPLATE || c.JOB_DETAIL_URL_TEMPLATE || '';
+        return normalizeJobDetailTemplate(c.PAYMENT_DETAIL_URL_TEMPLATE || c.JOB_DETAIL_URL_TEMPLATE || '');
       default:
         return '';
     }

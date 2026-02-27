@@ -1,0 +1,149 @@
+<!-- PTPM Job View — Ontraport Body HTML Block -->
+<!-- Paste this into: Ontraport Page → HTML Block in Body -->
+
+<div x-data="jobDetail" x-cloak class="ptpm-detail-page bg-gray-50 text-gray-900 min-h-screen">
+  <template x-if="toastMessage">
+    <div class="fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 bg-gray-900 text-white rounded-lg shadow-xl text-xs font-medium">
+      <span class="text-emerald-400">&#x2713;</span>
+      <span x-text="toastMessage"></span>
+      <button @click="toastMessage = null" class="text-gray-400 hover:text-white ml-2">&times;</button>
+    </div>
+  </template>
+
+  <template x-if="loading">
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center">
+        <div class="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-3"></div>
+        <p class="text-sm text-gray-500">Loading job...</p>
+      </div>
+    </div>
+  </template>
+
+  <template x-if="!loading && error">
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center max-w-md">
+        <p class="text-lg font-semibold text-red-600 mb-2">Error</p>
+        <p class="text-sm text-gray-600" x-text="error"></p>
+      </div>
+    </div>
+  </template>
+
+  <template x-if="!loading && !error && job">
+    <div class="min-h-screen flex flex-col">
+      <header class="ptpm-detail-header px-6 py-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2.5">
+              <span class="text-lg">&#x1F4C4;</span>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h1 class="text-base font-bold" x-text="jobDisplayId"></h1>
+                  <select x-model="jobStatus" @change="updateJobStatus()" class="ptpm-detail-select text-xs border border-gray-300 rounded-md px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <template x-for="opt in $store.enums?.job_status || ['Create Quote','To Be Scheduled','Scheduled','In Progress','Complete','Completed','Cancelled']">
+                      <option :value="opt" x-text="opt"></option>
+                    </template>
+                  </select>
+                  <select x-model="quoteStatus" @change="updateQuoteStatus()" class="ptpm-detail-select text-xs border border-gray-300 rounded-md px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <template x-for="opt in $store.enums?.quote_status || ['New Quote','Quote Sent','Accepted','Rejected','Expired','Draft']">
+                      <option :value="opt" x-text="opt"></option>
+                    </template>
+                  </select>
+                  <select x-model="paymentStatus" @change="updatePaymentStatus()" class="ptpm-detail-select text-xs border border-gray-300 rounded-md px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    <template x-for="opt in $store.enums?.payment_status || ['Invoice Required','Invoice Sent','Overdue','Paid','Cancelled','Written Off']">
+                      <option :value="opt" x-text="opt"></option>
+                    </template>
+                  </select>
+                </div>
+                <p class="ptpm-detail-meta text-xs mt-0.5">
+                  Created <span x-text="job.created_at || '—'"></span> &middot;
+                  Type: <span x-text="job.job_type || '—'"></span> &middot;
+                  Priority: <span x-text="job.priority || '—'"></span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button @click="navigateToDashboard()" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-1.5">&larr; Dashboard</button>
+            <button @click="printJob()" class="ptpm-btn ptpm-btn-primary-on-dark ptpm-btn-sm inline-flex items-center gap-1.5">&#x1F5A8; Print</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="flex-1 bg-gray-50 p-6">
+        <div class="grid grid-cols-12 gap-5">
+          <div class="col-span-8 space-y-5">
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x1F4DD;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Job Details</h3></div>
+              </div>
+              <div class="p-4">
+                <div class="grid grid-cols-4 gap-4 mb-4">
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Type</dt><dd class="text-sm text-gray-900" x-text="job.job_type || '—'"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Priority</dt><dd class="text-sm text-gray-900" x-text="job.priority || '—'"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Date Scheduled</dt><dd class="text-sm text-gray-900" x-text="job.date_scheduled || '—'"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Date Completed</dt><dd class="text-sm text-gray-900" x-text="job.date_completed || '—'"></dd></div>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Quote Total</dt><dd class="text-sm text-gray-900" x-text="money(job.quote_total)"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Job Total</dt><dd class="text-sm text-gray-900" x-text="money(job.job_total)"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Invoice Total</dt><dd class="text-sm text-gray-900" x-text="money(job.invoice_total)"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Activity Subtotal</dt><dd class="text-sm text-gray-900" x-text="money(jobActivitySubtotal)"></dd></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x2699;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Activity Summary</h3></div>
+              </div>
+              <div class="p-4 max-h-72 overflow-y-auto thin-scrollbar" x-html="window.PtpmPanels.activities(activities || [])"></div>
+            </div>
+
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <div class="flex border-b border-gray-200 bg-white px-1 gap-0.5 overflow-x-auto">
+                <template x-for="tab in tabItems" :key="tab.id">
+                  <button @click="switchTab(tab.id)" :class="activeTab === tab.id ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600 hover:border-gray-300'" class="px-3 py-2.5 text-xs font-semibold whitespace-nowrap border-b-2 transition-colors">
+                    <span x-text="tab.label"></span>
+                  </button>
+                </template>
+              </div>
+              <div class="p-4 max-h-96 overflow-y-auto thin-scrollbar" x-html="panelHtml" @click="handlePanelClick($event)"></div>
+            </div>
+          </div>
+
+          <div class="col-span-4 space-y-5">
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x1F464;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Client</h3></div>
+              </div>
+              <div class="p-4">
+                <p class="text-sm font-semibold text-gray-900" x-text="clientDisplayName"></p>
+              </div>
+            </div>
+
+            <div class="ptpm-detail-card bg-white rounded-lg border border-gray-200">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x1F3E0;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-gray-500">Property</h3></div>
+              </div>
+              <div class="p-4">
+                <p class="text-sm text-gray-900" x-text="propertyAddress || 'No property linked.'"></p>
+              </div>
+            </div>
+
+            <div class="ptpm-detail-card bg-white rounded-lg border border-amber-300 ring-1 ring-amber-100">
+              <div class="ptpm-detail-card-header flex items-center justify-between px-4 py-2.5 border-b border-amber-200 bg-amber-50 rounded-t-lg">
+                <div class="flex items-center gap-2"><span class="text-sm">&#x1F4B3;</span><h3 class="ptpm-detail-section-title text-xs font-bold uppercase tracking-wider text-amber-800">Invoice</h3></div>
+              </div>
+              <div class="p-4">
+                <div class="grid grid-cols-2 gap-2">
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Invoice #</dt><dd class="text-sm text-gray-900" x-text="job.invoice_number || '—'"></dd></div>
+                  <div><dt class="text-xs text-gray-400 font-medium mb-0.5">Status</dt><dd class="text-sm text-gray-900" x-text="job.xero_invoice_status || job.payment_status || '—'"></dd></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+</div>

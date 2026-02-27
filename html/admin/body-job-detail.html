@@ -1,9 +1,9 @@
 <!-- PTPM Job Detail — Ontraport Body HTML Block -->
 <!-- Paste this into: Ontraport Page → HTML Block in Body -->
 
-<main class="flex flex-col min-h-screen">
+<main class="ptpm-page-shell min-h-screen">
   <!-- Header Bar -->
-  <header class="px-6 py-4 bg-[#003882] border-b border-gray-300 flex items-center justify-between text-white shadow-card">
+  <header class="ptpm-page-header flex items-center justify-between text-white">
     <div class="flex items-center gap-3">
       <span class="text-xl font-bold">New Direct Job</span>
       <span data-current-section-label class="ml-3 text-sm text-gray-200"></span>
@@ -96,7 +96,7 @@
       <!-- ═══ SECTION 1: Job Information ═══ -->
       <div data-section="job-information" class="flex flex-col gap-3">
         <!-- Tabs -->
-        <div class="bg-white rounded-lg border border-slate-200 shadow-sm">
+        <div class="ptpm-card bg-white rounded-lg">
           <div class="flex border-b border-slate-200">
             <button data-tab="overview" class="px-6 py-3 text-sm font-medium border-b-2 border-[#003882] text-[#003882]">Overview</button>
             <button data-tab="appointments" class="px-6 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500">Appointments</button>
@@ -281,7 +281,7 @@
       <!-- ═══ SECTION 2: Activities ═══ -->
       <div data-section="add-activities" class="hidden w-full flex flex-row gap-4">
         <!-- Add Activity Form -->
-        <div class="w-[440px] bg-white rounded-lg border border-slate-200 p-5 flex flex-col gap-4 shadow-sm shrink-0">
+      <div class="ptpm-card w-[440px] bg-white rounded-lg p-5 flex flex-col gap-4 shrink-0">
           <div class="flex flex-col items-start gap-2">
             <div class="text-neutral-800 text-base font-semibold">Add New Activity</div>
             <label class="flex items-center gap-2 text-slate-600 text-sm">
@@ -338,14 +338,14 @@
           </div>
         </div>
         <!-- Activities Table -->
-        <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm">
+      <div class="ptpm-card flex-1 bg-white rounded-lg p-4">
           <div id="addActivitiesTable" class="w-full"></div>
         </div>
       </div>
 
       <!-- ═══ SECTION 3: Materials ═══ -->
       <div data-section="add-materials" class="hidden w-full flex flex-row gap-4">
-        <div class="w-[440px] bg-white rounded-lg border border-slate-200 p-5 flex flex-col gap-4 shadow-sm shrink-0">
+      <div class="ptpm-card w-[440px] bg-white rounded-lg p-5 flex flex-col gap-4 shrink-0">
           <div class="text-neutral-800 text-base font-semibold">Add Materials</div>
           <div class="flex flex-col gap-4">
             <div>
@@ -384,7 +384,7 @@
             <button id="add-material-btn" class="ptpm-btn ptpm-btn-primary ptpm-btn-sm">Add</button>
           </div>
         </div>
-        <div class="flex-1 bg-white rounded-lg border border-slate-200 p-4 shadow-sm">
+      <div class="ptpm-card flex-1 bg-white rounded-lg p-4">
           <div id="addMaterialsTable" class="w-full"></div>
         </div>
       </div>

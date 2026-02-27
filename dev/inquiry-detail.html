@@ -11,6 +11,10 @@
   <!-- Alpine.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+  <!-- Flatpickr (date picker) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,6 +32,10 @@
 </head>
 <body class="ptpm-detail-page bg-gray-50 text-gray-900" x-data="inquiryDetail" x-cloak>
 
+  <div class="dev-mode-banner">
+    DEV MODE &mdash; Inquiry Detail &bull; <a href="./index.html">Dev home</a> &bull; <a href="./dashboard.html">Dashboard</a>
+  </div>
+
   <!-- Dev mode mock data + config -->
   <script src="mock-data.js"></script>
   <script src="./mock-data.local.js"></script>
@@ -42,7 +50,7 @@
         LOGGED_IN_USER_ID: m.__MOCK_LOGGED_IN_USER_ID__ || '',
         DEBUG: true,
         TIMEZONE: 'Australia/Brisbane',
-        JOB_DETAIL_URL_TEMPLATE: 'job-detail.html?job={id}',
+        JOB_DETAIL_URL_TEMPLATE: 'job-view.html?job={id}',
         CUSTOMER_DETAIL_URL_TEMPLATE: 'customer-detail.html?contact={id}',
         INQUIRY_DETAIL_URL_TEMPLATE: 'inquiry-detail.html?deal={id}',
         NEW_JOB_URL: 'job-detail.html?new=1',
@@ -119,6 +127,9 @@
             </div>
           </div>
           <div class="flex items-center gap-2">
+            <button @click="navigateToDashboard()" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-1.5">
+              &larr; Dashboard
+            </button>
             <!-- Create Quote / View Job -->
             <template x-if="inquiry.quote_record_id">
               <button @click="navigateToJob()" class="ptpm-btn ptpm-btn-primary-on-dark ptpm-btn-sm inline-flex items-center gap-1.5">
@@ -482,6 +493,7 @@
   <!-- Scripts -->
   <script src="../src/js/config.js"></script>
   <script src="../src/js/utils.js"></script>
+  <script src="../src/js/shared/interaction.js"></script>
   <script src="../src/js/shared/ui.js"></script>
   <script src="../src/js/shared/panels.js"></script>
   <script src="../src/js/shared/queries.js"></script>

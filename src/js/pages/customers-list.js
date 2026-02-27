@@ -7,6 +7,7 @@
 
   var config = window.AppConfig || {};
   var utils = window.PtpmUtils || window.AppUtils || {};
+  var interaction = window.PtpmInteraction || {};
 
   function byId(id) { return document.getElementById(id); }
   function escapeHtml(text) { return utils.escapeHtml ? utils.escapeHtml(text) : (function (t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; })(text); }
@@ -266,7 +267,9 @@
     });
 
     if (pageRows.length === 0) {
-      html += '<tr><td colspan="10" class="px-4 py-8 text-center text-slate-500">No customers match your filters.</td></tr>';
+      html += interaction.tableEmptyRow
+        ? interaction.tableEmptyRow(10, 'No customers match your filters.')
+        : '<tr><td colspan="10" class="px-4 py-8 text-center text-slate-500">No customers match your filters.</td></tr>';
     }
     html += '</tbody></table>';
     container.innerHTML = html;

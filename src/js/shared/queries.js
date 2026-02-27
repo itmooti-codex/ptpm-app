@@ -400,8 +400,8 @@
     '    subject: field(arg: ["subject"])',
     '    details: field(arg: ["details"])',
     '    status: field(arg: ["status"])',
-    '    date_due: field(arg: ["date_due"]) @dateFormat(value: "YYYY-MM-DD")',
-    '    date_complete: field(arg: ["date_complete"]) @dateFormat(value: "YYYY-MM-DD")',
+    '    date_due: field(arg: ["date_due"])',
+    '    date_complete: field(arg: ["date_complete"])',
     '    assignee_name: field(arg: ["Assignee", "first_name"])',
     '  }',
     '}',
@@ -414,9 +414,18 @@
     '    subject: field(arg: ["subject"])',
     '    details: field(arg: ["details"])',
     '    status: field(arg: ["status"])',
-    '    date_due: field(arg: ["date_due"]) @dateFormat(value: "YYYY-MM-DD")',
-    '    date_complete: field(arg: ["date_complete"]) @dateFormat(value: "YYYY-MM-DD")',
+    '    date_due: field(arg: ["date_due"])',
+    '    date_complete: field(arg: ["date_complete"])',
     '    assignee_name: field(arg: ["Assignee", "first_name"])',
+    '  }',
+    '}',
+  ].join('\n');
+
+  var TASK_OUTCOMES_QUERY = [
+    'query calcTaskOutcomes {',
+    '  calcTaskOutcomes {',
+    '    id: field(arg: ["id"])',
+    '    name: field(arg: ["name"])',
     '  }',
     '}',
   ].join('\n');
@@ -608,6 +617,7 @@
     '  calcJobs(query: [{ where: { id: $id } }]) {',
     '    id: field(arg: ["id"])',
     '    unique_id: field(arg: ["unique_id"])',
+    '    property_id: field(arg: ["property_id"])',
     '    quote_status: field(arg: ["quote_status"])',
     '    job_status: field(arg: ["job_status"])',
     '    payment_status: field(arg: ["payment_status"])',
@@ -639,10 +649,10 @@
   var MUTATIONS = {
     updateDeal: 'mutation updateDeal($id: PeterpmDealID!, $payload: DealUpdateInput = null) { updateDeal(query: [{ where: { id: $id } }], payload: $payload) { id inquiry_status sales_stage } }',
     updateJob: 'mutation updateJob($id: PeterpmJobID!, $payload: JobUpdateInput = null) { updateJob(query: [{ where: { id: $id } }], payload: $payload) { id job_status quote_status payment_status } }',
-    updateTask: 'mutation updateTask($id: PeterpmTaskID!, $payload: TaskUpdateInput = null) { updateTask(query: [{ where: { id: $id } }], payload: $payload) { id status } }',
+    updateTask: 'mutation updateTask($id: PeterpmTaskID!, $payload: TaskUpdateInput = null) { updateTask(query: [{ where: { id: $id } }], payload: $payload) { id subject details status date_due date_complete } }',
     createForumPost: 'mutation createForumPost($payload: ForumPostCreateInput = null) { createForumPost(payload: $payload) { id post_copy author_id } }',
     createForumComment: 'mutation createForumComment($payload: ForumCommentCreateInput = null) { createForumComment(payload: $payload) { id comment author_id } }',
-    createTask: 'mutation createTask($payload: TaskCreateInput = null) { createTask(payload: $payload) { id subject } }',
+    createTask: 'mutation createTask($payload: TaskCreateInput = null) { createTask(payload: $payload) { id subject details status date_due date_complete } }',
     createNote: 'mutation createNote($payload: NoteCreateInput = null) { createNote(payload: $payload) { id note } }',
     createUpload: 'mutation createUpload($payload: UploadCreateInput = null) { createUpload(payload: $payload) { id } }',
     createActivity: 'mutation createActivity($payload: ActivityCreateInput = null) { createActivity(payload: $payload) { id task activity_price } }',
@@ -666,6 +676,7 @@
   function fetchMaterials(jobId) { return gqlFetch(MATERIALS_QUERY, { job_id: Number(jobId) }).then(allRecords); }
   function fetchTasksByJob(jobId) { return gqlFetch(TASKS_BY_JOB_QUERY, { Job_id: Number(jobId) }).then(allRecords); }
   function fetchTasksByDeal(dealId) { return gqlFetch(TASKS_BY_DEAL_QUERY, { Deal_id: Number(dealId) }).then(allRecords); }
+  function fetchTaskOutcomes() { return gqlFetch(TASK_OUTCOMES_QUERY, {}).then(allRecords); }
   function fetchNotesByJob(jobId) { return gqlFetch(NOTES_BY_JOB_QUERY, { Job_id: Number(jobId) }).then(allRecords); }
   function fetchNotesByDeal(dealId) { return gqlFetch(NOTES_BY_DEAL_QUERY, { Deal_id: Number(dealId) }).then(allRecords); }
   function fetchUploadsByJob(jobId) { return gqlFetch(UPLOADS_BY_JOB_QUERY, { job_id: Number(jobId) }).then(allRecords); }
@@ -705,6 +716,7 @@
     fetchMaterials: fetchMaterials,
     fetchTasksByJob: fetchTasksByJob,
     fetchTasksByDeal: fetchTasksByDeal,
+    fetchTaskOutcomes: fetchTaskOutcomes,
     fetchNotesByJob: fetchNotesByJob,
     fetchNotesByDeal: fetchNotesByDeal,
     fetchUploadsByJob: fetchUploadsByJob,

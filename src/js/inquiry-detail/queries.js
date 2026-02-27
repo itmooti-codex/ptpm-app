@@ -210,9 +210,12 @@ const DELETE_JOB_QUERY = `
 const CREATE_JOB_TASK = `
   mutation createTask($payload: TaskCreateInput = null) {
     createTask(payload: $payload) {
+      id
       Job_id 
       subject 
       date_due 
+      date_complete
+      status
       details 
       assignee_id
     }
@@ -241,9 +244,13 @@ const JOB_TASKS_QUERY = `query calcTasks($Job_id: PeterpmJobID!) {
 const UPDATE_TASK_MUTATION = `
   mutation updateTask($id: PeterpmTaskID!, $payload: TaskUpdateInput = null) {
     updateTask(query: [{ where: { id: $id } }], payload: $payload) {
+      id
       assignee_id
       date_due
+      date_complete
       status
+      subject
+      details
     }
   }
 `;

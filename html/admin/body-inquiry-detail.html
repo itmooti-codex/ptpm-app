@@ -66,6 +66,9 @@
             </div>
           </div>
           <div class="flex items-center gap-2">
+            <button @click="navigateToDashboard()" class="ptpm-btn ptpm-btn-secondary ptpm-btn-sm inline-flex items-center gap-1.5">
+              &larr; Dashboard
+            </button>
             <!-- Create Quote / View Job -->
             <template x-if="inquiry.quote_record_id">
               <button @click="navigateToJob()" class="ptpm-btn ptpm-btn-primary-on-dark ptpm-btn-sm inline-flex items-center gap-1.5">

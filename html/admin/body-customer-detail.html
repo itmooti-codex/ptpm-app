@@ -1,13 +1,13 @@
 <!-- PTPM Customer Detail — Ontraport Body HTML Block -->
 <!-- Paste into: Ontraport Page → HTML Block in Body. Use ?contact=ID in URL. -->
 
-<main class="flex flex-col gap-6 mb-4" data-page="customer-detail">
+<main class="ptpm-page-shell mb-4" data-page="customer-detail">
   <div id="customer-detail-loading" class="loading-state flex items-center justify-center py-16">
     <div class="loading-spinner"></div>
     <span class="ml-3 text-slate-600">Loading customer…</span>
   </div>
   <div id="customer-detail-content" class="flex flex-col gap-6">
-    <header class="w-full px-4 sm:px-5 py-4 bg-[#003882] border-b border-gray-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white shadow-card">
+    <header class="ptpm-page-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white">
       <div class="flex items-center gap-3">
         <a id="customer-detail-back" href="#" class="flex items-center gap-2 text-white hover:text-white/90" aria-label="Back to Menu">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
@@ -32,7 +32,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 px-4 lg:px-6">
       <!-- Account Overview (Figma) -->
-      <section class="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden">
+      <section class="ptpm-card rounded-xl overflow-hidden">
         <div class="border-b border-slate-200 px-4 py-3 bg-slate-50">
           <h2 class="text-sm font-semibold text-slate-800">Account Overview</h2>
         </div>
@@ -54,7 +54,7 @@
       </section>
 
       <!-- Contact Information (Figma) -->
-      <section class="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden">
+      <section class="ptpm-card rounded-xl overflow-hidden">
         <div class="border-b border-slate-200 px-4 py-3 bg-slate-50">
           <h2 class="text-sm font-semibold text-slate-800">Contact Information</h2>
         </div>
@@ -72,7 +72,7 @@
       </section>
 
       <!-- Additional Information (Figma) -->
-      <section class="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden lg:col-span-2">
+      <section class="ptpm-card rounded-xl overflow-hidden lg:col-span-2">
         <div class="border-b border-slate-200 px-4 py-3 bg-slate-50">
           <h2 class="text-sm font-semibold text-slate-800">Additional Information</h2>
         </div>
@@ -97,7 +97,7 @@
 
     <!-- Related Records (Figma: All Records, Inquiries, Engagements, Jobs, Payments, Credits, Notes) -->
     <section class="px-4 lg:px-6">
-      <div class="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden">
+      <div class="ptpm-card rounded-xl overflow-hidden">
         <div class="border-b border-slate-200 px-4 py-3 bg-slate-50">
           <h2 class="text-sm font-semibold text-slate-800">Related Records</h2>
         </div>
