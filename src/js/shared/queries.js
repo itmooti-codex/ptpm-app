@@ -617,6 +617,7 @@
     '  calcJobs(query: [{ where: { id: $id } }]) {',
     '    id: field(arg: ["id"])',
     '    unique_id: field(arg: ["unique_id"])',
+    '    property_id: field(arg: ["property_id"])',
     '    quote_status: field(arg: ["quote_status"])',
     '    job_status: field(arg: ["job_status"])',
     '    payment_status: field(arg: ["payment_status"])',

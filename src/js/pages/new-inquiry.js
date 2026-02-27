@@ -63,7 +63,7 @@
       options: [
         'Pool Cleaning', 'Pigeon Removal', 'Lawn Maintenance', 'Insulation Installation',
         'Vacuum, remove and dispose all dust and debris', 'Wasp Removal', 'Window Cleaning',
-        'Possum Roof', 'Rat Roof',
+        'Possum Roof', 'Rat Roof', 'Other',
       ],
     },
     { id: 'inquiry-source', placeholder: 'Select', options: ['Web Form', 'Phone Call', 'Email', 'SMS'] },
@@ -121,7 +121,7 @@
     },
     'Product or Service Information': {
       required: ['inquiry_source', 'help'],
-      visibleGroups: ['related_data', 'service_field', 'service_name_field', 'admin_notes_field', 'referral_field'],
+      visibleGroups: ['related_data', 'service_field', 'admin_notes_field', 'referral_field'],
       visibleRelatedTabs: ['inquiries'],
     },
     'Customer Support or Technical Assistance': {
@@ -182,6 +182,8 @@
     activeRelatedTab: 'properties',
     activeContactTab: 'individual',
     selectedPropertyCard: null,
+    linkedJobId: null,
+    linkedJobPropertyId: null,
     relatedRequestId: 0,
     plugin: null,
     models: {},
@@ -319,6 +321,18 @@
   }
 
   function str(v) { return v == null ? '' : String(v).trim(); }
+
+  function normalizeIdValue(value) {
+    if (value == null) return null;
+    var raw = String(value).trim();
+    if (!raw) return null;
+    return /^\d+$/.test(raw) ? Number(raw) : raw;
+  }
+
+  function extractIdValue(value) {
+    if (value && typeof value === 'object' && value.id != null) return value.id;
+    return value;
+  }
 
   function createContact(data) {
     return getModel('contact').then(function (model) {
@@ -1463,8 +1477,28 @@
     setFieldGroupVisible('inquiry_type_field', true);
     setFieldGroupVisible('inquiry_source_field', true);
     setFieldGroupVisible('help_field', true);
-    (rule.visibleGroups || []).forEach(function (group) { setFieldGroupVisible(group, true); });
+    (rule.visibleGroups || []).forEach(function (group) {
+      if (group === 'service_name_field') return;
+      setFieldGroupVisible(group, true);
+    });
     applyRelatedTabVisibility(rule.visibleRelatedTabs || ['properties', 'jobs', 'inquiries']);
+    syncServiceNameFieldVisibility();
+  }
+
+  function syncServiceNameFieldVisibility() {
+    var serviceSelect = $q('#service-inquiry');
+    var serviceNameGroup = $q('[data-field-group="service_name_field"]');
+    if (!serviceSelect || !serviceNameGroup) return;
+    var serviceFieldGroup = $q('[data-field-group="service_field"]');
+    var serviceFieldVisible = serviceFieldGroup && !serviceFieldGroup.classList.contains('hidden');
+    var isOther = (serviceSelect.value || '').trim() === 'Other';
+    if (serviceFieldVisible && isOther) {
+      setFieldGroupVisible('service_name_field', true);
+    } else {
+      setFieldGroupVisible('service_name_field', false);
+      var nameInput = $q('[data-inquiry-id="service-name"]');
+      if (nameInput) nameInput.value = '';
+    }
   }
 
   function bindInquiryTypeChange() {
@@ -1472,6 +1506,14 @@
     if (!typeEl) return;
     typeEl.addEventListener('change', function () {
       applyInquiryTypeVisibility();
+    });
+  }
+
+  function bindServiceInquiryChange() {
+    var serviceEl = $q('#service-inquiry');
+    if (!serviceEl) return;
+    serviceEl.addEventListener('change', function () {
+      syncServiceNameFieldVisibility();
     });
   }
 
@@ -1505,6 +1547,30 @@
         panel.querySelectorAll('article').forEach(function (article) {
           article.addEventListener('click', function () {
             selectPropertyFromRelated(article.id, article);
+          });
+        });
+      } else if (key === 'jobs') {
+        panel.querySelectorAll('article[data-related-open-url]').forEach(function (article) {
+          article.addEventListener('click', function (e) {
+            if (e.target && e.target.closest && (e.target.closest('[data-related-open-link]') || e.target.closest('[data-link-job-checkbox]'))) return;
+            var url = article.getAttribute('data-related-open-url');
+            if (url) window.location.href = url;
+          });
+        });
+        panel.querySelectorAll('input[data-job-id]').forEach(function (cb) {
+          cb.addEventListener('change', function () {
+            var jobId = cb.getAttribute('data-job-id');
+            if (cb.checked) {
+              state.linkedJobId = jobId || null;
+              var linkedJob = (state.relatedData.jobs || []).find(function (j) {
+                return String(j && j.id) === String(jobId);
+              });
+              state.linkedJobPropertyId = linkedJob && linkedJob.property_id ? String(linkedJob.property_id) : null;
+            } else {
+              state.linkedJobId = null;
+              state.linkedJobPropertyId = null;
+            }
+            updateRelatedUI();
           });
         });
       } else {
@@ -1541,6 +1607,14 @@
       jobs: Array.isArray(related.jobs) ? related.jobs : [],
       inquiries: Array.isArray(related.inquiries) ? related.inquiries : [],
     };
+    if (state.linkedJobId && !state.linkedJobPropertyId) {
+      var matchedLinkedJob = state.relatedData.jobs.find(function (job) {
+        return String(job && job.id) === String(state.linkedJobId);
+      });
+      if (matchedLinkedJob && matchedLinkedJob.property_id) {
+        state.linkedJobPropertyId = String(matchedLinkedJob.property_id);
+      }
+    }
     setActiveRelatedTab(state.activeRelatedTab);
   }
 
@@ -1572,7 +1646,7 @@
   }
 
   function renderRelatedCard(type, item) {
-    if (type === 'jobs') return renderJobCard(item);
+    if (type === 'jobs') return renderJobCard(item, { allowLink: true, linkedJobId: state.linkedJobId });
     if (type === 'inquiries') return renderInquiryCard(item);
     return renderPropertyCard(item);
   }
@@ -1603,15 +1677,27 @@
     return appendReturnTo(base);
   }
 
-  function renderJobCard(item) {
+  function renderJobCard(item, options) {
+    options = options || {};
+    var allowLink = options.allowLink;
+    var linkedJobId = options.linkedJobId;
+    var jobId = item.id;
+    var isLinked = allowLink && jobId && String(linkedJobId) === String(jobId);
     var href = buildDetailUrl(config.JOB_DETAIL_URL_TEMPLATE, item.id);
+    var linkCheckbox = allowLink
+      ? '<label class="flex items-center gap-2 cursor-pointer shrink-0" data-link-job-checkbox onclick="event.stopPropagation()">' +
+          '<input type="checkbox" class="h-4 w-4 accent-[#003882] rounded border-slate-300" data-job-id="' + escapeHtml(String(jobId)) + '"' + (isLinked ? ' checked' : '') + '>' +
+          '<span class="text-xs text-slate-600 whitespace-nowrap">Link to inquiry</span>' +
+        '</label>'
+      : '';
     return '<article class="rounded border border-slate-200 p-3 ' + (href ? 'cursor-pointer hover:bg-blue-50 transition' : '') + '"' + (href ? ' data-related-open-url="' + escapeHtml(href) + '"' : '') + '>' +
-      '<div class="flex items-start justify-between gap-3"><div class="space-y-1">' +
+      '<div class="flex items-start justify-between gap-3"><div class="space-y-1 flex-1 min-w-0">' +
         '<p class="text-sm font-semibold text-sky-900">#' + escapeHtml(item.unique_id || item.id) + '</p>' +
         '<p class="text-xs text-slate-500">Created: ' + formatDate(item.created_at) + '</p>' +
         '<p class="text-xs text-slate-500">' + escapeHtml(item.provider_name || '') + '</p>' +
       '</div>' +
-      '<div class="flex items-center gap-2">' +
+      '<div class="flex items-center gap-2 flex-shrink-0">' +
+      linkCheckbox +
       (href ? '<a href="' + escapeHtml(href) + '" class="text-xs text-blue-700 font-medium" data-related-open-link>Open</a>' : '') +
       '<span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">' + escapeHtml(item.status || '') + '</span>' +
       '</div>' +
@@ -2543,6 +2629,10 @@
     if (required.indexOf('service') >= 0) {
       var serviceEl = $q('#service-inquiry');
       if (serviceEl && !(serviceEl.value || '').trim()) errors.push({ el: serviceEl, message: 'Service is required.' });
+      if (serviceEl && (serviceEl.value || '').trim() === 'Other') {
+        var serviceNameEl = $q('[data-inquiry-id="service-name"]');
+        if (serviceNameEl && !(serviceNameEl.value || '').trim()) errors.push({ el: serviceNameEl, message: 'Please enter the service name when "Other" is selected.' });
+      }
     }
     if (required.indexOf('property') >= 0) {
       var propertyId = $('selected-property-id') ? $('selected-property-id').value : state.propertyId;
@@ -2629,6 +2719,10 @@
       var normalizedKey = key.replace(/-/g, '_').toLowerCase();
       inquiryPayload[normalizedKey] = (el.value || '').trim();
     });
+    var selectedService = (inquiryPayload.services || '').trim();
+    if (selectedService !== 'Other') {
+      inquiryPayload.service_name = '';
+    }
 
     // Collect resident feedback values
     $qa('#resident-feedback [data-feedback-id]').forEach(function (el) {
@@ -2656,14 +2750,30 @@
     });
 
     // Add contact/entity references
-    if (contactId) {
-      inquiryPayload.Primary_Contact = { id: contactId };
+    var contactIdValue = normalizeIdValue(contactId);
+    if (contactIdValue != null) {
+      inquiryPayload.primary_contact_id = contactIdValue;
+      inquiryPayload.Primary_Contact = { id: contactIdValue };
     }
-    if (entityId) {
-      inquiryPayload.Company_ID = { id: entityId };
+    var entityIdValue = normalizeIdValue(entityId);
+    if (entityIdValue != null) {
+      inquiryPayload.company_id = entityIdValue;
+      inquiryPayload.Company_ID = { id: entityIdValue };
     }
-    if (state.propertyId) {
-      inquiryPayload.Property_ID = { id: state.propertyId };
+    var propertyIdValue = normalizeIdValue(state.propertyId);
+    if (propertyIdValue != null) {
+      inquiryPayload.property_id = propertyIdValue;
+      inquiryPayload.Property_ID = { id: propertyIdValue };
+    }
+    var linkedJobIdValue = normalizeIdValue(state.linkedJobId);
+    if (linkedJobIdValue != null) {
+      inquiryPayload.inquiry_for_job_id = linkedJobIdValue;
+      inquiryPayload.Inquiry_For_Job_ID = { id: linkedJobIdValue };
+      var linkedJobPropertyIdValue = normalizeIdValue(state.linkedJobPropertyId);
+      if (linkedJobPropertyIdValue != null) {
+        inquiryPayload.property_id = linkedJobPropertyIdValue;
+        inquiryPayload.Property_ID = { id: linkedJobPropertyIdValue };
+      }
     }
 
     // Property details
@@ -2934,12 +3044,13 @@
     if (!data) return;
 
     // Set contact
-    if (data.Primary_Contact_ID) {
+    var primaryContactId = extractIdValue(data.Primary_Contact_ID != null ? data.Primary_Contact_ID : data.primary_contact_id);
+    if (primaryContactId != null) {
       var cidInput = $q('[data-contact-section="individual"] [data-contact-field="contact_id"]');
-      if (cidInput) cidInput.value = data.Primary_Contact_ID;
-      state.contactId = data.Primary_Contact_ID;
+      if (cidInput) cidInput.value = primaryContactId;
+      state.contactId = primaryContactId;
 
-      fetchContactById(data.Primary_Contact_ID).then(function (result) {
+      fetchContactById(primaryContactId).then(function (result) {
         if (result.resp && result.resp[0]) {
           var c = result.resp[0];
           var searchInput = $q('[data-search-root="contact-individual"] [data-search-input]');
@@ -2948,20 +3059,21 @@
           var viewBtn = $('view-contact-detail');
           if (viewBtn) viewBtn.classList.remove('hidden');
 
-          loadRelatedData({ contactId: data.Primary_Contact_ID });
+          loadRelatedData({ contactId: primaryContactId });
         }
       });
     }
 
     // Set property and load its details + contacts
-    if (data.Property_ID) {
-      state.propertyId = data.Property_ID;
+    var resolvedPropertyId = extractIdValue(data.Property_ID != null ? data.Property_ID : data.property_id);
+    if (resolvedPropertyId != null) {
+      state.propertyId = resolvedPropertyId;
       var propInput = $('selected-property-id');
-      if (propInput) propInput.value = data.Property_ID;
-      fetchPropertyById(data.Property_ID).then(function (result) {
+      if (propInput) propInput.value = resolvedPropertyId;
+      fetchPropertyById(resolvedPropertyId).then(function (result) {
         if (result.resp && result.resp[0]) populatePropertyFields(result.resp[0]);
       });
-      fetchAffiliationByPropertyId(data.Property_ID, function (rows) {
+      fetchAffiliationByPropertyId(resolvedPropertyId, function (rows) {
         renderPropertyContactTable(rows);
       });
       var addContactBtn = $('add-contact-btn');
@@ -2979,6 +3091,12 @@
       var val = nk === 'service_name' ? (normalized.service_inquiry_service_name || normalized[nk]) : normalized[nk];
       if (val != null) el.value = val;
     });
+    syncServiceNameFieldVisibility();
+
+    var linkedJob = data.Inquiry_For_Job_ID || data.inquiry_for_job_id;
+    state.linkedJobId = linkedJob != null ? (typeof linkedJob === 'object' && linkedJob !== null && linkedJob.id != null ? String(linkedJob.id) : String(linkedJob)) : null;
+    var inquiryPropertyId = extractIdValue(data.Property_ID != null ? data.Property_ID : data.property_id);
+    state.linkedJobPropertyId = state.linkedJobId && inquiryPropertyId != null ? String(inquiryPropertyId) : null;
 
     // Set resident feedback fields
     $qa('#resident-feedback [data-feedback-id]').forEach(function (el) {
@@ -3046,6 +3164,7 @@
     bindContactTabs();
     bindRelatedTabs();
     bindInquiryTypeChange();
+    bindServiceInquiryChange();
     bindHeaderButtons();
     bindSameAsContactAddress();
     initFlatpickr();

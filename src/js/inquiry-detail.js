@@ -155,8 +155,9 @@ document.addEventListener('alpine:init', function () {
         if (this.inquiry.service_inquiry_id) {
           promises.push(Q.fetchService(this.inquiry.service_inquiry_id).then(function (s) { return { key: 'serviceRecord', data: s }; }));
         }
-        if (this.inquiry.quote_record_id) {
-          promises.push(Q.fetchJobSummary(this.inquiry.quote_record_id).then(function (j) { return { key: 'linkedJob', data: j }; }));
+        var linkedJobId = this.inquiry.quote_record_id || this.inquiry.inquiry_for_job_id;
+        if (linkedJobId) {
+          promises.push(Q.fetchJobSummary(linkedJobId).then(function (j) { return { key: 'linkedJob', data: j }; }));
         }
 
         var results = await Promise.allSettled(promises);
@@ -166,6 +167,18 @@ document.addEventListener('alpine:init', function () {
             self[r.value.key] = r.value.data;
           }
         });
+
+        // If inquiry did not persist property_id but has a linked job with property_id,
+        // derive property context from the linked job so detail view still shows linkage.
+        if (!this.property && this.linkedJob && this.linkedJob.property_id) {
+          var derivedPropertyId = this.linkedJob.property_id;
+          var derived = await Promise.allSettled([
+            Q.fetchProperty(derivedPropertyId),
+            Q.fetchAffiliations(derivedPropertyId),
+          ]);
+          if (derived[0] && derived[0].status === 'fulfilled') this.property = derived[0].value || null;
+          if (derived[1] && derived[1].status === 'fulfilled') this.propertyContacts = derived[1].value || [];
+        }
       },
 
       // Tab data — lazy load on first access
@@ -175,7 +188,7 @@ document.addEventListener('alpine:init', function () {
         this._loadedTabs[tab] = true;
         var self = this;
         var id = this.inquiryId;
-        var jobId = this.inquiry ? this.inquiry.quote_record_id : null;
+        var jobId = this.inquiry ? (this.inquiry.quote_record_id || this.inquiry.inquiry_for_job_id) : null;
 
         try {
           switch (tab) {
@@ -417,9 +430,11 @@ document.addEventListener('alpine:init', function () {
       },
 
       navigateToJob() {
-        if (!this.inquiry || !this.inquiry.quote_record_id) return;
+        if (!this.inquiry) return;
+        var linkedJobId = this.inquiry.quote_record_id || this.inquiry.inquiry_for_job_id;
+        if (!linkedJobId) return;
         var tpl = this.normalizeJobDetailTemplate(Config.JOB_DETAIL_URL_TEMPLATE || 'inquiry-detail.html?job={id}');
-        window.location.href = tpl.replace('{id}', this.inquiry.quote_record_id);
+        window.location.href = tpl.replace('{id}', linkedJobId);
       },
 
       navigateToCustomer() {
@@ -908,7 +923,7 @@ document.addEventListener('alpine:init', function () {
           var resp = await this.dispatchWorkflowAction('inquiry.email', {
             template: template,
             dealName: this.inquiry ? this.inquiry.deal_name : null,
-            quoteRecordId: this.inquiry ? this.inquiry.quote_record_id : null,
+            quoteRecordId: this.inquiry ? (this.inquiry.quote_record_id || this.inquiry.inquiry_for_job_id) : null,
           });
           if (this.inquiry) {
             this.inquiry.last_action_status = this.workflowToActionStatus(resp);
